@@ -24,10 +24,6 @@
   ],
   "author": "Alta Web3 Labs",
   "license": "MIT",
-  "dependencies": {
-    "@uniswap/lib": "4.0.1-alpha",
-    "@uniswap/v2-core": "1.0.0"
-  },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^1.0.2",
     "@nomiclabs/hardhat-ethers": "^2.0.6",
