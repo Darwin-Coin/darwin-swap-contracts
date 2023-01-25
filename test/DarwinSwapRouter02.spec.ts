@@ -17,7 +17,7 @@ const overrides = {
   gasLimit: 9999999
 }
 
-describe('DarwinSwapRouter02', () => {
+describe('DarwinSwapRouter', () => {
   const provider = new MockProvider({
     hardfork: 'istanbul',
     mnemonic: 'horn horn horn horn horn horn horn horn horn horn horn horn',

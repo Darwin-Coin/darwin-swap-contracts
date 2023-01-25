@@ -13,7 +13,7 @@ import DarwinSwapV1Exchange from '../../build/DarwinSwapV1Exchange.json'
 import DarwinSwapV1Factory from '../../build/DarwinSwapV1Factory.json'
 import DarwinSwapRouter01 from '../../build/DarwinSwapRouter01.json'
 import DarwinSwapMigrator from '../../build/DarwinSwapMigrator.json'
-import DarwinSwapRouter02 from '../../build/DarwinSwapRouter02.json'
+import DarwinSwapRouter from '../../build/DarwinSwapRouter.json'
 import RouterEventEmitter from '../../build/RouterEventEmitter.json'
 
 const overrides = {
@@ -53,7 +53,7 @@ export async function v2Fixture(provider: Web3Provider, [wallet]: Wallet[]): Pro
 
   // deploy routers
   const router01 = await deployContract(wallet, DarwinSwapRouter01, [factoryV2.address, WETH.address], overrides)
-  const router02 = await deployContract(wallet, DarwinSwapRouter02, [factoryV2.address, WETH.address], overrides)
+  const router02 = await deployContract(wallet, DarwinSwapRouter, [factoryV2.address, WETH.address], overrides)
 
   // event emitter for testing
   const routerEventEmitter = await deployContract(wallet, RouterEventEmitter, [])

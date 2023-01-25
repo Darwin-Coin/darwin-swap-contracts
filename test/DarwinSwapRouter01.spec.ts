@@ -16,7 +16,7 @@ const overrides = {
 
 enum RouterVersion {
   DarwinSwapRouter01 = 'DarwinSwapRouter01',
-  DarwinSwapRouter02 = 'DarwinSwapRouter02'
+  DarwinSwapRouter = 'DarwinSwapRouter'
 }
 
 describe('DarwinSwapRouter{01,02}', () => {
@@ -47,7 +47,7 @@ describe('DarwinSwapRouter{01,02}', () => {
       factory = fixture.factoryV2
       router = {
         [RouterVersion.DarwinSwapRouter01]: fixture.router01,
-        [RouterVersion.DarwinSwapRouter02]: fixture.router02
+        [RouterVersion.DarwinSwapRouter]: fixture.router02
       }[routerVersion as RouterVersion]
       pair = fixture.pair
       WETHPair = fixture.WETHPair
@@ -369,7 +369,7 @@ describe('DarwinSwapRouter{01,02}', () => {
           expect(receipt.gasUsed).to.eq(
             {
               [RouterVersion.DarwinSwapRouter01]: 101876,
-              [RouterVersion.DarwinSwapRouter02]: 101898
+              [RouterVersion.DarwinSwapRouter]: 101898
             }[routerVersion as RouterVersion]
           )
         }).retries(3)
@@ -518,7 +518,7 @@ describe('DarwinSwapRouter{01,02}', () => {
           expect(receipt.gasUsed).to.eq(
             {
               [RouterVersion.DarwinSwapRouter01]: 138770,
-              [RouterVersion.DarwinSwapRouter02]: 138770
+              [RouterVersion.DarwinSwapRouter]: 138770
             }[routerVersion as RouterVersion]
           )
         }).retries(3)

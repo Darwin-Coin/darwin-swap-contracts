@@ -1,7 +1,7 @@
-pragma solidity =0.5.16;
+pragma solidity ^0.8.14;
 
-import './interfaces/IDarwinSwapFactory.sol';
-import './DarwinSwapPair.sol';
+import "./interfaces/IDarwinSwapFactory.sol";
+import "./DarwinSwapPair.sol";
 
 contract DarwinSwapFactory is IDarwinSwapFactory {
     address public feeTo;
@@ -21,10 +21,10 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
     }
 
     function createPair(address tokenA, address tokenB) external returns (address pair) {
-        require(tokenA != tokenB, 'DarwinSwap: IDENTICAL_ADDRESSES');
+        require(tokenA != tokenB, "DarwinSwap: IDENTICAL_ADDRESSES");
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
-        require(token0 != address(0), 'DarwinSwap: ZERO_ADDRESS');
-        require(getPair[token0][token1] == address(0), 'DarwinSwap: PAIR_EXISTS'); // single check is sufficient
+        require(token0 != address(0), "DarwinSwap: ZERO_ADDRESS");
+        require(getPair[token0][token1] == address(0), "DarwinSwap: PAIR_EXISTS"); // single check is sufficient
         bytes memory bytecode = type(DarwinSwapPair).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         assembly {
@@ -38,12 +38,12 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
     }
 
     function setFeeTo(address _feeTo) external {
-        require(msg.sender == feeToSetter, 'DarwinSwap: FORBIDDEN');
+        require(msg.sender == feeToSetter, "DarwinSwap: FORBIDDEN");
         feeTo = _feeTo;
     }
 
     function setFeeToSetter(address _feeToSetter) external {
-        require(msg.sender == feeToSetter, 'DarwinSwap: FORBIDDEN');
+        require(msg.sender == feeToSetter, "DarwinSwap: FORBIDDEN");
         feeToSetter = _feeToSetter;
     }
 }

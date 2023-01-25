@@ -1,22 +1,22 @@
-pragma solidity =0.6.6;
+pragma solidity ^0.8.14;
 
-import './libraries/TransferHelper.sol';
-import './libraries/DarwinSwapLibrary.sol';
-import './libraries/SafeMath.sol';
+import "./libraries/TransferHelper.sol";
+import "./libraries/DarwinSwapLibrary.sol";
+import "./libraries/SafeMath.sol";
 
-import './interfaces/IDarwinSwapRouter02.sol';
-import './interfaces/IDarwinSwapFactory.sol';
-import './interfaces/IERC20.sol';
-import './interfaces/IWETH.sol';
+import "./interfaces/IDarwinSwapRouter.sol";
+import "./interfaces/IDarwinSwapFactory.sol";
+import "./interfaces/IERC20.sol";
+import "./interfaces/IWETH.sol";
 
-contract DarwinSwapRouter02 is IDarwinSwapRouter02 {
+contract DarwinSwapRouter is IDarwinSwapRouter {
     using SafeMath for uint;
 
     address public immutable override factory;
     address public immutable override WETH;
 
     modifier ensure(uint deadline) {
-        require(deadline >= block.timestamp, 'DarwinSwapRouter: EXPIRED');
+        require(deadline >= block.timestamp, "DarwinSwapRouter: EXPIRED");
         _;
     }
 
@@ -48,12 +48,12 @@ contract DarwinSwapRouter02 is IDarwinSwapRouter02 {
         } else {
             uint amountBOptimal = DarwinSwapLibrary.quote(amountADesired, reserveA, reserveB);
             if (amountBOptimal <= amountBDesired) {
-                require(amountBOptimal >= amountBMin, 'DarwinSwapRouter: INSUFFICIENT_B_AMOUNT');
+                require(amountBOptimal >= amountBMin, "DarwinSwapRouter: INSUFFICIENT_B_AMOUNT");
                 (amountA, amountB) = (amountADesired, amountBOptimal);
             } else {
                 uint amountAOptimal = DarwinSwapLibrary.quote(amountBDesired, reserveB, reserveA);
                 assert(amountAOptimal <= amountADesired);
-                require(amountAOptimal >= amountAMin, 'DarwinSwapRouter: INSUFFICIENT_A_AMOUNT');
+                require(amountAOptimal >= amountAMin, "DarwinSwapRouter: INSUFFICIENT_A_AMOUNT");
                 (amountA, amountB) = (amountAOptimal, amountBDesired);
             }
         }
@@ -114,8 +114,8 @@ contract DarwinSwapRouter02 is IDarwinSwapRouter02 {
         (uint amount0, uint amount1) = IDarwinSwapPair(pair).burn(to);
         (address token0,) = DarwinSwapLibrary.sortTokens(tokenA, tokenB);
         (amountA, amountB) = tokenA == token0 ? (amount0, amount1) : (amount1, amount0);
-        require(amountA >= amountAMin, 'DarwinSwapRouter: INSUFFICIENT_A_AMOUNT');
-        require(amountB >= amountBMin, 'DarwinSwapRouter: INSUFFICIENT_B_AMOUNT');
+        require(amountA >= amountAMin, "DarwinSwapRouter: INSUFFICIENT_A_AMOUNT");
+        require(amountB >= amountBMin, "DarwinSwapRouter: INSUFFICIENT_B_AMOUNT");
     }
     function removeLiquidityETH(
         address token,
@@ -229,7 +229,7 @@ contract DarwinSwapRouter02 is IDarwinSwapRouter02 {
         uint deadline
     ) external virtual override ensure(deadline) returns (uint[] memory amounts) {
         amounts = DarwinSwapLibrary.getAmountsOut(factory, amountIn, path);
-        require(amounts[amounts.length - 1] >= amountOutMin, 'DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT');
+        require(amounts[amounts.length - 1] >= amountOutMin, "DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT");
         TransferHelper.safeTransferFrom(
             path[0], msg.sender, DarwinSwapLibrary.pairFor(factory, path[0], path[1]), amounts[0]
         );
@@ -243,7 +243,7 @@ contract DarwinSwapRouter02 is IDarwinSwapRouter02 {
         uint deadline
     ) external virtual override ensure(deadline) returns (uint[] memory amounts) {
         amounts = DarwinSwapLibrary.getAmountsIn(factory, amountOut, path);
-        require(amounts[0] <= amountInMax, 'DarwinSwapRouter: EXCESSIVE_INPUT_AMOUNT');
+        require(amounts[0] <= amountInMax, "DarwinSwapRouter: EXCESSIVE_INPUT_AMOUNT");
         TransferHelper.safeTransferFrom(
             path[0], msg.sender, DarwinSwapLibrary.pairFor(factory, path[0], path[1]), amounts[0]
         );
@@ -257,9 +257,9 @@ contract DarwinSwapRouter02 is IDarwinSwapRouter02 {
         ensure(deadline)
         returns (uint[] memory amounts)
     {
-        require(path[0] == WETH, 'DarwinSwapRouter: INVALID_PATH');
+        require(path[0] == WETH, "DarwinSwapRouter: INVALID_PATH");
         amounts = DarwinSwapLibrary.getAmountsOut(factory, msg.value, path);
-        require(amounts[amounts.length - 1] >= amountOutMin, 'DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT');
+        require(amounts[amounts.length - 1] >= amountOutMin, "DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT");
         IWETH(WETH).deposit{value: amounts[0]}();
         assert(IWETH(WETH).transfer(DarwinSwapLibrary.pairFor(factory, path[0], path[1]), amounts[0]));
         _swap(amounts, path, to);
@@ -271,9 +271,9 @@ contract DarwinSwapRouter02 is IDarwinSwapRouter02 {
         ensure(deadline)
         returns (uint[] memory amounts)
     {
-        require(path[path.length - 1] == WETH, 'DarwinSwapRouter: INVALID_PATH');
+        require(path[path.length - 1] == WETH, "DarwinSwapRouter: INVALID_PATH");
         amounts = DarwinSwapLibrary.getAmountsIn(factory, amountOut, path);
-        require(amounts[0] <= amountInMax, 'DarwinSwapRouter: EXCESSIVE_INPUT_AMOUNT');
+        require(amounts[0] <= amountInMax, "DarwinSwapRouter: EXCESSIVE_INPUT_AMOUNT");
         TransferHelper.safeTransferFrom(
             path[0], msg.sender, DarwinSwapLibrary.pairFor(factory, path[0], path[1]), amounts[0]
         );
@@ -288,9 +288,9 @@ contract DarwinSwapRouter02 is IDarwinSwapRouter02 {
         ensure(deadline)
         returns (uint[] memory amounts)
     {
-        require(path[path.length - 1] == WETH, 'DarwinSwapRouter: INVALID_PATH');
+        require(path[path.length - 1] == WETH, "DarwinSwapRouter: INVALID_PATH");
         amounts = DarwinSwapLibrary.getAmountsOut(factory, amountIn, path);
-        require(amounts[amounts.length - 1] >= amountOutMin, 'DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT');
+        require(amounts[amounts.length - 1] >= amountOutMin, "DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT");
         TransferHelper.safeTransferFrom(
             path[0], msg.sender, DarwinSwapLibrary.pairFor(factory, path[0], path[1]), amounts[0]
         );
@@ -306,9 +306,9 @@ contract DarwinSwapRouter02 is IDarwinSwapRouter02 {
         ensure(deadline)
         returns (uint[] memory amounts)
     {
-        require(path[0] == WETH, 'DarwinSwapRouter: INVALID_PATH');
+        require(path[0] == WETH, "DarwinSwapRouter: INVALID_PATH");
         amounts = DarwinSwapLibrary.getAmountsIn(factory, amountOut, path);
-        require(amounts[0] <= msg.value, 'DarwinSwapRouter: EXCESSIVE_INPUT_AMOUNT');
+        require(amounts[0] <= msg.value, "DarwinSwapRouter: EXCESSIVE_INPUT_AMOUNT");
         IWETH(WETH).deposit{value: amounts[0]}();
         assert(IWETH(WETH).transfer(DarwinSwapLibrary.pairFor(factory, path[0], path[1]), amounts[0]));
         _swap(amounts, path, to);
@@ -350,7 +350,7 @@ contract DarwinSwapRouter02 is IDarwinSwapRouter02 {
         _swapSupportingFeeOnTransferTokens(path, to);
         require(
             IERC20(path[path.length - 1]).balanceOf(to).sub(balanceBefore) >= amountOutMin,
-            'DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT'
+            "DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT"
         );
     }
     function swapExactETHForTokensSupportingFeeOnTransferTokens(
@@ -365,7 +365,7 @@ contract DarwinSwapRouter02 is IDarwinSwapRouter02 {
         payable
         ensure(deadline)
     {
-        require(path[0] == WETH, 'DarwinSwapRouter: INVALID_PATH');
+        require(path[0] == WETH, "DarwinSwapRouter: INVALID_PATH");
         uint amountIn = msg.value;
         IWETH(WETH).deposit{value: amountIn}();
         assert(IWETH(WETH).transfer(DarwinSwapLibrary.pairFor(factory, path[0], path[1]), amountIn));
@@ -373,7 +373,7 @@ contract DarwinSwapRouter02 is IDarwinSwapRouter02 {
         _swapSupportingFeeOnTransferTokens(path, to);
         require(
             IERC20(path[path.length - 1]).balanceOf(to).sub(balanceBefore) >= amountOutMin,
-            'DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT'
+            "DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT"
         );
     }
     function swapExactTokensForETHSupportingFeeOnTransferTokens(
@@ -388,13 +388,13 @@ contract DarwinSwapRouter02 is IDarwinSwapRouter02 {
         override
         ensure(deadline)
     {
-        require(path[path.length - 1] == WETH, 'DarwinSwapRouter: INVALID_PATH');
+        require(path[path.length - 1] == WETH, "DarwinSwapRouter: INVALID_PATH");
         TransferHelper.safeTransferFrom(
             path[0], msg.sender, DarwinSwapLibrary.pairFor(factory, path[0], path[1]), amountIn
         );
         _swapSupportingFeeOnTransferTokens(path, address(this));
         uint amountOut = IERC20(WETH).balanceOf(address(this));
-        require(amountOut >= amountOutMin, 'DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT');
+        require(amountOut >= amountOutMin, "DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT");
         IWETH(WETH).withdraw(amountOut);
         TransferHelper.safeTransferETH(to, amountOut);
     }

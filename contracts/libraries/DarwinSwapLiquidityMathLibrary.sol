@@ -1,12 +1,12 @@
-pragma solidity >=0.5.0;
+pragma solidity ^0.8.14;
 
-import '../interfaces/IDarwinSwapPair.sol';
-import '../interfaces/IDarwinSwapFactory.sol';
-import './Babylonian.sol';
-import './FullMath.sol';
+import "../interfaces/IDarwinSwapPair.sol";
+import "../interfaces/IDarwinSwapFactory.sol";
+import "./Babylonian.sol";
+import "./FullMath.sol";
 
-import './SafeMath.sol';
-import './DarwinSwapLibrary.sol';
+import "./SafeMath.sol";
+import "./DarwinSwapLibrary.sol";
 
 // library containing some math for dealing with the liquidity shares of a pair, e.g. computing their exact value
 // in terms of the underlying tokens
@@ -50,7 +50,7 @@ library DarwinSwapLiquidityMathLibrary {
         // first get reserves before the swap
         (reserveA, reserveB) = DarwinSwapLibrary.getReserves(factory, tokenA, tokenB);
 
-        require(reserveA > 0 && reserveB > 0, 'DarwinSwapArbitrageLibrary: ZERO_PAIR_RESERVES');
+        require(reserveA > 0 && reserveB > 0, "DarwinSwapArbitrageLibrary: ZERO_PAIR_RESERVES");
 
         // then compute how much to swap to arb to the true price
         (bool aToB, uint256 amountIn) = computeProfitMaximizingTrade(truePriceTokenA, truePriceTokenB, reserveA, reserveB);
@@ -130,7 +130,7 @@ library DarwinSwapLiquidityMathLibrary {
         uint totalSupply = pair.totalSupply();
 
         // this also checks that totalSupply > 0
-        require(totalSupply >= liquidityAmount && liquidityAmount > 0, 'ComputeLiquidityValue: LIQUIDITY_AMOUNT');
+        require(totalSupply >= liquidityAmount && liquidityAmount > 0, "ComputeLiquidityValue: LIQUIDITY_AMOUNT");
 
         (uint reservesA, uint reservesB) = getReservesAfterArbitrage(factory, tokenA, tokenB, truePriceTokenA, truePriceTokenB);
 
