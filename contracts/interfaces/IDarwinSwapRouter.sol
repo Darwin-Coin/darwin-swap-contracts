@@ -3,8 +3,8 @@ pragma solidity ^0.8.14;
 interface IDarwinSwapRouter {
     // [[[[[ ROUTER 01 FUNCTIONS ]]]]]
 
-    function factory() external pure returns (address);
-    function WETH() external pure returns (address);
+    function factory() external view returns (address);
+    function WETH() external view returns (address);
 
     function addLiquidity(
         address tokenA,

@@ -6,6 +6,7 @@ import "./libraries/SafeMath.sol";
 
 import "./interfaces/IDarwinSwapRouter.sol";
 import "./interfaces/IDarwinSwapFactory.sol";
+import "./interfaces/IDarwinSwapERC20.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/IWETH.sol";
 
@@ -20,7 +21,7 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         _;
     }
 
-    constructor(address _factory, address _WETH) public {
+    constructor(address _factory, address _WETH) {
         factory = _factory;
         WETH = _WETH;
     }
@@ -110,7 +111,7 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         uint deadline
     ) public virtual override ensure(deadline) returns (uint amountA, uint amountB) {
         address pair = DarwinSwapLibrary.pairFor(factory, tokenA, tokenB);
-        IDarwinSwapPair(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
+        IDarwinSwapERC20(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
         (uint amount0, uint amount1) = IDarwinSwapPair(pair).burn(to);
         (address token0,) = DarwinSwapLibrary.sortTokens(tokenA, tokenB);
         (amountA, amountB) = tokenA == token0 ? (amount0, amount1) : (amount1, amount0);
@@ -149,8 +150,8 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         bool approveMax, uint8 v, bytes32 r, bytes32 s
     ) external virtual override returns (uint amountA, uint amountB) {
         address pair = DarwinSwapLibrary.pairFor(factory, tokenA, tokenB);
-        uint value = approveMax ? uint(-1) : liquidity;
-        IDarwinSwapPair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
+        uint value = approveMax ? type(uint).max : liquidity;
+        IDarwinSwapERC20(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
         (amountA, amountB) = removeLiquidity(tokenA, tokenB, liquidity, amountAMin, amountBMin, to, deadline);
     }
     function removeLiquidityETHWithPermit(
@@ -163,8 +164,8 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         bool approveMax, uint8 v, bytes32 r, bytes32 s
     ) external virtual override returns (uint amountToken, uint amountETH) {
         address pair = DarwinSwapLibrary.pairFor(factory, token, WETH);
-        uint value = approveMax ? uint(-1) : liquidity;
-        IDarwinSwapPair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
+        uint value = approveMax ? type(uint).max : liquidity;
+        IDarwinSwapERC20(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
         (amountToken, amountETH) = removeLiquidityETH(token, liquidity, amountTokenMin, amountETHMin, to, deadline);
     }
 
@@ -200,8 +201,8 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         bool approveMax, uint8 v, bytes32 r, bytes32 s
     ) external virtual override returns (uint amountETH) {
         address pair = DarwinSwapLibrary.pairFor(factory, token, WETH);
-        uint value = approveMax ? uint(-1) : liquidity;
-        IDarwinSwapPair(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
+        uint value = approveMax ? type(uint).max : liquidity;
+        IDarwinSwapERC20(pair).permit(msg.sender, address(this), value, deadline, v, r, s);
         amountETH = removeLiquidityETHSupportingFeeOnTransferTokens(
             token, liquidity, amountTokenMin, amountETHMin, to, deadline
         );

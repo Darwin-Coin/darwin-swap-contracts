@@ -2,6 +2,7 @@ pragma solidity ^0.8.14;
 
 import "../interfaces/IDarwinSwapPair.sol";
 import "../interfaces/IDarwinSwapFactory.sol";
+import "../interfaces/IDarwinSwapERC20.sol";
 import "./Babylonian.sol";
 import "./FullMath.sol";
 
@@ -107,7 +108,7 @@ library DarwinSwapLiquidityMathLibrary {
         IDarwinSwapPair pair = IDarwinSwapPair(DarwinSwapLibrary.pairFor(factory, tokenA, tokenB));
         bool feeOn = IDarwinSwapFactory(factory).feeTo() != address(0);
         uint kLast = feeOn ? pair.kLast() : 0;
-        uint totalSupply = pair.totalSupply();
+        uint totalSupply = IDarwinSwapERC20(address(pair)).totalSupply();
         return computeLiquidityValue(reservesA, reservesB, totalSupply, liquidityAmount, feeOn, kLast);
     }
 
@@ -127,7 +128,7 @@ library DarwinSwapLiquidityMathLibrary {
         bool feeOn = IDarwinSwapFactory(factory).feeTo() != address(0);
         IDarwinSwapPair pair = IDarwinSwapPair(DarwinSwapLibrary.pairFor(factory, tokenA, tokenB));
         uint kLast = feeOn ? pair.kLast() : 0;
-        uint totalSupply = pair.totalSupply();
+        uint totalSupply = IDarwinSwapERC20(address(pair)).totalSupply();
 
         // this also checks that totalSupply > 0
         require(totalSupply >= liquidityAmount && liquidityAmount > 0, "ComputeLiquidityValue: LIQUIDITY_AMOUNT");
