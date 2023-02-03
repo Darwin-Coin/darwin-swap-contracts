@@ -4,6 +4,10 @@ import "./interfaces/IDarwinSwapFactory.sol";
 import "./DarwinSwapPair.sol";
 import "./interfaces/IERC20.sol";
 
+interface IDarwin {
+    function registerDarwinSwapPair(address _pair) external;
+}
+
 contract DarwinSwapFactory is IDarwinSwapFactory {
     uint public lastProposalId;
     uint public maxTok1Tax;
@@ -85,7 +89,7 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
 
         } else if (!isTokenValid) { // outcome == TokenStatus.LISTED but token not valid
             // Reset the requested add-on Tokenomics to blank
-            TokenomicsInfo calldata blankToks;
+            TokenomicsInfo memory blankToks;
             _tokenInfo[tokenToValidate].addedToks = blankToks;
 
         } else { // outcome == TokenStatus.LISTED and token valid
@@ -133,6 +137,22 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
         _tokenInfo[tokenAddress] = proposalInfo;
 
         emit TokenProposed(tokenAddress, proposalInfo);
+    }
+
+    // Lists DARWIN by pairing with BNB, with 5% tax on LP on buys
+    function listDarwin(address darwin, address weth) external onlyDev {
+        _tokenInfo[darwin].addedToks.tokenA2TaxOnBuy = 250;
+        _tokenInfo[darwin].addedToks.tokenB2TaxOnBuy = 250;
+        _tokenInfo[darwin].status = TokenStatus.LISTED;
+        _tokenInfo[darwin].listByPairingWith = weth;
+        _tokenInfo[darwin].validator = msg.sender;
+        _tokenInfo[darwin].isTokenValid = true;
+        _tokenInfo[darwin].owner = msg.sender;
+
+        address pair = _createPair(darwin, weth);
+        IDarwin(darwin).registerDarwinSwapPair(pair);
+
+        emit TokenValidated(darwin);
     }
 
     // Ensures that the limitations we've set for taxes are respected
