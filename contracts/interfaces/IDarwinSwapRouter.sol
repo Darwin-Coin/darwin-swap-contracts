@@ -60,7 +60,7 @@ interface IDarwinSwapRouter {
         uint deadline,
         bool approveMax, uint8 v, bytes32 r, bytes32 s
     ) external returns (uint amountToken, uint amountETH);
-    function swapExactTokensForTokens(
+    /* function swapExactTokensForTokens(
         uint amountIn,
         uint amountOutMin,
         address[] calldata path,
@@ -87,7 +87,7 @@ interface IDarwinSwapRouter {
     function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)
         external
         payable
-        returns (uint[] memory amounts);
+        returns (uint[] memory amounts); */
 
     function quote(uint amountA, uint reserveA, uint reserveB) external pure returns (uint amountB);
     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) external pure returns (uint amountOut);
@@ -118,20 +118,20 @@ interface IDarwinSwapRouter {
 
     function swapExactTokensForTokensSupportingFeeOnTransferTokens(
         uint amountIn,
-        uint amountOutMin,
+        //uint amountOutMin,
         address[] calldata path,
         address to,
         uint deadline
     ) external;
     function swapExactETHForTokensSupportingFeeOnTransferTokens(
-        uint amountOutMin,
+        //uint amountOutMin,
         address[] calldata path,
         address to,
         uint deadline
     ) external payable;
     function swapExactTokensForETHSupportingFeeOnTransferTokens(
         uint amountIn,
-        uint amountOutMin,
+        //uint amountOutMin,
         address[] calldata path,
         address to,
         uint deadline

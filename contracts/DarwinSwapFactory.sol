@@ -1,35 +1,32 @@
+// SPDX-License-Identifier: BUSL-1.1
+
 pragma solidity ^0.8.14;
 
 import "./interfaces/IDarwinSwapFactory.sol";
-import "./DarwinSwapPair.sol";
-import "./interfaces/IERC20.sol";
+import "./UniswapV2Factory.sol";
 
 interface IDarwin {
     function registerDarwinSwapPair(address _pair) external;
 }
 
-contract DarwinSwapFactory is IDarwinSwapFactory {
-    uint public lastProposalId;
+contract DarwinSwapFactory is IDarwinSwapFactory, UniswapV2Factory {
+    address public dev;
+    address public weth;
     uint public maxTok1Tax;
     uint public maxTok2Tax;
-    address public feeTo;
-    address public feeToSetter;
-    address public dev;
 
-    mapping(address => mapping(address => address)) public getPair;
-    address[] public allPairs;
+    mapping(address => TokenInfo) private _tokenInfo;
 
     mapping(address => bool) public isValidator;
     mapping(address => bool) public isUserBannedFromListing;
 
-    mapping(address => TokenInfo) private _tokenInfo;
-
-    constructor() {
+    constructor(address _weth) {
         dev = msg.sender;
         feeToSetter = msg.sender;
         isValidator[msg.sender] = true;
         maxTok1Tax = 2000; // Max add-on Tokenomics 1.0 percentage of taxation. (20.00%)
         maxTok2Tax = 1000; // Max add-on Tokenomics 2.0 percentage of taxation. (10.00%)
+        weth = _weth;
     }
 
     modifier onlyDev() {
@@ -40,10 +37,6 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
     modifier onlyValidators() {
         require(isValidator[msg.sender], "DarwinSwap: CALLER_NOT_VALIDATOR");
         _;
-    }
-
-    function allPairsLength() external view returns (uint) {
-        return allPairs.length;
     }
 
     // List tokenA by pairing it with the already listed tokenB (or viceversa), without validation by the Darwin team.
@@ -100,27 +93,9 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
         pair = _createPair(tokenToValidate, _tokenInfo[tokenToValidate].listByPairingWith);
     }
 
-    // The original Uniswap function to create a new pair
-    function _createPair(address tokenA, address tokenB) internal returns (address pair) {
-        require(tokenA != tokenB, "DarwinSwap: IDENTICAL_ADDRESSES");
-        (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
-        require(token0 != address(0), "DarwinSwap: ZERO_ADDRESS");
-        require(getPair[token0][token1] == address(0), "DarwinSwap: PAIR_EXISTS"); // single check is sufficient
-        bytes memory bytecode = type(DarwinSwapPair).creationCode;
-        bytes32 salt = keccak256(abi.encodePacked(token0, token1));
-        assembly {
-            pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
-        }
-        IDarwinSwapPair(pair).initialize(token0, token1);
-        getPair[token0][token1] = pair;
-        getPair[token1][token0] = pair; // populate mapping in the reverse direction
-        allPairs.push(pair);
-        emit PairCreated(token0, token1, pair, allPairs.length);
-    }
-
     // Allows a token owner (or the Dev address, in case the token is owned by address(0) et similia) to ask for the validation and listing of his token. This way users are able to put add-ons Tokenomics (1.0 or 2.0) on their tokens. (only if they get validated)
     function proposeToken(address tokenAddress, TokenInfo memory proposalInfo) external {
-        require(tokenAddress != address(0), "DarwinSwap: ZERO_ADDRESS");
+        require(tokenAddress != address(0) && proposalInfo.feeReceiver != address(0), "DarwinSwap: ZERO_ADDRESS");
         require(_tokenInfo[tokenAddress].status == TokenStatus.UNLISTED && !isUserBannedFromListing[msg.sender], "DarwinSwap: TOKEN_ALREADY_LISTED_PROPOSED_OR_BANNED");
         require(msg.sender == IERC20(tokenAddress).owner() || msg.sender == dev, "DarwinSwap: CALLER_NOT_TOKEN_OWNER");
         require(_tokenInfo[proposalInfo.listByPairingWith].status == TokenStatus.LISTED, "DarwinSwap: OTHER_TOKEN_NOT_LISTED");
@@ -131,7 +106,7 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
         proposalInfo.validator = address(0);
         proposalInfo.isTokenValid = false;
 
-        (bool valid,,) = ensureTokenomics(proposalInfo.addedToks);
+        (bool valid,,) = ensureTokenomics(proposalInfo);
         require(valid, "DarwinSwap: EXCESSIVE_REQUESTED_TOKENOMICS");
 
         _tokenInfo[tokenAddress] = proposalInfo;
@@ -140,7 +115,14 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
     }
 
     // Lists DARWIN by pairing with BNB, with 5% tax on LP on buys
-    function listDarwin(address darwin, address weth) external onlyDev {
+    function listDarwinWithBNB(address darwin, address darwinCommunity) external onlyDev {
+        // BNB validate
+        _tokenInfo[weth].status = TokenStatus.LISTED;
+        _tokenInfo[weth].listByPairingWith = darwin;
+        _tokenInfo[weth].validator = msg.sender;
+        _tokenInfo[weth].isTokenValid = true;
+
+        // DARWIN validate
         _tokenInfo[darwin].addedToks.tokenA2TaxOnBuy = 250;
         _tokenInfo[darwin].addedToks.tokenB2TaxOnBuy = 250;
         _tokenInfo[darwin].status = TokenStatus.LISTED;
@@ -148,6 +130,7 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
         _tokenInfo[darwin].validator = msg.sender;
         _tokenInfo[darwin].isTokenValid = true;
         _tokenInfo[darwin].owner = msg.sender;
+        _tokenInfo[darwin].feeReceiver = darwinCommunity;
 
         address pair = _createPair(darwin, weth);
         IDarwin(darwin).registerDarwinSwapPair(pair);
@@ -156,11 +139,17 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
     }
 
     // Ensures that the limitations we've set for taxes are respected
-    function ensureTokenomics(TokenomicsInfo memory toks) public view returns(bool valid, Tokenomics toksOnSell, Tokenomics toksOnBuy) {
+    function ensureTokenomics(TokenInfo memory tokInfo) public view returns(bool valid, Tokenomics toksOnSell, Tokenomics toksOnBuy) {
+        TokenomicsInfo memory toks = tokInfo.addedToks;
+        OwnTokenomicsInfo memory ownToks = tokInfo.ownToks;
+
+        uint refundOnSell = tokInfo.refundOwnToks1 ? _refund(ownToks.tokenTaxOnSell) : 0;
+        uint refundOnBuy = tokInfo.refundOwnToks1 ? _refund(ownToks.tokenTaxOnBuy) : 0;
+
         uint tax1OnSell = toks.tokenA1TaxOnSell + toks.tokenB1TaxOnSell;
         uint tax1OnBuy = toks.tokenA1TaxOnBuy + toks.tokenB1TaxOnBuy;
-        uint tax2OnSell = toks.tokenA2TaxOnSell + toks.tokenB2TaxOnSell;
-        uint tax2OnBuy = toks.tokenA2TaxOnBuy + toks.tokenB2TaxOnBuy;
+        uint tax2OnSell = refundOnSell + toks.tokenA2TaxOnSell + toks.tokenB2TaxOnSell;
+        uint tax2OnBuy = refundOnBuy + toks.tokenA2TaxOnBuy + toks.tokenB2TaxOnBuy;
 
         valid = tax1OnSell <= maxTok1Tax && tax1OnBuy <= maxTok1Tax && tax2OnSell <= maxTok2Tax && tax2OnBuy <= maxTok2Tax;
 
@@ -199,13 +188,13 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
         }
     }
 
-    function setFeeTo(address _feeTo) external {
-        require(msg.sender == feeToSetter, "DarwinSwap: FORBIDDEN");
-        feeTo = _feeTo;
-    }
-
-    function setFeeToSetter(address _feeToSetter) external onlyDev {
-        feeToSetter = _feeToSetter;
+    // If the lister of a Tok1.0 token wants to refund users with added-Tok2.0, the refund will be the min between the maximum allowed taxation and the already present Tok1.0 taxation
+    function _refund(uint ownTax) internal view returns(uint) {
+        if (ownTax > maxTok2Tax) {
+            return maxTok2Tax;
+        } else {
+            return ownTax;
+        }
     }
 
     // transfer ownership
@@ -231,5 +220,9 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
     // setter for max add-on Tokenomics 2.0 percentage of taxation
     function setMaxTok2Tax(uint _maxTok2Tax) external onlyDev {
         maxTok2Tax = _maxTok2Tax;
+    }
+
+    function setFeeToSetter(address _feeToSetter) external override onlyDev {
+        feeToSetter = _feeToSetter;
     }
 }

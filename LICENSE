@@ -9,7 +9,7 @@ Parameters
 
 Licensor:             Darwin Tech Ltd
 
-Licensed Work:        PUT_CONTRACT_NAMES_HERE
+Licensed Work:        DarwinSwapFactory.sol, IDarwinSwapFactory.sol, Tokenomics2Library.sol
                       The Licensed Work is (c) 2023 Darwin Tech Ltd
 
 Additional Use Grant: None

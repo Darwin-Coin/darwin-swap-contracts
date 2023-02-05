@@ -5,8 +5,10 @@ import "./DarwinSwapERC20.sol";
 import "./libraries/Math.sol";
 import "./libraries/UQ112x112.sol";
 import "./interfaces/IERC20.sol";
+import "./interfaces/IUniswapV2Factory.sol";
 import "./interfaces/IDarwinSwapFactory.sol";
 import "./interfaces/IDarwinSwapCallee.sol";
+import "./libraries/Tokenomics2Library.sol";
 
 contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
     using SafeMath  for uint;
@@ -41,7 +43,11 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         blockTimestampLast = _blockTimestampLast;
     }
 
-    function _safeTransfer(address token, address to, uint value) private {
+    function _safeTransfer(address token, address to, uint value, address otherToken) private {
+        // NOTE: DarwinSwap: TOKS1_BUY
+        if (otherToken != address(0)) {
+            value -= Tokenomics2Library.handleToks1Buy(token, value, otherToken, factory);
+        }
         (bool success, bytes memory data) = token.call(abi.encodeWithSelector(_SELECTOR, to, value));
         require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: TRANSFER_FAILED");
     }
@@ -75,7 +81,7 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
 
     // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)
     function _mintFee(uint112 reserve0, uint112 reserve1) private returns (bool feeOn) {
-        address feeTo = IDarwinSwapFactory(factory).feeTo();
+        address feeTo = IUniswapV2Factory(factory).feeTo();
         feeOn = feeTo != address(0);
         uint _kLast = kLast; // gas savings
         if (feeOn) {
@@ -133,8 +139,8 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         amount1 = liquidity.mul(balance1) / _totalSupply; // using balances ensures pro-rata distribution
         require(amount0 > 0 && amount1 > 0, "DarwinSwap: INSUFFICIENT_LIQUIDITY_BURNED");
         _burn(address(this), liquidity);
-        _safeTransfer(_token0, to, amount0);
-        _safeTransfer(_token1, to, amount1);
+        _safeTransfer(_token0, to, amount0, address(0));
+        _safeTransfer(_token1, to, amount1, address(0));
         balance0 = IERC20(_token0).balanceOf(address(this));
         balance1 = IERC20(_token1).balanceOf(address(this));
 
@@ -144,7 +150,7 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
     }
 
     // this low-level function should be called from a contract which performs important safety checks
-    function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external lock {
+    function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data, address[2] memory firstAndLastInPath) external lock {
         require(amount0Out > 0 || amount1Out > 0, "DarwinSwap: INSUFFICIENT_OUTPUT_AMOUNT");
         (uint112 reserve0, uint112 reserve1,) = getReserves(); // gas savings
         require(amount0Out < reserve0 && amount1Out < reserve1, "DarwinSwap: INSUFFICIENT_LIQUIDITY");
@@ -155,8 +161,8 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         address _token0 = token0;
         address _token1 = token1;
         require(to != _token0 && to != _token1, "DarwinSwap: INVALID_TO");
-        if (amount0Out > 0) _safeTransfer(_token0, to, amount0Out); // optimistically transfer tokens
-        if (amount1Out > 0) _safeTransfer(_token1, to, amount1Out); // optimistically transfer tokens
+        if (amount0Out > 0) _safeTransfer(_token0, to, amount0Out, firstAndLastInPath[0]); // optimistically transfer tokens
+        if (amount1Out > 0) _safeTransfer(_token1, to, amount1Out, firstAndLastInPath[0]); // optimistically transfer tokens
         if (data.length > 0) IDarwinSwapCallee(to).darwinSwapCall(msg.sender, amount0Out, amount1Out, data);
         balance0 = IERC20(_token0).balanceOf(address(this));
         balance1 = IERC20(_token1).balanceOf(address(this));
@@ -170,7 +176,25 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         require(balance0Adjusted.mul(balance1Adjusted) >= uint(reserve0).mul(reserve1).mul(1000**2), "DarwinSwap: K");
         }
 
+        if (firstAndLastInPath[1] != address(0)) {
+            // NOTE: TOKS2_SELL
+            Tokenomics2Library.handleToks2Sell(amount0In > 0 ? token0 : token1, amount0In > amount1In ? amount0In : amount1In, firstAndLastInPath[1], factory);
+            balance0 = IERC20(token0).balanceOf(address(this));
+            balance1 = IERC20(token1).balanceOf(address(this));
+        }
+        if (firstAndLastInPath[0] != address(0)) {
+            // NOTE: TOKS2_BUY
+            Tokenomics2Library.handleToks2Buy(amount0Out > 0 ? token0 : token1, amount0Out > amount1Out ? amount0Out : amount1Out, firstAndLastInPath[0], factory);
+            balance0 = IERC20(token0).balanceOf(address(this));
+            balance1 = IERC20(token1).balanceOf(address(this));
+        }
+
         _update(balance0, balance1, reserve0, reserve1);
+        _emitSwap(amount0In, amount1In, amount0Out, amount1Out, to);
+    }
+
+    // TODO: THIS CURRENTLY AVOIDS STACK TOO DEEP, BUT MAYBE EVERYTHING CAN BE OPTIMIZED AND A BETTER SOLUTION CAN BE FOUND
+    function _emitSwap(uint amount0In, uint amount1In, uint amount0Out, uint amount1Out, address to) internal {
         emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
     }
 
@@ -178,8 +202,8 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
     function skim(address to) external lock {
         address _token0 = token0; // gas savings
         address _token1 = token1; // gas savings
-        _safeTransfer(_token0, to, IERC20(_token0).balanceOf(address(this)).sub(_reserve0));
-        _safeTransfer(_token1, to, IERC20(_token1).balanceOf(address(this)).sub(_reserve1));
+        _safeTransfer(_token0, to, IERC20(_token0).balanceOf(address(this)).sub(_reserve0), address(0));
+        _safeTransfer(_token1, to, IERC20(_token1).balanceOf(address(this)).sub(_reserve1), address(0));
     }
 
     // force reserves to match balances
