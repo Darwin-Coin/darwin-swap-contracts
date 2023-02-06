@@ -2,7 +2,6 @@ pragma solidity ^0.8.14;
 
 interface ITokenLocker {
     struct LockedToken {
-        uint256 startTime;
         uint256 endTime;
         uint256 amount;
     }

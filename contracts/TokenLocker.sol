@@ -28,7 +28,6 @@ contract TokenLocker is ITokenLocker {
         }
 
         _userLockedToken[msg.sender][_token] = LockedToken({
-            startTime: block.timestamp,
             endTime: block.timestamp + _duration,
             amount: _amount
         });
