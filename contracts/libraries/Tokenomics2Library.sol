@@ -99,6 +99,7 @@ library Tokenomics2Library {
                 uint refundA1WithA2 = (value * sellTokenInfo.ownToks.tokenTaxOnSell) / 10000;
 
                 if (refundA1WithA2 > 0) {
+                    // TODO: SHOULD AVOID USING TX.ORIGIN
                     (bool success, bytes memory data) = sellToken.call(abi.encodeWithSelector(_TRANSFER, tx.origin, refundA1WithA2));
                     require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: REFUND_FAILED_SELL_A2");
                 }
