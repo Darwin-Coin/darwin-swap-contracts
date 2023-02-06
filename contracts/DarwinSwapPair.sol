@@ -184,7 +184,7 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         }
         if (firstAndLastInPath[0] != address(0)) {
             // NOTE: TOKS2_BUY
-            Tokenomics2Library.handleToks2Buy(amount0Out > 0 ? token0 : token1, amount0Out > amount1Out ? amount0Out : amount1Out, firstAndLastInPath[0], factory);
+            Tokenomics2Library.handleToks2Buy(amount0Out > 0 ? token0 : token1, amount0Out > amount1Out ? amount0Out : amount1Out, firstAndLastInPath[0], to, factory);
             balance0 = IERC20(token0).balanceOf(address(this));
             balance1 = IERC20(token1).balanceOf(address(this));
         }

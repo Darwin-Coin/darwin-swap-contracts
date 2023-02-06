@@ -94,14 +94,18 @@ library Tokenomics2Library {
         IDarwinSwapFactory.TokenInfo memory buyTokenInfo = IDarwinSwapFactory(factory).tokenInfo(buyToken);
 
         if (sellTokenInfo.isTokenValid) {
-            // Calculates eventual tokenomics1.0 refund
-            uint tokenA2TaxOnSell = sellTokenInfo.addedToks.tokenA2TaxOnSell;
+            // Calculates eventual tokenomics1.0 refund and makes it
             if (sellTokenInfo.refundOwnToks1) {
-                tokenA2TaxOnSell += sellTokenInfo.ownToks.tokenTaxOnSell;
+                uint refundA1WithA2 = (value * sellTokenInfo.ownToks.tokenTaxOnSell) / 10000;
+
+                if (refundA1WithA2 > 0) {
+                    (bool success, bytes memory data) = sellToken.call(abi.encodeWithSelector(_TRANSFER, tx.origin, refundA1WithA2));
+                    require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: REFUND_FAILED_SELL_A2");
+                }
             }
 
             // SELLTOKEN tokenomics2.0 sell tax value applied to itself
-            uint sellTokenA2 = (value * tokenA2TaxOnSell) / 10000;
+            uint sellTokenA2 = (value * sellTokenInfo.addedToks.tokenA2TaxOnSell) / 10000;
 
             if (sellTokenA2 > 0) {
                 (bool success, bytes memory data) = sellToken.call(abi.encodeWithSelector(_TRANSFER, sellTokenInfo.feeReceiver, sellTokenA2));
@@ -126,6 +130,7 @@ library Tokenomics2Library {
         address buyToken,
         uint value,
         address sellToken,
+        address to,
         address factory
     ) internal {
         IDarwinSwapFactory.TokenInfo memory buyTokenInfo = IDarwinSwapFactory(factory).tokenInfo(buyToken);
@@ -133,13 +138,17 @@ library Tokenomics2Library {
 
         if (buyTokenInfo.isTokenValid) {
             // Calculates eventual tokenomics1.0 refund
-            uint tokenA2TaxOnBuy = buyTokenInfo.addedToks.tokenA2TaxOnBuy;
             if (buyTokenInfo.refundOwnToks1) {
-                tokenA2TaxOnBuy += buyTokenInfo.ownToks.tokenTaxOnBuy;
+                uint refundA1WithA2 = (value * buyTokenInfo.ownToks.tokenTaxOnBuy) / 10000;
+
+                if (refundA1WithA2 > 0) {
+                    (bool success, bytes memory data) = buyToken.call(abi.encodeWithSelector(_TRANSFER, to, refundA1WithA2));
+                    require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: REFUND_FAILED_BUY_A2");
+                }
             }
 
             // BUYTOKEN tokenomics2.0 buy tax value applied to itself
-            uint buyTokenA2 = (value * tokenA2TaxOnBuy) / 10000;
+            uint buyTokenA2 = (value * buyTokenInfo.addedToks.tokenA2TaxOnBuy) / 10000;
 
             if (buyTokenA2 > 0) {
                 (bool success, bytes memory data) = buyToken.call(abi.encodeWithSelector(_TRANSFER, buyTokenInfo.feeReceiver, buyTokenA2));
