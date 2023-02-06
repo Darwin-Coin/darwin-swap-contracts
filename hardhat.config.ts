@@ -18,11 +18,11 @@ dotenv.config();
 
 const config: HardhatUserConfig = {
     solidity: {
-        version: '0.8.16',
+        version: '0.8.14',
         settings: {
             optimizer: {
                 enabled: true,
-                runs: 1000,
+                runs: 200,
             },
             outputSelection: {
                 '*': {
@@ -38,8 +38,8 @@ const config: HardhatUserConfig = {
         runOnCompile: true,
     },
     spdxLicenseIdentifier: {
-        overwrite: true,
-        runOnCompile: true,
+        overwrite: false,
+        runOnCompile: false,
     },
 };
 
