@@ -109,15 +109,14 @@ library Tokenomics2Library {
                 }
             }
 
-            // If antiDump is active, send the toks2 taxation to the pair's antidump guard
+            // If SELLTOKEN's antiDump is active, send the tokenomics2.0 sell tax value applied to BUYTOKEN to the pair's antidump guard
             if (sellTokenInfo.antiDumpTriggerPrice > 0) {
-                (uint sellReserve, uint buyReserve) = DarwinSwapLibrary.getReserves(factory, sellToken, buyToken);
+                address otherToken = IDarwinSwapPair(address(this)).token0() == sellToken ? IDarwinSwapPair(address(this)).token1() : IDarwinSwapPair(address(this)).token0();
+                (uint sellReserve, uint buyReserve) = DarwinSwapLibrary.getReserves(factory, sellToken, otherToken);
                 uint refill = (DarwinSwapLibrary.getAmountOut(value, sellReserve, buyReserve) * sellTokenInfo.addedToks.tokenB2TaxOnSell) / 10000;
                 address antiDump = IDarwinSwapPair(address(this)).antiDumpGuard();
-                address otherToken = IDarwinSwapPair(address(this)).token0() == sellToken ? IDarwinSwapPair(address(this)).token1() : IDarwinSwapPair(address(this)).token0();
-                // No need to check if sellTokenB2 is > 0, since to propose a token with antiDump, addedToks.tokenB2TaxOnSell MUST be > 0.
                 (bool success, bytes memory data) = otherToken.call(abi.encodeWithSelector(_TRANSFER, antiDump, refill));
-                require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: ANTIDUMP_REFILL_FAILED");
+                require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: ANTIDUMP_FAILED_SELL_2");
             }
 
             // SELLTOKEN tokenomics2.0 sell tax value applied to itself
@@ -133,7 +132,8 @@ library Tokenomics2Library {
             // BUYTOKEN tokenomics2.0 buy tax value applied to SELLTOKEN
             uint buyTokenB2 = (value * buyTokenInfo.addedToks.tokenB2TaxOnBuy) / 10000;
 
-            if (buyTokenB2 > 0) {
+            // If antiDump is active on buyToken do not tax (because it has already been taxed)
+            if (buyTokenB2 > 0 && buyTokenInfo.antiDumpTriggerPrice == 0) {
                 (bool success, bytes memory data) = sellToken.call(abi.encodeWithSelector(_TRANSFER, buyTokenInfo.feeReceiver, buyTokenB2));
                 require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: TAX_FAILED_BUY_B2");
             }
@@ -161,6 +161,16 @@ library Tokenomics2Library {
                     (bool success, bytes memory data) = buyToken.call(abi.encodeWithSelector(_TRANSFER, to, refundA1WithA2));
                     require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: REFUND_FAILED_BUY_A2");
                 }
+            }
+
+            // If BUYTOKEN's antiDump is active, send the tokenomics2.0 buy tax value applied to SELLTOKEN to the pair's antidump guard
+            if (buyTokenInfo.antiDumpTriggerPrice > 0) {
+                address otherToken = IDarwinSwapPair(address(this)).token0() == buyToken ? IDarwinSwapPair(address(this)).token1() : IDarwinSwapPair(address(this)).token0();
+                (uint sellReserve, uint buyReserve) = DarwinSwapLibrary.getReserves(factory, otherToken, buyToken);
+                uint refill = (DarwinSwapLibrary.getAmountOut(value, buyReserve, sellReserve) * buyTokenInfo.addedToks.tokenB2TaxOnBuy) / 10000;
+                address antiDump = IDarwinSwapPair(address(this)).antiDumpGuard();
+                (bool success, bytes memory data) = otherToken.call(abi.encodeWithSelector(_TRANSFER, antiDump, refill));
+                require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: ANTIDUMP_FAILED_BUY_2");
             }
 
             // BUYTOKEN tokenomics2.0 buy tax value applied to itself
