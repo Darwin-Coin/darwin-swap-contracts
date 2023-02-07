@@ -54,6 +54,12 @@ contract AntiDumpGuard is IAntiDumpGuard {
             sellAmountOfBuyToken = IERC20(_buyToken).balanceOf(address(this)) / 2;
         }
 
+        // Approve router using of BUYTOKEN and SELLTOKEN
+        if (IERC20(_sellToken).allowance(address(this), address(router)) != type(uint).max) {
+            IERC20(_sellToken).approve(address(router), type(uint).max);
+            IERC20(_buyToken).approve(address(router), type(uint).max);
+        }
+
         // SWAP
         address[] memory path = new address[](2);
         path[0] = _buyToken;

@@ -399,7 +399,9 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         IWETH(WETH).deposit{value: amountIn}();
         // assert(IWETH(WETH).transfer(DarwinSwapLibrary.pairFor(factory, path[0], path[1]), amountIn));
         // uint balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
-        IERC20(WETH).approve(address(this), amountIn);
+        if (IERC20(WETH).allowance(address(this), address(this)) < amountIn) {
+            IERC20(WETH).approve(address(this), amountIn);
+        }
         _swapSupportingFeeOnTransferTokens(amountIn, path, to);
         /* require(
             IERC20(path[path.length - 1]).balanceOf(to).sub(balanceBefore) >= amountOutMin,
