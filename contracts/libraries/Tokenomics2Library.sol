@@ -3,6 +3,10 @@
 pragma solidity ^0.8.14;
 
 import "../interfaces/IDarwinSwapFactory.sol";
+import "../interfaces/IUniswapV2Factory.sol";
+import "../interfaces/IDarwinSwapPair.sol";
+import "../interfaces/IAntiDumpGuard.sol";
+import "../libraries/DarwinSwapLibrary.sol";
 
 library Tokenomics2Library {
 
@@ -105,6 +109,17 @@ library Tokenomics2Library {
                 }
             }
 
+            // If antiDump is active, send the toks2 taxation to the pair's antidump guard
+            if (sellTokenInfo.antiDumpTriggerPrice > 0) {
+                (uint sellReserve, uint buyReserve) = DarwinSwapLibrary.getReserves(factory, sellToken, buyToken);
+                uint refill = (DarwinSwapLibrary.getAmountOut(value, sellReserve, buyReserve) * sellTokenInfo.addedToks.tokenB2TaxOnSell) / 10000;
+                address antiDump = IDarwinSwapPair(address(this)).antiDumpGuard();
+                address otherToken = IDarwinSwapPair(address(this)).token0() == sellToken ? IDarwinSwapPair(address(this)).token1() : IDarwinSwapPair(address(this)).token0();
+                // No need to check if sellTokenB2 is > 0, since to propose a token with antiDump, addedToks.tokenB2TaxOnSell MUST be > 0.
+                (bool success, bytes memory data) = otherToken.call(abi.encodeWithSelector(_TRANSFER, antiDump, refill));
+                require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: ANTIDUMP_REFILL_FAILED");
+            }
+
             // SELLTOKEN tokenomics2.0 sell tax value applied to itself
             uint sellTokenA2 = (value * sellTokenInfo.addedToks.tokenA2TaxOnSell) / 10000;
 
@@ -161,10 +176,36 @@ library Tokenomics2Library {
             // SELLTOKEN tokenomics2.0 sell tax value applied to BUYTOKEN
             uint sellTokenB2 = (value * sellTokenInfo.addedToks.tokenB2TaxOnSell) / 10000;
 
-            if (sellTokenB2 > 0) {
+            // If antiDump is active on sellToken do not tax (because it has already been taxed)
+            if (sellTokenB2 > 0 && sellTokenInfo.antiDumpTriggerPrice == 0) {
                 (bool success, bytes memory data) = buyToken.call(abi.encodeWithSelector(_TRANSFER, sellTokenInfo.feeReceiver, sellTokenB2));
                 require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: TAX_FAILED_SELL_B2");
             }
+        }
+    }
+
+    // Ensures that the limitations we've set for taxes are respected
+    function ensureTokenomics(IDarwinSwapFactory.TokenInfo memory tokInfo, uint maxTok1Tax, uint maxTok2Tax) internal pure returns(bool valid) {
+        IDarwinSwapFactory.TokenomicsInfo memory toks = tokInfo.addedToks;
+        IDarwinSwapFactory.OwnTokenomicsInfo memory ownToks = tokInfo.ownToks;
+
+        uint refundOnSell = tokInfo.refundOwnToks1 ? refund(ownToks.tokenTaxOnSell, maxTok2Tax) : 0;
+        uint refundOnBuy = tokInfo.refundOwnToks1 ? refund(ownToks.tokenTaxOnBuy, maxTok2Tax) : 0;
+
+        uint tax1OnSell = toks.tokenA1TaxOnSell + toks.tokenB1TaxOnSell;
+        uint tax1OnBuy = toks.tokenA1TaxOnBuy + toks.tokenB1TaxOnBuy;
+        uint tax2OnSell = refundOnSell + toks.tokenA2TaxOnSell + toks.tokenB2TaxOnSell;
+        uint tax2OnBuy = refundOnBuy + toks.tokenA2TaxOnBuy + toks.tokenB2TaxOnBuy;
+
+        valid = tax1OnSell <= maxTok1Tax && tax1OnBuy <= maxTok1Tax && tax2OnSell <= maxTok2Tax && tax2OnBuy <= maxTok2Tax && (tokInfo.antiDumpTriggerPrice == 0 || toks.tokenB2TaxOnSell > 0);
+    }
+
+    // If the lister of a Tok1.0 token wants to refund users with added-Tok2.0, the refund will be the min between the maximum allowed taxation and the already present Tok1.0 taxation
+    function refund(uint ownTax, uint maxTok2Tax) internal pure returns(uint) {
+        if (ownTax > maxTok2Tax) {
+            return maxTok2Tax;
+        } else {
+            return ownTax;
         }
     }
 }

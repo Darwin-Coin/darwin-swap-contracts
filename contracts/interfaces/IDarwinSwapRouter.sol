@@ -24,6 +24,13 @@ interface IDarwinSwapRouter {
         address to,
         uint deadline
     ) external payable returns (uint amountToken, uint amountETH, uint liquidity);
+    function addLiquidityWithoutReceipt(
+        address tokenA,
+        address tokenB,
+        uint amountA,
+        uint amountB,
+        uint deadline
+    ) external;
     function removeLiquidity(
         address tokenA,
         address tokenB,

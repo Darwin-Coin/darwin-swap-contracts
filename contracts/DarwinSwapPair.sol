@@ -10,12 +10,16 @@ import "./interfaces/IDarwinSwapFactory.sol";
 import "./interfaces/IDarwinSwapCallee.sol";
 import "./libraries/Tokenomics2Library.sol";
 
+import "./AntiDumpGuard.sol";
+
 contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
     using SafeMath  for uint;
     using UQ112x112 for uint224;
 
     uint public constant MINIMUM_LIQUIDITY = 10**3;
     bytes4 private constant _SELECTOR = bytes4(keccak256(bytes("transfer(address,uint256)")));
+
+    address public antiDumpGuard;
 
     address public factory;
     address public token0;
@@ -61,6 +65,16 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         require(msg.sender == factory, "DarwinSwap: FORBIDDEN"); // sufficient check
         token0 = _token0;
         token1 = _token1;
+
+        // Deploy the AntiDumpGuard contract and save its address
+        address _antiDumpGuard;
+        address _addressThis = address(this);
+        bytes memory bytecode = type(AntiDumpGuard).creationCode;
+        bytes32 salt = keccak256(abi.encodePacked(token0, token1));
+        assembly {
+            _antiDumpGuard := create2(_addressThis, add(bytecode, 32), mload(bytecode), salt)
+        }
+        antiDumpGuard = _antiDumpGuard;
     }
 
     // update reserves and, on the first call per block, price accumulators

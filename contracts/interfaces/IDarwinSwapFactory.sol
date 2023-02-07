@@ -13,6 +13,7 @@ interface IDarwinSwapFactory {
         bool isTokenValid; //? Only true if the token has been POSITIVELY validated by a Darwin team validator
         address owner; //? The owner of the token contract
         address feeReceiver; //? Where will the fees go
+        uint antiDumpTriggerPrice; //? If > 0, represents the price of this token against its 'tokenB' in a pair, below which a buyback->addLiquidityWithoutReceipt is triggered. If == 0, antiDump is not active for this token
     }
 
     struct OwnTokenomicsInfo {
@@ -52,4 +53,5 @@ interface IDarwinSwapFactory {
     function isValidator(address user) external view returns (bool);
     function createPair(address tokenA, address tokenB) external returns (address pair);
     function tokenInfo(address _token) external view returns(TokenInfo memory);
+    function router() external view returns(address);
 }

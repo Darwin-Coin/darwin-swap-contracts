@@ -100,6 +100,18 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         // refund dust eth, if any
         if (msg.value > amountETH) TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
     }
+    function addLiquidityWithoutReceipt(
+        address tokenA,
+        address tokenB,
+        uint amountA,
+        uint amountB,
+        uint deadline
+    ) external virtual override ensure(deadline) {
+        address pair = DarwinSwapLibrary.pairFor(factory, tokenA, tokenB);
+        TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA, address(0), address(0));
+        TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB, address(0), address(0));
+        IDarwinSwapPair(pair).sync();
+    }
 
     // **** REMOVE LIQUIDITY ****
     function removeLiquidity(
@@ -368,6 +380,7 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
             IERC20(path[path.length - 1]).balanceOf(to).sub(balanceBefore) >= amountOutMin,
             "DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT"
         ); */
+        IAntiDumpGuard(IDarwinSwapPair(DarwinSwapLibrary.pairFor(factory, path[0], path[1])).antiDumpGuard()).buyBackAndPair(path[0]);
     }
     function swapExactETHForTokensSupportingFeeOnTransferTokens(
         // uint amountOutMin,
@@ -414,6 +427,7 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         // require(amountOut >= amountOutMin, "DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT");
         IWETH(WETH).withdraw(amountOut);
         TransferHelper.safeTransferETH(to, amountOut);
+        IAntiDumpGuard(IDarwinSwapPair(DarwinSwapLibrary.pairFor(factory, path[0], path[1])).antiDumpGuard()).buyBackAndPair(path[0]);
     }
 
     // **** LIBRARY FUNCTIONS ****

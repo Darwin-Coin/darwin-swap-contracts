@@ -4,6 +4,7 @@ pragma solidity ^0.8.14;
 
 import "./interfaces/IDarwinSwapFactory.sol";
 import "./UniswapV2Factory.sol";
+import "./libraries/Tokenomics2Library.sol";
 
 interface IDarwin {
     function registerDarwinSwapPair(address _pair) external;
@@ -14,6 +15,7 @@ contract DarwinSwapFactory is IDarwinSwapFactory, UniswapV2Factory {
     address public weth;
     uint public maxTok1Tax;
     uint public maxTok2Tax;
+    address public router;
 
     mapping(address => TokenInfo) private _tokenInfo;
 
@@ -106,7 +108,7 @@ contract DarwinSwapFactory is IDarwinSwapFactory, UniswapV2Factory {
         proposalInfo.validator = address(0);
         proposalInfo.isTokenValid = false;
 
-        (bool valid,,) = ensureTokenomics(proposalInfo);
+        bool valid = Tokenomics2Library.ensureTokenomics(proposalInfo, maxTok1Tax, maxTok2Tax);
         require(valid, "DarwinSwap: EXCESSIVE_REQUESTED_TOKENOMICS");
 
         _tokenInfo[tokenAddress] = proposalInfo;
@@ -138,65 +140,6 @@ contract DarwinSwapFactory is IDarwinSwapFactory, UniswapV2Factory {
         emit TokenValidated(darwin);
     }
 
-    // Ensures that the limitations we've set for taxes are respected
-    function ensureTokenomics(TokenInfo memory tokInfo) public view returns(bool valid, Tokenomics toksOnSell, Tokenomics toksOnBuy) {
-        TokenomicsInfo memory toks = tokInfo.addedToks;
-        OwnTokenomicsInfo memory ownToks = tokInfo.ownToks;
-
-        uint refundOnSell = tokInfo.refundOwnToks1 ? _refund(ownToks.tokenTaxOnSell) : 0;
-        uint refundOnBuy = tokInfo.refundOwnToks1 ? _refund(ownToks.tokenTaxOnBuy) : 0;
-
-        uint tax1OnSell = toks.tokenA1TaxOnSell + toks.tokenB1TaxOnSell;
-        uint tax1OnBuy = toks.tokenA1TaxOnBuy + toks.tokenB1TaxOnBuy;
-        uint tax2OnSell = refundOnSell + toks.tokenA2TaxOnSell + toks.tokenB2TaxOnSell;
-        uint tax2OnBuy = refundOnBuy + toks.tokenA2TaxOnBuy + toks.tokenB2TaxOnBuy;
-
-        valid = tax1OnSell <= maxTok1Tax && tax1OnBuy <= maxTok1Tax && tax2OnSell <= maxTok2Tax && tax2OnBuy <= maxTok2Tax;
-
-        if (tax1OnSell == 0 && tax1OnBuy == 0 && tax2OnSell == 0 && tax2OnBuy == 0) {           // notok notok
-            return (valid, Tokenomics.NO_TOK, Tokenomics.NO_TOK);
-        } else if (tax1OnSell > 0 && tax1OnBuy == 0 && tax2OnSell == 0 && tax2OnBuy == 0) {     // tok1 notok
-            return (valid, Tokenomics.TOK_1, Tokenomics.NO_TOK);
-        } else if (tax1OnSell > 0 && tax1OnBuy > 0 && tax2OnSell == 0 && tax2OnBuy == 0) {      // tok1 tok1
-            return (valid, Tokenomics.TOK_1, Tokenomics.TOK_1);
-        } else if (tax1OnSell == 0 && tax1OnBuy > 0 && tax2OnSell == 0 && tax2OnBuy == 0) {     // notok tok1
-            return (valid, Tokenomics.NO_TOK, Tokenomics.TOK_1);
-        } else if (tax1OnSell == 0 && tax1OnBuy == 0 && tax2OnSell > 0 && tax2OnBuy == 0) {     // tok2 notok
-            return (valid, Tokenomics.TOK_2, Tokenomics.NO_TOK);
-        } else if (tax1OnSell == 0 && tax1OnBuy == 0 && tax2OnSell > 0 && tax2OnBuy > 0) {      // tok2 tok2
-            return (valid, Tokenomics.TOK_2, Tokenomics.TOK_2);
-        } else if (tax1OnSell == 0 && tax1OnBuy == 0 && tax2OnSell == 0 && tax2OnBuy > 0) {     // notok tok2
-            return (valid, Tokenomics.NO_TOK, Tokenomics.TOK_2);
-        } else if (tax1OnSell > 0 && tax1OnBuy == 0 && tax2OnSell == 0 && tax2OnBuy > 0) {      // tok1 tok2
-            return (valid, Tokenomics.TOK_1, Tokenomics.TOK_2);
-        } else if (tax1OnSell == 0 && tax1OnBuy > 0 && tax2OnSell > 0 && tax2OnBuy == 0) {      // tok2 tok1
-            return (valid, Tokenomics.TOK_2, Tokenomics.TOK_1);
-        } else if (tax1OnSell > 0 && tax1OnBuy > 0 && tax2OnSell > 0 && tax2OnBuy > 0) {        // tok12 tok12
-            return (valid, Tokenomics.TOK_1_AND_2, Tokenomics.TOK_1_AND_2);
-        } else if (tax1OnSell > 0 && tax1OnBuy == 0 && tax2OnSell > 0 && tax2OnBuy == 0) {      // tok12 notok
-            return (valid, Tokenomics.TOK_1_AND_2, Tokenomics.NO_TOK);
-        } else if (tax1OnSell == 0 && tax1OnBuy > 0 && tax2OnSell == 0 && tax2OnBuy > 0) {      // notok tok12
-            return (valid, Tokenomics.NO_TOK, Tokenomics.TOK_1_AND_2);
-        } else if (tax1OnSell > 0 && tax1OnBuy > 0 && tax2OnSell > 0 && tax2OnBuy == 0) {       // tok12 tok1
-            return (valid, Tokenomics.TOK_1_AND_2, Tokenomics.TOK_1);
-        } else if (tax1OnSell > 0 && tax1OnBuy == 0 && tax2OnSell > 0 && tax2OnBuy > 0) {       // tok12 tok2
-            return (valid, Tokenomics.TOK_1_AND_2, Tokenomics.TOK_2);
-        } else if (tax1OnSell > 0 && tax1OnBuy > 0 && tax2OnSell == 0 && tax2OnBuy > 0) {       // tok1 tok12
-            return (valid, Tokenomics.TOK_1, Tokenomics.TOK_1_AND_2);
-        } else if (tax1OnSell == 0 && tax1OnBuy > 0 && tax2OnSell > 0 && tax2OnBuy > 0) {       // tok2 tok12
-            return (valid, Tokenomics.TOK_2, Tokenomics.TOK_1_AND_2);
-        }
-    }
-
-    // If the lister of a Tok1.0 token wants to refund users with added-Tok2.0, the refund will be the min between the maximum allowed taxation and the already present Tok1.0 taxation
-    function _refund(uint ownTax) internal view returns(uint) {
-        if (ownTax > maxTok2Tax) {
-            return maxTok2Tax;
-        } else {
-            return ownTax;
-        }
-    }
-
     // transfer ownership
     function setDev(address _dev) external onlyDev {
         dev = _dev;
@@ -224,5 +167,9 @@ contract DarwinSwapFactory is IDarwinSwapFactory, UniswapV2Factory {
 
     function setFeeToSetter(address _feeToSetter) external override onlyDev {
         feeToSetter = _feeToSetter;
+    }
+
+    function setRouter(address _router) external onlyDev {
+        router = _router;
     }
 }
