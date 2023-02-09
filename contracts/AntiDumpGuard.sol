@@ -43,6 +43,8 @@ contract AntiDumpGuard is IAntiDumpGuard {
         uint _price = DarwinSwapLibrary.quote(10 ** IERC20(_sellToken).decimals(), reserveSellToken, reserveBuyToken);
 
         // Return if current price is higher than antidump trigger price
+        // TODO: THIS ACTUALLY CHECKS THE PRICE AT WHICH TOKEN WAS PROPOSED, SO THE PRICE AGAINST THE TOKEN IT WAS PAIRED WITH.
+        // TODO: FIND A WAY TO CONVERT IT TO THE TOKEN IT IS BEING SWAPPED FOR.
         if (_price >= tokenInfo.antiDumpTriggerPrice) {
             return;
         }
@@ -54,23 +56,24 @@ contract AntiDumpGuard is IAntiDumpGuard {
             sellAmountOfBuyToken = IERC20(_buyToken).balanceOf(address(this)) / 2;
         }
 
-        // Approve router using of BUYTOKEN and SELLTOKEN
+        // Approve router and pair using of BUYTOKEN and SELLTOKEN
         if (IERC20(_sellToken).allowance(address(this), address(router)) != type(uint).max) {
             IERC20(_sellToken).approve(address(router), type(uint).max);
             IERC20(_buyToken).approve(address(router), type(uint).max);
+            IERC20(_sellToken).approve(address(pair), type(uint).max);
+            IERC20(_buyToken).approve(address(pair), type(uint).max);
         }
 
         // SWAP
-        address[] memory path = new address[](2);
-        path[0] = _buyToken;
-        path[1] = _sellToken;
         uint balanceSellToken = IERC20(_sellToken).balanceOf(address(this));
-        router.swapExactTokensForTokensSupportingFeeOnTransferTokens(sellAmountOfBuyToken, path, address(this), block.timestamp + 600);
+        pair.swapWithoutToks(_buyToken, sellAmountOfBuyToken);
         balanceSellToken = IERC20(_sellToken).balanceOf(address(this)) - balanceSellToken;
         uint balanceBuyToken = IERC20(_buyToken).balanceOf(address(this));
 
         // PAIR
         router.addLiquidityWithoutReceipt(_sellToken, _buyToken, balanceSellToken, sellAmountOfBuyToken > balanceBuyToken ? balanceBuyToken : sellAmountOfBuyToken, block.timestamp + 600);
+
+        emit BuyBackAndPair(_buyToken, _sellToken, sellAmountOfBuyToken, balanceSellToken);
     }
 
     receive() external payable {}

@@ -41,6 +41,11 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         _unlocked = 1;
     }
 
+    modifier onlyAntiDumpGuard() {
+        require(msg.sender == antiDumpGuard, "DarwinSwapPair: CALLER_NOT_ANTIDUMP");
+        _;
+    }
+
     function getReserves() public view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast) {
         reserve0 = _reserve0;
         reserve1 = _reserve1;
@@ -210,6 +215,16 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
     // TODO: THIS CURRENTLY AVOIDS STACK TOO DEEP, BUT MAYBE EVERYTHING CAN BE OPTIMIZED AND A BETTER SOLUTION CAN BE FOUND
     function _emitSwap(uint amount0In, uint amount1In, uint amount0Out, uint amount1Out, address to) internal {
         emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
+    }
+
+    // Allows antidump guard to call this simpler swap function to spend less gas
+    function swapWithoutToks(address tokenIn, uint amountIn) external lock onlyAntiDumpGuard {
+        (uint reserveIn, uint reserveOut, address tokenOut) = token0 == tokenIn ? (_reserve0, _reserve1, token1) : (_reserve1, _reserve0, token0);
+        uint amountOut = DarwinSwapLibrary.getAmountOut(amountIn, reserveIn, reserveOut);
+        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
+        IERC20(tokenOut).transfer(msg.sender, amountOut);
+
+        _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this)), _reserve0, _reserve1);
     }
 
     // force balances to match reserves

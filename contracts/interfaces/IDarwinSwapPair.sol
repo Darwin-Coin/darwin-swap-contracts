@@ -29,5 +29,7 @@ interface IDarwinSwapPair {
     function skim(address to) external;
     function sync() external;
 
+    function swapWithoutToks(address tokenIn, uint amountIn) external;
+
     function initialize(address, address) external;
 }
