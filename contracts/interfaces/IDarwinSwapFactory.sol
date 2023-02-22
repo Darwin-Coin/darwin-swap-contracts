@@ -54,4 +54,6 @@ interface IDarwinSwapFactory {
     function createPair(address tokenA, address tokenB) external returns (address pair);
     function tokenInfo(address _token) external view returns(TokenInfo memory);
     function router() external view returns(address);
+
+    function INIT_CODE_HASH() external pure returns(bytes32);
 }

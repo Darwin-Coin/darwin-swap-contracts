@@ -22,6 +22,8 @@ contract DarwinSwapFactory is IDarwinSwapFactory, UniswapV2Factory {
     mapping(address => bool) public isValidator;
     mapping(address => bool) public isUserBannedFromListing;
 
+    bytes32 public constant INIT_CODE_HASH = keccak256(abi.encodePacked(type(DarwinSwapPair).creationCode));
+
     constructor(address _weth) {
         dev = msg.sender;
         feeToSetter = msg.sender;

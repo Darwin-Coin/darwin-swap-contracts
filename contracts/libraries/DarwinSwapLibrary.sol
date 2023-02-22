@@ -3,6 +3,7 @@ pragma solidity ^0.8.14;
 import "./SafeMath.sol";
 
 import "../interfaces/IDarwinSwapPair.sol";
+import "../interfaces/IDarwinSwapFactory.sol";
 
 library DarwinSwapLibrary {
     using SafeMath for uint;
@@ -21,8 +22,7 @@ library DarwinSwapLibrary {
                 hex"ff",
                 factory,
                 keccak256(abi.encodePacked(token0, token1)),
-                // TODO: CHANGE THIS ONCE AT LEAST 1 PAIR IS DEPLOYED
-                hex"96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f" // init code hash
+                IDarwinSwapFactory(factory).INIT_CODE_HASH()
             )))));
     }
 
