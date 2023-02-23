@@ -1,6 +1,6 @@
 import * as hardhat from "hardhat";
 import { ethers } from "hardhat";
-import { DarwinSwapFactory, DarwinSwapRouter } from "../typechain-types";
+import { DarwinSwapFactory, DarwinSwapRouter, FL } from "../typechain-types";
 import { ADDRESSES } from "./constants";
 
 
@@ -15,10 +15,17 @@ async function main() {
   console.log(`💻 Deployer: ${owner.address}`);
 
 
-  // DECLARE FACTORIES
-  const darwinFactoryFactory = await ethers.getContractFactory("DarwinSwapFactory");
-  const darwinRouterFactory = await ethers.getContractFactory("DarwinSwapRouter");
+  // DECLARE LIB FACTORY
+  const factoryLibFactory = await ethers.getContractFactory("FL");
 
+  //! [DEPLOY] LIB
+  const lib = await factoryLibFactory.deploy() as FL;
+  await lib.deployed();
+  console.log(`🔨 Deployed Darwin Factory Library at: ${lib.address}`);
+
+  // DECLARE FACTORIES
+  const darwinFactoryFactory = await ethers.getContractFactory("DarwinSwapFactory", {libraries: {FL: lib.address}});
+  const darwinRouterFactory = await ethers.getContractFactory("DarwinSwapRouter");
 
   //! [DEPLOY] FACTORY
   const factory = await darwinFactoryFactory.deploy(owner.address) as DarwinSwapFactory;

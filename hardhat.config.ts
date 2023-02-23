@@ -97,7 +97,7 @@ const config: HardhatUserConfig = {
         },
 
         bscTestnet: {
-            url: "https://data-seed-prebsc-2-s3.binance.org:8545/",
+            url: "https://bsc-testnet.public.blastapi.io",
             chainId: 97,
             accounts: [String(process.env.BSC_TESTNET_PRIVATEKEY)]
         },

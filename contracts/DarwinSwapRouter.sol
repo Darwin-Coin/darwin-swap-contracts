@@ -6,7 +6,6 @@ import "./libraries/SafeMath.sol";
 
 import "./interfaces/IDarwinSwapRouter.sol";
 import "./interfaces/IDarwinSwapFactory.sol";
-import "./interfaces/IUniswapV2Factory.sol";
 import "./interfaces/IDarwinSwapERC20.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/IWETH.sol";
@@ -41,7 +40,7 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         uint amountBMin
     ) internal virtual returns (uint amountA, uint amountB) {
         // create the pair if it doesn't exist yet
-        if (IUniswapV2Factory(factory).getPair(tokenA, tokenB) == address(0)) {
+        if (IDarwinSwapFactory(factory).getPair(tokenA, tokenB) == address(0)) {
             IDarwinSwapFactory(factory).createPair(tokenA, tokenB);
         }
         (uint reserveA, uint reserveB) = DarwinSwapLibrary.getReserves(factory, tokenA, tokenB);

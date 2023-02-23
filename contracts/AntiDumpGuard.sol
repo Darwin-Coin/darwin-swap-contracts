@@ -8,6 +8,7 @@ import "./interfaces/IDarwinSwapRouter.sol";
 import "./interfaces/IAntiDumpGuard.sol";
 import "./interfaces/IERC20.sol";
 import "./libraries/DarwinSwapLibrary.sol";
+import "./libraries/FactoryLibrary.sol";
 
 contract AntiDumpGuard is IAntiDumpGuard {
     IDarwinSwapPair public immutable pair;
@@ -26,7 +27,7 @@ contract AntiDumpGuard is IAntiDumpGuard {
     }
 
     function buyBackAndPair(address _sellToken) external {
-        IDarwinSwapFactory.TokenInfo memory tokenInfo = factory.tokenInfo(_sellToken);
+        FL.TokenInfo memory tokenInfo = factory.tokenInfo(_sellToken);
 
         // Return if antidump is not a thing for this token
         if (tokenInfo.antiDumpTriggerPrice == 0) {
