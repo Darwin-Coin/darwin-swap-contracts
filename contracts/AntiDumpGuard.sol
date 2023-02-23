@@ -15,6 +15,7 @@ contract AntiDumpGuard is IAntiDumpGuard {
     IDarwinSwapRouter public immutable router;
     address public immutable token0;
     address public immutable token1;
+    address public constant BUSD = 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56;
 
     constructor() {
         pair = IDarwinSwapPair(msg.sender);
@@ -39,18 +40,25 @@ contract AntiDumpGuard is IAntiDumpGuard {
             return;
         }
 
+        // Gets price of sellToken against buyToken
         (uint reserveSellToken, uint reserveBuyToken) = DarwinSwapLibrary.getReserves(address(factory), _sellToken, _buyToken);
-        uint _price = DarwinSwapLibrary.quote(10 ** IERC20(_sellToken).decimals(), reserveSellToken, reserveBuyToken);
+        uint _price = DarwinSwapLibrary.quote(1e18, reserveSellToken, reserveBuyToken);
+
+        // Ensures antiDumpTriggerPrice is calculated in _buyToken's
+        uint antiDumpTriggerPrice = tokenInfo.antiDumpTriggerPrice;
+        if (_buyToken != BUSD) {
+            (uint reserveBUSD,) = DarwinSwapLibrary.getReserves(address(factory), BUSD, _buyToken);
+            uint _priceOfBUSDInBuyToken = DarwinSwapLibrary.quote(1e18, reserveBUSD, reserveBuyToken);
+            antiDumpTriggerPrice = (antiDumpTriggerPrice * _priceOfBUSDInBuyToken) / 1e18;
+        }
 
         // Return if current price is higher than antidump trigger price
-        // TODO: THIS ACTUALLY CHECKS THE PRICE AT WHICH TOKEN WAS PROPOSED, SO THE PRICE AGAINST THE TOKEN IT WAS PAIRED WITH.
-        // TODO: FIND A WAY TO CONVERT IT TO THE TOKEN IT IS BEING SWAPPED FOR.
-        if (_price >= tokenInfo.antiDumpTriggerPrice) {
+        if (_price >= antiDumpTriggerPrice) {
             return;
         }
 
         // The amount of buyToken that we need to sell to reach antiDumpTriggerPrice for sellToken
-        uint sellAmountOfBuyToken = ((tokenInfo.antiDumpTriggerPrice + _price) * (tokenInfo.antiDumpTriggerPrice * reserveSellToken - reserveBuyToken)) / (3 * tokenInfo.antiDumpTriggerPrice + _price);
+        uint sellAmountOfBuyToken = ((antiDumpTriggerPrice + _price) * (antiDumpTriggerPrice * reserveSellToken - reserveBuyToken)) / (3 * antiDumpTriggerPrice + _price);
 
         if (IERC20(_buyToken).balanceOf(address(this)) < sellAmountOfBuyToken * 2) {
             sellAmountOfBuyToken = IERC20(_buyToken).balanceOf(address(this)) / 2;

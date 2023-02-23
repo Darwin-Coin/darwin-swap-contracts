@@ -25,7 +25,7 @@ library Tokenomics2Library {
         IDarwinSwapFactory.TokenInfo memory sellTokenInfo = IDarwinSwapFactory(factory).tokenInfo(sellToken);
         IDarwinSwapFactory.TokenInfo memory buyTokenInfo = IDarwinSwapFactory(factory).tokenInfo(buyToken);
 
-        if (sellTokenInfo.isTokenValid) {
+        if (sellTokenInfo.valid && buyTokenInfo.official) {
             // SELLTOKEN tokenomics1.0 sell tax value applied to itself
             uint sellTokenA1 = (value * sellTokenInfo.addedToks.tokenA1TaxOnSell) / 10000;
 
@@ -37,7 +37,7 @@ library Tokenomics2Library {
             sellTaxAmount += sellTokenA1;
         }
 
-        if (buyTokenInfo.isTokenValid) {
+        if (buyTokenInfo.valid && sellTokenInfo.official) {
             // BUYTOKEN tokenomics1.0 buy tax value applied to SELLTOKEN
             uint buyTokenB1 = (value * buyTokenInfo.addedToks.tokenB1TaxOnBuy) / 10000;
 
@@ -61,7 +61,7 @@ library Tokenomics2Library {
         IDarwinSwapFactory.TokenInfo memory buyTokenInfo = IDarwinSwapFactory(factory).tokenInfo(buyToken);
         IDarwinSwapFactory.TokenInfo memory sellTokenInfo = IDarwinSwapFactory(factory).tokenInfo(sellToken);
 
-        if (buyTokenInfo.isTokenValid) {
+        if (buyTokenInfo.valid && sellTokenInfo.official) {
             // BUYTOKEN tokenomics1.0 buy tax value applied to itself
             uint buyTokenA1 = (value * buyTokenInfo.addedToks.tokenA1TaxOnBuy) / 10000;
 
@@ -73,7 +73,7 @@ library Tokenomics2Library {
             buyTaxAmount += buyTokenA1;
         }
 
-        if (sellTokenInfo.isTokenValid) {
+        if (sellTokenInfo.valid && buyTokenInfo.official) {
             // SELLTOKEN tokenomics1.0 sell tax value applied to BUYTOKEN
             uint sellTokenB1 = (value * sellTokenInfo.addedToks.tokenB1TaxOnSell) / 10000;
 
@@ -97,7 +97,7 @@ library Tokenomics2Library {
         IDarwinSwapFactory.TokenInfo memory sellTokenInfo = IDarwinSwapFactory(factory).tokenInfo(sellToken);
         IDarwinSwapFactory.TokenInfo memory buyTokenInfo = IDarwinSwapFactory(factory).tokenInfo(buyToken);
 
-        if (sellTokenInfo.isTokenValid) {
+        if (sellTokenInfo.valid && buyTokenInfo.official) {
             // Calculates eventual tokenomics1.0 refund and makes it
             if (sellTokenInfo.refundOwnToks1) {
                 uint refundA1WithA2 = (value * sellTokenInfo.ownToks.tokenTaxOnSell) / 10000;
@@ -111,11 +111,10 @@ library Tokenomics2Library {
 
             // If SELLTOKEN's antiDump is active, send the tokenomics2.0 sell tax value applied to BUYTOKEN to the pair's antidump guard
             if (sellTokenInfo.antiDumpTriggerPrice > 0) {
-                address otherToken = IDarwinSwapPair(address(this)).token0() == sellToken ? IDarwinSwapPair(address(this)).token1() : IDarwinSwapPair(address(this)).token0();
-                (uint sellReserve, uint buyReserve) = DarwinSwapLibrary.getReserves(factory, sellToken, otherToken);
+                (uint sellReserve, uint buyReserve) = DarwinSwapLibrary.getReserves(factory, sellToken, buyToken);
                 uint refill = (DarwinSwapLibrary.getAmountOut(value, sellReserve, buyReserve) * sellTokenInfo.addedToks.tokenB2TaxOnSell) / 10000;
                 address antiDump = IDarwinSwapPair(address(this)).antiDumpGuard();
-                (bool success, bytes memory data) = otherToken.call(abi.encodeWithSelector(_TRANSFER, antiDump, refill));
+                (bool success, bytes memory data) = buyToken.call(abi.encodeWithSelector(_TRANSFER, antiDump, refill));
                 require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: ANTIDUMP_FAILED_SELL_2");
             }
 
@@ -128,7 +127,7 @@ library Tokenomics2Library {
             }
         }
 
-        if (buyTokenInfo.isTokenValid) {
+        if (buyTokenInfo.valid && sellTokenInfo.official) {
             // BUYTOKEN tokenomics2.0 buy tax value applied to SELLTOKEN
             uint buyTokenB2 = (value * buyTokenInfo.addedToks.tokenB2TaxOnBuy) / 10000;
 
@@ -152,7 +151,7 @@ library Tokenomics2Library {
         IDarwinSwapFactory.TokenInfo memory buyTokenInfo = IDarwinSwapFactory(factory).tokenInfo(buyToken);
         IDarwinSwapFactory.TokenInfo memory sellTokenInfo = IDarwinSwapFactory(factory).tokenInfo(sellToken);
 
-        if (buyTokenInfo.isTokenValid) {
+        if (buyTokenInfo.valid && sellTokenInfo.official) {
             // Calculates eventual tokenomics1.0 refund
             if (buyTokenInfo.refundOwnToks1) {
                 uint refundA1WithA2 = (value * buyTokenInfo.ownToks.tokenTaxOnBuy) / 10000;
@@ -165,11 +164,10 @@ library Tokenomics2Library {
 
             // If BUYTOKEN's antiDump is active, send the tokenomics2.0 buy tax value applied to SELLTOKEN to the pair's antidump guard
             if (buyTokenInfo.antiDumpTriggerPrice > 0) {
-                address otherToken = IDarwinSwapPair(address(this)).token0() == buyToken ? IDarwinSwapPair(address(this)).token1() : IDarwinSwapPair(address(this)).token0();
-                (uint sellReserve, uint buyReserve) = DarwinSwapLibrary.getReserves(factory, otherToken, buyToken);
+                (uint sellReserve, uint buyReserve) = DarwinSwapLibrary.getReserves(factory, sellToken, buyToken);
                 uint refill = (DarwinSwapLibrary.getAmountOut(value, buyReserve, sellReserve) * buyTokenInfo.addedToks.tokenB2TaxOnBuy) / 10000;
                 address antiDump = IDarwinSwapPair(address(this)).antiDumpGuard();
-                (bool success, bytes memory data) = otherToken.call(abi.encodeWithSelector(_TRANSFER, antiDump, refill));
+                (bool success, bytes memory data) = sellToken.call(abi.encodeWithSelector(_TRANSFER, antiDump, refill));
                 require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: ANTIDUMP_FAILED_BUY_2");
             }
 
@@ -182,7 +180,7 @@ library Tokenomics2Library {
             }
         }
 
-        if (sellTokenInfo.isTokenValid) {
+        if (sellTokenInfo.valid && buyTokenInfo.official) {
             // SELLTOKEN tokenomics2.0 sell tax value applied to BUYTOKEN
             uint sellTokenB2 = (value * sellTokenInfo.addedToks.tokenB2TaxOnSell) / 10000;
 
@@ -207,7 +205,7 @@ library Tokenomics2Library {
         uint tax2OnSell = refundOnSell + toks.tokenA2TaxOnSell + toks.tokenB2TaxOnSell;
         uint tax2OnBuy = refundOnBuy + toks.tokenA2TaxOnBuy + toks.tokenB2TaxOnBuy;
 
-        valid = tax1OnSell <= maxTok1Tax && tax1OnBuy <= maxTok1Tax && tax2OnSell <= maxTok2Tax && tax2OnBuy <= maxTok2Tax && (tokInfo.antiDumpTriggerPrice == 0 || toks.tokenB2TaxOnSell > 0);
+        valid = tax1OnSell <= maxTok1Tax && tax1OnBuy <= maxTok1Tax && tax2OnSell <= maxTok2Tax && tax2OnBuy <= maxTok2Tax && (tokInfo.antiDumpTriggerPrice == 0 || (toks.tokenB2TaxOnSell + toks.tokenB2TaxOnBuy) > 0);
     }
 
     // If the lister of a Tok1.0 token wants to refund users with added-Tok2.0, the refund will be the min between the maximum allowed taxation and the already present Tok1.0 taxation

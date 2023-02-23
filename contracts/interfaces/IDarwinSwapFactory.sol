@@ -8,12 +8,13 @@ interface IDarwinSwapFactory {
         TokenomicsInfo addedToks; //? Tokenomics "added" by DarwinSwap
         TokenStatus status; //? Token status
         bool refundOwnToks1; //? True if part (or all) of Tokenomics 2.0 will be used to refund users. This can only happen on the selected token side, not on the token it is paired with
-        address listByPairingWith; //? The other token this one will be paired with at its first listing
         address validator; //? If a Darwin team validator has verified this token (with whatever outcome), this is their address. Otherwise it equals the address(0)
-        bool isTokenValid; //? Only true if the token has been POSITIVELY validated by a Darwin team validator
+        bool valid; //? Only true if the token has been POSITIVELY validated by a Darwin team validator
+        bool official; //? Only true if the token is either Darwin, WBNB, or a selected list of tokens like USDT, USDC, etc. If "official" is true, other tokens paired with this token will be able to execute tokenomics, if any
         address owner; //? The owner of the token contract
         address feeReceiver; //? Where will the fees go
-        uint antiDumpTriggerPrice; //? If > 0, represents the price of this token against its 'tokenB' in a pair, below which a buyback->addLiquidityWithoutReceipt is triggered. If == 0, antiDump is not active for this token
+        uint antiDumpTriggerPrice; //? [18 DECIMALS] If > 0, represents the price of this token against its 'tokenB' in a pair, calculated in BUSD,
+                                   //? below which a buyback->addLiquidityWithoutReceipt is triggered. If == 0, antiDump is not active for this token
     }
 
     struct OwnTokenomicsInfo {
