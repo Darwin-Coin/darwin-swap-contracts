@@ -5,6 +5,7 @@ import "./DarwinSwapERC20.sol";
 import "./libraries/Math.sol";
 import "./libraries/UQ112x112.sol";
 import "./interfaces/IERC20.sol";
+import "./interfaces/IUniswapV2Factory.sol";
 import "./interfaces/IDarwinSwapFactory.sol";
 import "./interfaces/IDarwinSwapCallee.sol";
 import "./libraries/Tokenomics2Library.sol";
@@ -99,7 +100,7 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
 
     // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)
     function _mintFee(uint112 reserve0, uint112 reserve1) private returns (bool feeOn) {
-        address feeTo = IDarwinSwapFactory(factory).feeTo();
+        address feeTo = IUniswapV2Factory(factory).feeTo();
         feeOn = feeTo != address(0);
         uint _kLast = kLast; // gas savings
         if (feeOn) {
