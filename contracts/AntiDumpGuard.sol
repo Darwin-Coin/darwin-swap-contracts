@@ -4,15 +4,18 @@ pragma solidity ^0.8.14;
 
 import "./interfaces/IDarwinSwapPair.sol";
 import "./interfaces/IDarwinSwapFactory.sol";
+import "./interfaces/IDarwinSwapLister.sol";
 import "./interfaces/IDarwinSwapRouter.sol";
 import "./interfaces/IAntiDumpGuard.sol";
 import "./interfaces/IERC20.sol";
+
 import "./libraries/DarwinSwapLibrary.sol";
 
 contract AntiDumpGuard is IAntiDumpGuard {
     IDarwinSwapPair public immutable pair;
     IDarwinSwapFactory public immutable factory;
     IDarwinSwapRouter public immutable router;
+    IDarwinSwapLister public immutable lister;
     address public immutable token0;
     address public immutable token1;
     address public constant BUSD = 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56;
@@ -21,12 +24,13 @@ contract AntiDumpGuard is IAntiDumpGuard {
         pair = IDarwinSwapPair(msg.sender);
         factory = IDarwinSwapFactory(pair.factory());
         router = IDarwinSwapRouter(factory.router());
+        lister = IDarwinSwapLister(factory.lister());
         token0 = pair.token0();
         token1 = pair.token1();
     }
 
     function buyBackAndPair(address _sellToken) external {
-        IDarwinSwapFactory.TokenInfo memory tokenInfo = factory.tokenInfo(_sellToken);
+        IDarwinSwapLister.TokenInfo memory tokenInfo = lister.tokenInfo(_sellToken);
 
         // Return if antidump is not a thing for this token
         if (tokenInfo.antiDumpTriggerPrice == 0) {

@@ -1,7 +1,7 @@
 pragma solidity ^0.8.14;
 
 import "../interfaces/IDarwinSwapPair.sol";
-import "../interfaces/IUniswapV2Factory.sol";
+import "../interfaces/IDarwinSwapFactory.sol";
 import "../interfaces/IDarwinSwapERC20.sol";
 import "./Babylonian.sol";
 import "./FullMath.sol";
@@ -106,7 +106,7 @@ library DarwinSwapLiquidityMathLibrary {
     ) internal view returns (uint256 tokenAAmount, uint256 tokenBAmount) {
         (uint256 reservesA, uint256 reservesB) = DarwinSwapLibrary.getReserves(factory, tokenA, tokenB);
         IDarwinSwapPair pair = IDarwinSwapPair(DarwinSwapLibrary.pairFor(factory, tokenA, tokenB));
-        bool feeOn = IUniswapV2Factory(factory).feeTo() != address(0);
+        bool feeOn = IDarwinSwapFactory(factory).feeTo() != address(0);
         uint kLast = feeOn ? pair.kLast() : 0;
         uint totalSupply = IDarwinSwapERC20(address(pair)).totalSupply();
         return computeLiquidityValue(reservesA, reservesB, totalSupply, liquidityAmount, feeOn, kLast);
@@ -125,7 +125,7 @@ library DarwinSwapLiquidityMathLibrary {
         uint256 tokenAAmount,
         uint256 tokenBAmount
     ) {
-        bool feeOn = IUniswapV2Factory(factory).feeTo() != address(0);
+        bool feeOn = IDarwinSwapFactory(factory).feeTo() != address(0);
         IDarwinSwapPair pair = IDarwinSwapPair(DarwinSwapLibrary.pairFor(factory, tokenA, tokenB));
         uint kLast = feeOn ? pair.kLast() : 0;
         uint totalSupply = IDarwinSwapERC20(address(pair)).totalSupply();

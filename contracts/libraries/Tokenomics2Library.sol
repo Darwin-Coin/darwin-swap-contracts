@@ -2,10 +2,8 @@
 
 pragma solidity ^0.8.14;
 
-import "../interfaces/IDarwinSwapFactory.sol";
-import "../interfaces/IUniswapV2Factory.sol";
+import "../interfaces/IDarwinSwapLister.sol";
 import "../interfaces/IDarwinSwapPair.sol";
-import "../interfaces/IAntiDumpGuard.sol";
 import "../libraries/DarwinSwapLibrary.sol";
 
 library Tokenomics2Library {
@@ -21,9 +19,9 @@ library Tokenomics2Library {
         uint256 value,
         address buyToken,
         address factory
-    ) internal returns(uint sellTaxAmount) {
-        IDarwinSwapFactory.TokenInfo memory sellTokenInfo = IDarwinSwapFactory(factory).tokenInfo(sellToken);
-        IDarwinSwapFactory.TokenInfo memory buyTokenInfo = IDarwinSwapFactory(factory).tokenInfo(buyToken);
+    ) public returns(uint sellTaxAmount) {
+        IDarwinSwapLister.TokenInfo memory sellTokenInfo = IDarwinSwapLister(IDarwinSwapFactory(factory).lister()).tokenInfo(sellToken);
+        IDarwinSwapLister.TokenInfo memory buyTokenInfo = IDarwinSwapLister(IDarwinSwapFactory(factory).lister()).tokenInfo(buyToken);
 
         if (sellTokenInfo.valid && buyTokenInfo.official) {
             // SELLTOKEN tokenomics1.0 sell tax value applied to itself
@@ -57,9 +55,9 @@ library Tokenomics2Library {
         uint value,
         address sellToken,
         address factory
-    ) internal returns(uint buyTaxAmount) {
-        IDarwinSwapFactory.TokenInfo memory buyTokenInfo = IDarwinSwapFactory(factory).tokenInfo(buyToken);
-        IDarwinSwapFactory.TokenInfo memory sellTokenInfo = IDarwinSwapFactory(factory).tokenInfo(sellToken);
+    ) public returns(uint buyTaxAmount) {
+        IDarwinSwapLister.TokenInfo memory buyTokenInfo = IDarwinSwapLister(IDarwinSwapFactory(factory).lister()).tokenInfo(buyToken);
+        IDarwinSwapLister.TokenInfo memory sellTokenInfo = IDarwinSwapLister(IDarwinSwapFactory(factory).lister()).tokenInfo(sellToken);
 
         if (buyTokenInfo.valid && sellTokenInfo.official) {
             // BUYTOKEN tokenomics1.0 buy tax value applied to itself
@@ -93,9 +91,9 @@ library Tokenomics2Library {
         uint value,
         address buyToken,
         address factory
-    ) internal {
-        IDarwinSwapFactory.TokenInfo memory sellTokenInfo = IDarwinSwapFactory(factory).tokenInfo(sellToken);
-        IDarwinSwapFactory.TokenInfo memory buyTokenInfo = IDarwinSwapFactory(factory).tokenInfo(buyToken);
+    ) public {
+        IDarwinSwapLister.TokenInfo memory sellTokenInfo = IDarwinSwapLister(IDarwinSwapFactory(factory).lister()).tokenInfo(sellToken);
+        IDarwinSwapLister.TokenInfo memory buyTokenInfo = IDarwinSwapLister(IDarwinSwapFactory(factory).lister()).tokenInfo(buyToken);
 
         if (sellTokenInfo.valid && buyTokenInfo.official) {
             // Calculates eventual tokenomics1.0 refund and makes it
@@ -147,9 +145,9 @@ library Tokenomics2Library {
         address sellToken,
         address to,
         address factory
-    ) internal {
-        IDarwinSwapFactory.TokenInfo memory buyTokenInfo = IDarwinSwapFactory(factory).tokenInfo(buyToken);
-        IDarwinSwapFactory.TokenInfo memory sellTokenInfo = IDarwinSwapFactory(factory).tokenInfo(sellToken);
+    ) public {
+        IDarwinSwapLister.TokenInfo memory buyTokenInfo = IDarwinSwapLister(IDarwinSwapFactory(factory).lister()).tokenInfo(buyToken);
+        IDarwinSwapLister.TokenInfo memory sellTokenInfo = IDarwinSwapLister(IDarwinSwapFactory(factory).lister()).tokenInfo(sellToken);
 
         if (buyTokenInfo.valid && sellTokenInfo.official) {
             // Calculates eventual tokenomics1.0 refund
@@ -193,9 +191,9 @@ library Tokenomics2Library {
     }
 
     // Ensures that the limitations we've set for taxes are respected
-    function ensureTokenomics(IDarwinSwapFactory.TokenInfo memory tokInfo, uint maxTok1Tax, uint maxTok2Tax) internal pure returns(bool valid) {
-        IDarwinSwapFactory.TokenomicsInfo memory toks = tokInfo.addedToks;
-        IDarwinSwapFactory.OwnTokenomicsInfo memory ownToks = tokInfo.ownToks;
+    function ensureTokenomics(IDarwinSwapLister.TokenInfo memory tokInfo, uint maxTok1Tax, uint maxTok2Tax) public pure returns(bool valid) {
+        IDarwinSwapLister.TokenomicsInfo memory toks = tokInfo.addedToks;
+        IDarwinSwapLister.OwnTokenomicsInfo memory ownToks = tokInfo.ownToks;
 
         uint refundOnSell = tokInfo.refundOwnToks1 ? refund(ownToks.tokenTaxOnSell, maxTok2Tax) : 0;
         uint refundOnBuy = tokInfo.refundOwnToks1 ? refund(ownToks.tokenTaxOnBuy, maxTok2Tax) : 0;
@@ -209,7 +207,7 @@ library Tokenomics2Library {
     }
 
     // If the lister of a Tok1.0 token wants to refund users with added-Tok2.0, the refund will be the min between the maximum allowed taxation and the already present Tok1.0 taxation
-    function refund(uint ownTax, uint maxTok2Tax) internal pure returns(uint) {
+    function refund(uint ownTax, uint maxTok2Tax) public pure returns(uint) {
         if (ownTax > maxTok2Tax) {
             return maxTok2Tax;
         } else {
