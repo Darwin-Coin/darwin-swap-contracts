@@ -12,53 +12,6 @@ const config: HardhatUserConfig = {
     solidity: {
         compilers: [
             {
-                version: "0.5.16",
-                settings: {
-                    optimizer: {
-                        enabled: true,
-                        runs: 200
-                    },
-                }
-            },
-            {
-                version: "0.6.6",
-                settings: {
-                    optimizer: {
-                        enabled: true,
-                        runs: 200
-                    },
-                }
-
-            },
-            {
-                version: "0.8.3",
-                settings: {
-                    optimizer: {
-                        enabled: true,
-                        runs: 200
-                    },
-                }
-
-            },
-            {
-                version: "0.8.4",
-                settings: {
-                    optimizer: {
-                        enabled: true,
-                        runs: 200
-                    },
-                }
-            },
-            {
-                version: "0.8.9",
-                settings: {
-                    optimizer: {
-                        enabled: true,
-                        runs: 200
-                    },
-                }
-            },
-            {
                 version: "0.8.14",
                 settings: {
                     optimizer: {
@@ -71,31 +24,6 @@ const config: HardhatUserConfig = {
     },
 
     networks: {
-        local: {
-            url: "http://127.0.0.1:8545",
-            accounts: {
-                mnemonic: String(process.env.TEST_MNEMONICS),
-                count: 100,
-                initialIndex: 0
-            }
-        },
-        localMainnetFork: {
-            url: "http://127.0.0.1:8545",
-            accounts: {
-                mnemonic: String(process.env.TEST_MNEMONICS),
-                count: 100,
-                initialIndex: 0
-            }
-        },
-        localBscTestnetFork: {
-            url: "http://127.0.0.1:8545",
-            accounts: {
-                mnemonic: String(process.env.TEST_MNEMONICS),
-                count: 100,
-                initialIndex: 6
-            }
-        },
-
         bscTestnet: {
             url: "https://bsc-testnet.public.blastapi.io",
             chainId: 97,
