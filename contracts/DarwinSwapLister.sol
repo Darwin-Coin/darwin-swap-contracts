@@ -87,10 +87,11 @@ contract DarwinSwapLister is IDarwinSwapLister {
     function proposeToken(address tokenAddress, TokenInfo memory proposalInfo) external {
         require(tokenAddress != address(0) && proposalInfo.feeReceiver != address(0), "DarwinSwap: ZERO_ADDRESS");
         require((_tokenInfo[tokenAddress].status == TokenStatus.UNLISTED || _tokenInfo[tokenAddress].status == TokenStatus.LISTED) && !isUserBannedFromListing[msg.sender], "DarwinSwap: TOKEN_PROPOSED_OR_BANNED");
-        require(msg.sender == IERC20(tokenAddress).owner() || msg.sender == dev, "DarwinSwap: CALLER_NOT_TOKEN_OWNER");
+        address owner = _getTokenOwner(tokenAddress);
+        require(msg.sender == owner || msg.sender == dev, "DarwinSwap: CALLER_NOT_TOKEN_OWNER");
 
         // Makes sure the fields in the proposal are setted as they should by default
-        proposalInfo.owner = IERC20(tokenAddress).owner();
+        proposalInfo.owner = owner;
         proposalInfo.status = TokenStatus.PROPOSED;
         proposalInfo.validator = address(0);
         proposalInfo.valid = false;
@@ -181,5 +182,18 @@ contract DarwinSwapLister is IDarwinSwapLister {
 
     function setFactory(address _factory) external onlyDev {
         factory = _factory;
+    }
+
+    // Gets the owner of the token (if any). Some tokens do not have an "owner" state variable or a "getOwner" function, so this uses a try/catch.
+    function _getTokenOwner(address _tokenAddress) internal view returns(address) {
+        try IERC20(_tokenAddress).owner() returns (address owner) {
+            return owner;
+        } catch {
+            try IERC20(_tokenAddress).getOwner() returns (address owner) {
+                return owner;
+            } catch {
+                return 0x0000000000000000000000000000000000000000;
+            }
+        }
     }
 }
