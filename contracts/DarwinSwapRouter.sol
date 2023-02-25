@@ -9,11 +9,8 @@ import "./interfaces/IWETH.sol";
 
 import "./libraries/TransferHelper.sol";
 import "./libraries/DarwinSwapLibrary.sol";
-import "./libraries/SafeMath.sol";
 
 contract DarwinSwapRouter is IDarwinSwapRouter {
-    using SafeMath for uint;
-
     address public immutable override factory;
     address public immutable override WETH;
 
@@ -236,7 +233,7 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
             { // scope to avoid stack too deep errors
             (uint reserve0, uint reserve1,) = pair.getReserves();
             (uint reserveInput, uint reserveOutput) = input == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
-            amountInput = IERC20(input).balanceOf(address(pair)).sub(reserveInput);
+            amountInput = IERC20(input).balanceOf(address(pair)) - reserveInput;
             amountOutput = DarwinSwapLibrary.getAmountOut(amountInput, reserveInput, reserveOutput);
             }
             (uint amount0Out, uint amount1Out) = input == token0 ? (uint(0), amountOutput) : (amountOutput, uint(0));
