@@ -1,6 +1,7 @@
 pragma solidity ^0.8.14;
 
 contract TestERC20 {
+    address public owner;
     string public name;
     string public symbol;
     uint8 public constant decimals = 18;
@@ -12,6 +13,7 @@ contract TestERC20 {
     event Transfer(address indexed from, address indexed to, uint value);
 
     constructor(string memory _name, string memory _symbol) {
+        owner = msg.sender;
         name = _name;
         symbol = _symbol;
         _mint(msg.sender, 1000000 * 1e18);
@@ -29,9 +31,9 @@ contract TestERC20 {
         emit Transfer(from, address(0), value);
     }
 
-    function _approve(address owner, address spender, uint value) private {
-        allowance[owner][spender] = value;
-        emit Approval(owner, spender, value);
+    function _approve(address _owner, address spender, uint value) private {
+        allowance[_owner][spender] = value;
+        emit Approval(_owner, spender, value);
     }
 
     function _transfer(address from, address to, uint value) private {

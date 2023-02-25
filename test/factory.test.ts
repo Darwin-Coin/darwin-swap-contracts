@@ -8,6 +8,32 @@ import { DarwinSwapFactory, DarwinSwapLister, DarwinSwapPair, DarwinSwapRouter, 
 import { TestERC20 } from "../typechain-types/test";
 
 const ZERO = "0x0000000000000000000000000000000000000000";
+const ZEROT = "0x0000000000000000000000000000000000000003";
+
+const PROPOSAL = {
+  ownToks: {
+    tokenTaxOnSell: 0,
+    tokenTaxOnBuy: 0
+  },
+  addedToks: {
+    tokenA1TaxOnSell: 0,
+    tokenB1TaxOnSell: 0,
+    tokenA1TaxOnBuy: 0,
+    tokenB1TaxOnBuy: 0,
+    tokenA2TaxOnSell: 0,
+    tokenB2TaxOnSell: 0,
+    tokenA2TaxOnBuy: 250,
+    tokenB2TaxOnBuy: 250
+  },
+  status: 0,
+  refundOwnToks1: false,
+  validator: ZERO,
+  valid: false,
+  official: false,
+  owner: ZERO,
+  feeReceiver: ZEROT,
+  antiDumpTriggerPrice: ethers.utils.parseEther("1")
+}
 
 describe("Test Suite", function () {
 
@@ -60,12 +86,6 @@ describe("Test Suite", function () {
       expect(await pair.token1()).to.be.equal(tokenB);
     });
 
-    it("When a pair is created, if `createPair(address,address)` is called again with the same tokens, it reverts", async function () {
-      const { lister, weth, token } = await loadFixture(deployFixture);
-      await lister.createPair(weth.address, token.address);
-      await expect(lister.createPair(weth.address, token.address)).to.be.revertedWith("DarwinSwap: PAIR_EXISTS");
-    });
-
     it("The function `allPairsLength()` correctly keeps track of all the created pairs", async function () {
       const { factory, lister, weth, token } = await loadFixture(deployFixture);
       expect(await factory.allPairsLength()).to.be.equal(0);
@@ -76,6 +96,24 @@ describe("Test Suite", function () {
 
   // LISTER
   describe("Lister", function () {
-    
+    it("Anyone can create a pair", async function () {
+      const { lister, addr1, weth, token } = await loadFixture(deployFixture);
+      expect(await lister.connect(addr1).createPair(weth.address, token.address)).to.not.be.reverted;
+    });
+
+    it("When a pair is created, if `createPair(address,address)` is called again with the same tokens, it reverts", async function () {
+      const { lister, weth, token } = await loadFixture(deployFixture);
+      await lister.createPair(weth.address, token.address);
+      await expect(lister.createPair(weth.address, token.address)).to.be.revertedWith("DarwinSwap: PAIR_EXISTS");
+    });
+
+    it("Tokenomics proposal can only be made either by the token owner or by the dev address", async function () {
+      const { lister, addr1, addr2, erc20Factory } = await loadFixture(deployFixture);
+      const token1 = await erc20Factory.connect(addr1).deploy("Test Token 1", "TTKN1") as TestERC20;
+      await expect(await lister.connect(addr1).proposeToken(token1.address, PROPOSAL)).to.not.be.reverted;
+      const token2 = await erc20Factory.connect(addr1).deploy("Test Token 2", "TTKN2") as TestERC20;
+      await expect(lister.connect(addr2).proposeToken(token2.address, PROPOSAL)).to.be.reverted;
+      await expect(await lister.proposeToken(token2.address, PROPOSAL)).to.not.be.reverted;
+    });
   });
 });
