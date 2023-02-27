@@ -86,6 +86,7 @@ contract DarwinSwapLister is IDarwinSwapLister {
     // Also allows to propose modifies to an already listed token.
     function proposeToken(address tokenAddress, TokenInfo memory proposalInfo) external {
         require(tokenAddress != address(0) && proposalInfo.feeReceiver != address(0), "DarwinSwap: ZERO_ADDRESS");
+        require(bytes(proposalInfo.purpose).length > 0, "DarwinSwap: EMPTY_PURPOSE");
         require((_tokenInfo[tokenAddress].status == TokenStatus.UNLISTED || _tokenInfo[tokenAddress].status == TokenStatus.LISTED) && !isUserBannedFromListing[msg.sender], "DarwinSwap: TOKEN_PROPOSED_OR_BANNED");
         address owner = _getTokenOwner(tokenAddress);
         require(msg.sender == owner || msg.sender == dev, "DarwinSwap: CALLER_NOT_TOKEN_OWNER");

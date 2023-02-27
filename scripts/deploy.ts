@@ -7,6 +7,7 @@ import { ADDRESSES } from "./constants";
 async function main() {
   const VERIFY=false
   const WETH=ADDRESSES.weth
+  const BUSD=ADDRESSES.busd
   const FEETO=ADDRESSES.feeTo
 
   const [owner, ...others] = await hardhat.ethers.getSigners();
@@ -63,7 +64,7 @@ async function main() {
   }
 
   //! [DEPLOY] FACTORY
-  const factory = await darwinFactoryFactory.deploy(lister.address) as DarwinSwapFactory;
+  const factory = await darwinFactoryFactory.deploy(lister.address, BUSD) as DarwinSwapFactory;
   await factory.deployed();
   console.log(`🔨 Deployed Darwin Factory at: ${factory.address}`);
 
@@ -71,7 +72,7 @@ async function main() {
     //? [VERIFY] FACTORY
     await hardhat.run("verify:verify", {
       address: factory.address,
-      constructorArguments: [lister.address]
+      constructorArguments: [lister.address, BUSD]
     });
   }
 

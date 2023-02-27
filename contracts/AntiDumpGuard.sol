@@ -12,19 +12,25 @@ import "./interfaces/IERC20.sol";
 import "./libraries/DarwinSwapLibrary.sol";
 
 contract AntiDumpGuard is IAntiDumpGuard {
-    IDarwinSwapPair public immutable pair;
     IDarwinSwapFactory public immutable factory;
-    IDarwinSwapRouter public immutable router;
-    IDarwinSwapLister public immutable lister;
-    address public immutable token0;
-    address public immutable token1;
-    address public constant BUSD = 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56;
+    IDarwinSwapPair public pair;
+    IDarwinSwapRouter public router;
+    IDarwinSwapLister public lister;
+    address public token0;
+    address public token1;
+    // the stablecoin used as USD value (BUSD)
+    address public USD;
 
     constructor() {
-        pair = IDarwinSwapPair(msg.sender);
-        factory = IDarwinSwapFactory(pair.factory());
+        factory = IDarwinSwapFactory(msg.sender);
+    }
+
+    function initialize(address _pair) external {
+        require(msg.sender == address(factory), "AntiDumpGuard: CALLER_NOT_FACTORY");
+        pair = IDarwinSwapPair(_pair);
         router = IDarwinSwapRouter(factory.router());
         lister = IDarwinSwapLister(factory.lister());
+        USD = factory.USD();
         token0 = pair.token0();
         token1 = pair.token1();
     }
@@ -50,10 +56,10 @@ contract AntiDumpGuard is IAntiDumpGuard {
 
         // Ensures antiDumpTriggerPrice is calculated in _buyToken's
         uint antiDumpTriggerPrice = tokenInfo.antiDumpTriggerPrice;
-        if (_buyToken != BUSD) {
-            (uint reserveBUSD,) = DarwinSwapLibrary.getReserves(address(factory), BUSD, _buyToken);
-            uint _priceOfBUSDInBuyToken = DarwinSwapLibrary.quote(1e18, reserveBUSD, reserveBuyToken);
-            antiDumpTriggerPrice = (antiDumpTriggerPrice * _priceOfBUSDInBuyToken) / 1e18;
+        if (_buyToken != USD) {
+            (uint reserveUSD,) = DarwinSwapLibrary.getReserves(address(factory), USD, _buyToken);
+            uint _priceOfUSDInBuyToken = DarwinSwapLibrary.quote(1e18, reserveUSD, reserveBuyToken);
+            antiDumpTriggerPrice = (antiDumpTriggerPrice * _priceOfUSDInBuyToken) / 1e18;
         }
 
         // Return if current price is higher than antidump trigger price

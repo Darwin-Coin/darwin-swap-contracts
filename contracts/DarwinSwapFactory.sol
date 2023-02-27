@@ -1,6 +1,7 @@
 pragma solidity ^0.8.14;
 
 import "./DarwinSwapPair.sol";
+import "./AntiDumpGuard.sol";
 
 import "./interfaces/IDarwinSwapFactory.sol";
 
@@ -9,6 +10,8 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
     address public router;
     address public lister;
     address public feeTo;
+    // the stablecoin used as USD value (BUSD)
+    address public USD;
 
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;
@@ -19,9 +22,10 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
 
     bytes32 public constant INIT_CODE_HASH = keccak256(abi.encodePacked(type(DarwinSwapPair).creationCode));
 
-    constructor(address _lister) {
+    constructor(address _lister, address _USD) {
         dev = msg.sender;
         lister = _lister;
+        USD = _USD;
     }
 
     modifier onlyDev() {
@@ -40,11 +44,15 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
         require(token0 != address(0), "DarwinSwap: ZERO_ADDRESS");
         require(getPair[token0][token1] == address(0), "DarwinSwap: PAIR_EXISTS"); // single check is sufficient
         bytes memory bytecode = type(DarwinSwapPair).creationCode;
+        bytes memory bytecode2 = type(AntiDumpGuard).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
+        address _antiDumpGuard;
         assembly {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
+            _antiDumpGuard := create2(0, add(bytecode2, 32), mload(bytecode2), salt)
         }
-        IDarwinSwapPair(pair).initialize(token0, token1);
+        IAntiDumpGuard(_antiDumpGuard).initialize(pair);
+        IDarwinSwapPair(pair).initialize(token0, token1, _antiDumpGuard);
         getPair[token0][token1] = pair;
         getPair[token1][token0] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);

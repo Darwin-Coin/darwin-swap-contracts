@@ -7,6 +7,7 @@ interface IDarwinSwapFactory {
     function lister() external view returns (address);
     function feeTo() external view returns (address);
     function router() external view returns (address);
+    function USD() external view returns (address);
 
     function getPair(address tokenA, address tokenB) external view returns (address pair);
     function allPairs(uint) external view returns (address pair);

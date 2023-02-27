@@ -5,5 +5,6 @@ pragma solidity ^0.8.14;
 interface IAntiDumpGuard {
     event BuyBackAndPair(address tokenSold, address tokenBought, uint amountSold, uint amountBought);
 
+    function initialize(address _pair) external;
     function buyBackAndPair(address _token) external;
 }

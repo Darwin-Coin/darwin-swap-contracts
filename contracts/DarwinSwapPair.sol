@@ -1,6 +1,5 @@
 pragma solidity ^0.8.14;
 
-import "./AntiDumpGuard.sol";
 import "./DarwinSwapERC20.sol";
 
 import "./interfaces/IDarwinSwapPair.sol";
@@ -9,11 +8,9 @@ import "./interfaces/IDarwinSwapFactory.sol";
 import "./interfaces/IDarwinSwapCallee.sol";
 
 import "./libraries/Math.sol";
-import "./libraries/UQ112x112.sol";
 import "./libraries/Tokenomics2Library.sol";
 
 contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
-    using UQ112x112 for uint224;
 
     uint public constant MINIMUM_LIQUIDITY = 10**3;
     bytes4 private constant _SELECTOR = bytes4(keccak256(bytes("transfer(address,uint256)")));
@@ -24,8 +21,8 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
     address public token0;
     address public token1;
 
-    uint112 private _reserve0;           // uses single storage slot, accessible via getReserves
-    uint112 private _reserve1;           // uses single storage slot, accessible via getReserves
+    uint256 private _reserve0;           // uses single storage slot, accessible via getReserves
+    uint256 private _reserve1;           // uses single storage slot, accessible via getReserves
     uint32  private _blockTimestampLast; // uses single storage slot, accessible via getReserves
 
     uint public price0CumulativeLast;
@@ -45,7 +42,7 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         _;
     }
 
-    function getReserves() public view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast) {
+    function getReserves() public view returns (uint256 reserve0, uint256 reserve1, uint32 blockTimestampLast) {
         reserve0 = _reserve0;
         reserve1 = _reserve1;
         blockTimestampLast = _blockTimestampLast;
@@ -65,40 +62,31 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
     }
 
     // called once by the factory at time of deployment
-    function initialize(address _token0, address _token1) external {
+    function initialize(address _token0, address _token1, address _antiDumpGuard) external {
         require(msg.sender == factory, "DarwinSwap: FORBIDDEN"); // sufficient check
         token0 = _token0;
         token1 = _token1;
-
-        // Deploy the AntiDumpGuard contract and save its address
-        address _antiDumpGuard;
-        address _addressThis = address(this);
-        bytes memory bytecode = type(AntiDumpGuard).creationCode;
-        bytes32 salt = keccak256(abi.encodePacked(token0, token1));
-        assembly {
-            _antiDumpGuard := create2(_addressThis, add(bytecode, 32), mload(bytecode), salt)
-        }
         antiDumpGuard = _antiDumpGuard;
     }
 
     // update reserves and, on the first call per block, price accumulators
-    function _update(uint balance0, uint balance1, uint112 reserve0, uint112 reserve1) private {
-        require(balance0 <= type(uint112).max && balance1 <= type(uint112).max, "DarwinSwap: OVERFLOW");
+    function _update(uint balance0, uint balance1, uint256 reserve0, uint256 reserve1) private {
+        require(balance0 <= type(uint256).max && balance1 <= type(uint256).max, "DarwinSwap: OVERFLOW");
         uint32 blockTimestamp = uint32(block.timestamp % 2**32);
         uint32 timeElapsed = blockTimestamp - _blockTimestampLast; // overflow is desired
         if (timeElapsed > 0 && reserve0 != 0 && reserve1 != 0) {
             // * never overflows, and + overflow is desired
-            price0CumulativeLast += uint(UQ112x112.encode(reserve1).uqdiv(reserve0)) * timeElapsed;
-            price1CumulativeLast += uint(UQ112x112.encode(reserve0).uqdiv(reserve1)) * timeElapsed;
+            price0CumulativeLast += (reserve1 / reserve0) * timeElapsed;
+            price1CumulativeLast += (reserve0 / reserve1) * timeElapsed;
         }
-        _reserve0 = uint112(balance0);
-        _reserve1 = uint112(balance1);
+        _reserve0 = uint256(balance0);
+        _reserve1 = uint256(balance1);
         _blockTimestampLast = blockTimestamp;
         emit Sync(_reserve0, _reserve1);
     }
 
     // if fee is on, mint liquidity equivalent to 1/6th of the growth in sqrt(k)
-    function _mintFee(uint112 reserve0, uint112 reserve1) private returns (bool feeOn) {
+    function _mintFee(uint256 reserve0, uint256 reserve1) private returns (bool feeOn) {
         address feeTo = IDarwinSwapFactory(factory).feeTo();
         feeOn = feeTo != address(0);
         uint _kLast = kLast; // gas savings
@@ -120,7 +108,7 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
 
     // this low-level function should be called from a contract which performs important safety checks
     function mint(address to) external lock returns (uint liquidity) {
-        (uint112 reserve0, uint112 reserve1,) = getReserves(); // gas savings
+        (uint256 reserve0, uint256 reserve1,) = getReserves(); // gas savings
         uint balance0 = IERC20(token0).balanceOf(address(this));
         uint balance1 = IERC20(token1).balanceOf(address(this));
         uint amount0 = balance0 - reserve0;
@@ -144,7 +132,7 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
 
     // this low-level function should be called from a contract which performs important safety checks
     function burn(address to) external lock returns (uint amount0, uint amount1) {
-        (uint112 reserve0, uint112 reserve1,) = getReserves(); // gas savings
+        (uint256 reserve0, uint256 reserve1,) = getReserves(); // gas savings
         address _token0 = token0;                                // gas savings
         address _token1 = token1;                                // gas savings
         uint balance0 = IERC20(_token0).balanceOf(address(this));
@@ -170,7 +158,7 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
     // this low-level function should be called from a contract which performs important safety checks
     function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data, address[2] memory firstAndLastInPath) external lock {
         require(amount0Out > 0 || amount1Out > 0, "DarwinSwap: INSUFFICIENT_OUTPUT_AMOUNT");
-        (uint112 reserve0, uint112 reserve1,) = getReserves(); // gas savings
+        (uint256 reserve0, uint256 reserve1,) = getReserves(); // gas savings
         require(amount0Out < reserve0 && amount1Out < reserve1, "DarwinSwap: INSUFFICIENT_LIQUIDITY");
 
         uint balance0;
