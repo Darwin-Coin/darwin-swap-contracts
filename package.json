@@ -7,7 +7,8 @@
     "compile": "npx hardhat compile",
     "docgen": "npx hardhat docgen",
     "prettier": "./node_modules/.bin/prettier --write contracts/**/*.sol",
-    "xdeploy": "npx hardhat xdeploy"
+    "xdeploy": "npx hardhat xdeploy",
+    "deploy": "npx hardhat run ./scripts/deploy.ts --network"
   },
   "husky": {
     "hooks": {

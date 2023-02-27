@@ -31,10 +31,15 @@ const PROPOSAL = {
     tokenA2TaxOnSell: 0,
     tokenB2TaxOnSell: 0,
     tokenA2TaxOnBuy: 0,
-    tokenB2TaxOnBuy: 0
+    tokenB2TaxOnBuy: 0,
+    refundOnSell: 0,
+    refundOnBuy: 0,
+    tokenB1SellToADG: 0,
+    tokenB1BuyToADG: 0,
+    tokenB2SellToADG: 0,
+    tokenB2BuyToADG: 0
   },
   status: TokenStatus.UNLISTED,
-  refundOwnToks1: false,
   validator: ZERO,
   valid: false,
   official: false,
@@ -63,6 +68,12 @@ describe("Test Suite", function () {
     PROPOSAL.addedToks.tokenB2TaxOnSell = 0;
     PROPOSAL.addedToks.tokenA2TaxOnBuy = 0;
     PROPOSAL.addedToks.tokenB2TaxOnBuy = 0;
+    PROPOSAL.addedToks.refundOnSell = 0;
+    PROPOSAL.addedToks.refundOnBuy = 0;
+    PROPOSAL.addedToks.tokenB1SellToADG = 0;
+    PROPOSAL.addedToks.tokenB1BuyToADG = 0;
+    PROPOSAL.addedToks.tokenB2SellToADG = 0;
+    PROPOSAL.addedToks.tokenB2BuyToADG = 0;
     PROPOSAL.purpose = "not empty";
     PROPOSAL.feeReceiver = ZEROT;
     return PROPOSAL;
