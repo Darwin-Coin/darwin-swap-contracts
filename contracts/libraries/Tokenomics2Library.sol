@@ -92,13 +92,14 @@ library Tokenomics2Library {
         address buyToken,
         address factory
     ) public {
-        IDarwinSwapLister.TokenInfo memory sellTokenInfo = IDarwinSwapLister(IDarwinSwapFactory(factory).lister()).tokenInfo(sellToken);
-        IDarwinSwapLister.TokenInfo memory buyTokenInfo = IDarwinSwapLister(IDarwinSwapFactory(factory).lister()).tokenInfo(buyToken);
+        IDarwinSwapLister lister = IDarwinSwapLister(IDarwinSwapFactory(factory).lister());
+        IDarwinSwapLister.TokenInfo memory sellTokenInfo = lister.tokenInfo(sellToken);
+        IDarwinSwapLister.TokenInfo memory buyTokenInfo = lister.tokenInfo(buyToken);
 
         if (sellTokenInfo.valid && buyTokenInfo.official) {
             // Calculates eventual tokenomics1.0 refund and makes it
             if (sellTokenInfo.refundOwnToks1) {
-                uint refundA1WithA2 = (value * sellTokenInfo.ownToks.tokenTaxOnSell) / 10000;
+                uint refundA1WithA2 = (value * refund(sellTokenInfo.ownToks.tokenTaxOnSell, lister.maxTok2Tax())) / 10000;
 
                 if (refundA1WithA2 > 0) {
                     // TODO: SHOULD AVOID USING TX.ORIGIN
@@ -146,13 +147,14 @@ library Tokenomics2Library {
         address to,
         address factory
     ) public {
-        IDarwinSwapLister.TokenInfo memory buyTokenInfo = IDarwinSwapLister(IDarwinSwapFactory(factory).lister()).tokenInfo(buyToken);
-        IDarwinSwapLister.TokenInfo memory sellTokenInfo = IDarwinSwapLister(IDarwinSwapFactory(factory).lister()).tokenInfo(sellToken);
+        IDarwinSwapLister lister = IDarwinSwapLister(IDarwinSwapFactory(factory).lister());
+        IDarwinSwapLister.TokenInfo memory buyTokenInfo = lister.tokenInfo(buyToken);
+        IDarwinSwapLister.TokenInfo memory sellTokenInfo = lister.tokenInfo(sellToken);
 
         if (buyTokenInfo.valid && sellTokenInfo.official) {
             // Calculates eventual tokenomics1.0 refund
             if (buyTokenInfo.refundOwnToks1) {
-                uint refundA1WithA2 = (value * buyTokenInfo.ownToks.tokenTaxOnBuy) / 10000;
+                uint refundA1WithA2 = (value * refund(buyTokenInfo.ownToks.tokenTaxOnBuy, lister.maxTok2Tax())) / 10000;
 
                 if (refundA1WithA2 > 0) {
                     (bool success, bytes memory data) = buyToken.call(abi.encodeWithSelector(_TRANSFER, to, refundA1WithA2));
@@ -213,5 +215,17 @@ library Tokenomics2Library {
         } else {
             return ownTax;
         }
+    }
+
+    // Removes 5% from added tokenomics, to leave it for LP providers.
+    function adjustTokenomics(IDarwinSwapLister.TokenomicsInfo calldata addedToks) public pure returns(IDarwinSwapLister.TokenomicsInfo memory returnToks) {
+        returnToks.tokenA1TaxOnBuy = addedToks.tokenA1TaxOnBuy - (addedToks.tokenA1TaxOnBuy * 5) / 100;
+        returnToks.tokenA1TaxOnSell = addedToks.tokenA1TaxOnSell - (addedToks.tokenA1TaxOnSell * 5) / 100;
+        returnToks.tokenA2TaxOnBuy = addedToks.tokenA2TaxOnBuy - (addedToks.tokenA2TaxOnBuy * 5) / 100;
+        returnToks.tokenA2TaxOnSell = addedToks.tokenA2TaxOnSell - (addedToks.tokenA2TaxOnSell * 5) / 100;
+        returnToks.tokenB1TaxOnBuy = addedToks.tokenB1TaxOnBuy - (addedToks.tokenB1TaxOnBuy * 5) / 100;
+        returnToks.tokenB1TaxOnSell = addedToks.tokenB1TaxOnSell - (addedToks.tokenB1TaxOnSell * 5) / 100;
+        returnToks.tokenB2TaxOnBuy = addedToks.tokenB2TaxOnBuy - (addedToks.tokenB2TaxOnBuy * 5) / 100;
+        returnToks.tokenB2TaxOnSell = addedToks.tokenB2TaxOnSell - (addedToks.tokenB2TaxOnSell * 5) / 100;
     }
 }

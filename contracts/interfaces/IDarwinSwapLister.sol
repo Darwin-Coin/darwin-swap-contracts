@@ -51,6 +51,9 @@ interface IDarwinSwapLister {
     event TokenBanned(address indexed tokenAddress, address indexed ownerAddress);
     event TokenValidated(address indexed tokenAddress);
 
+    function maxTok1Tax() external view returns (uint);
+    function maxTok2Tax() external view returns (uint);
+
     function isValidator(address user) external view returns (bool);
     function createPair(address tokenA, address tokenB) external returns (address pair);
     function tokenInfo(address _token) external view returns(TokenInfo memory);

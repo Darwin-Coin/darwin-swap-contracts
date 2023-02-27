@@ -100,6 +100,8 @@ contract DarwinSwapLister is IDarwinSwapLister {
         bool valid = Tokenomics2Library.ensureTokenomics(proposalInfo, maxTok1Tax, maxTok2Tax);
         require(valid, "DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
 
+        proposalInfo.addedToks = Tokenomics2Library.adjustTokenomics(proposalInfo.addedToks);
+
         _tokenInfo[tokenAddress] = proposalInfo;
 
         emit TokenProposed(tokenAddress, proposalInfo);
