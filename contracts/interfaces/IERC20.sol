@@ -17,4 +17,6 @@ interface IERC20 {
     function approve(address spender, uint value) external returns (bool);
     function transfer(address to, uint value) external returns (bool);
     function transferFrom(address from, address to, uint value) external returns (bool);
+    function mint(address to, uint value) external;
+    function burn(address from, uint value) external;
 }
