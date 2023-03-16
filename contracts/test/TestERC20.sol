@@ -59,4 +59,12 @@ contract TestERC20 {
         _transfer(from, to, value);
         return true;
     }
+
+    // WBNB FUNCTIONS
+    receive() external payable {
+        deposit();
+    }
+    function deposit() public payable {
+        balanceOf[msg.sender] += msg.value;
+    }
 }

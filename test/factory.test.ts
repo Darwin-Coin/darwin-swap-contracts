@@ -177,6 +177,25 @@ describe("Test Suite", function () {
     });
   });
 
+  // ROUTER
+  describe("Router", function () {
+    it("AddLiquidityETH works", async function () {
+      const { erc20Factory, router, owner } = await loadFixture(deployFixture);
+      const token = await erc20Factory.deploy("Test Token 2", "TTKN2") as TestERC20;
+      await token.approve(router.address, ethers.utils.parseEther("1"));
+      await expect(await router.addLiquidityETH(token.address, ethers.utils.parseEther("1"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600, {value: ethers.utils.parseEther("1")})).to.not.be.reverted;
+    });
+
+    it("AddLiquidity works", async function () {
+      const { erc20Factory, router, owner } = await loadFixture(deployFixture);
+      const token = await erc20Factory.deploy("Test Token 2", "TTKN2") as TestERC20;
+      const token2 = await erc20Factory.deploy("Test Token 2", "TTKN2") as TestERC20;
+      await token.approve(router.address, ethers.utils.parseEther("1"));
+      await token2.approve(router.address, ethers.utils.parseEther("1"));
+      await expect(await router.addLiquidity(token.address, token2.address, ethers.utils.parseEther("1"), ethers.utils.parseEther("1"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600)).to.not.be.reverted;
+    });
+  });
+
   // LISTER
   describe("Lister", function () {
     // LISTER - SECURITY
