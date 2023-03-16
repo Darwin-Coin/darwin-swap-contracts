@@ -4,12 +4,9 @@ pragma solidity ^0.8.14;
 
 import "./interfaces/IDarwinSwapLister.sol";
 import "./interfaces/IERC20.sol";
+import "../darwin-token-contracts/contracts/interface/IDarwin.sol";
 
 import "./libraries/Tokenomics2Library.sol";
-
-interface IDarwin {
-    function registerDarwinSwapPair(address _pair) external;
-}
 
 contract DarwinSwapLister is IDarwinSwapLister {
     address public dev;
