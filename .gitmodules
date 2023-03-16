@@ -1,3 +1,4 @@
 [submodule "darwin-token-contracts"]
 	path = darwin-token-contracts
 	url = https://github.com/Darwin-Coin/darwin-token-contracts
+	branch = arbitrum
