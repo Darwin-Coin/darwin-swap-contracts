@@ -1,6 +1,7 @@
 {
   "name": "hardhat-project",
   "scripts": {
+    "sub": "git submodule update --remote --merge",
     "test": "npx hardhat test",
     "check": "npx hardhat check",
     "clean": "npx hardhat clean",

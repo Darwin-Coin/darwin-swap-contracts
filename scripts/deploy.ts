@@ -1,6 +1,6 @@
 import * as hardhat from "hardhat";
 import { ethers } from "hardhat";
-import { DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
+import { DarwinStaking, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
 import { ADDRESSES } from "./constants";
 
 
@@ -14,18 +14,18 @@ async function main() {
   console.log(`💻 Deployer: ${owner.address}`);
 
   // DECLARE LOCKER FACTORY
-  const lockerFactory = await ethers.getContractFactory("TokenLocker");
+  const stakingFactory = await ethers.getContractFactory("DarwinStaking");
 
-  //! [DEPLOY] LOCKER
-  const locker = await lockerFactory.deploy() as TokenLocker;
-  await locker.deployed();
-  console.log(`🔨 Deployed Token Locker at: ${locker.address}`);
+  //! [DEPLOY] STAKING
+  const staking = await stakingFactory.deploy(ADDRESSES.darwin, ADDRESSES.stakedDarwin) as DarwinStaking;
+  await staking.deployed();
+  console.log(`🔨 Deployed Darwin Staking at: ${staking.address}`);
 
   if (VERIFY) {
-    //? [VERIFY] LOCKER
+    //? [VERIFY] STAKING
     await hardhat.run("verify:verify", {
-      address: locker.address,
-      constructorArguments: []
+      address: staking.address,
+      constructorArguments: [ADDRESSES.darwin, ADDRESSES.stakedDarwin]
     });
   }
 

@@ -4,9 +4,10 @@ import { expect } from "chai";
 import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
 import * as hardhat from "hardhat";
 import { ethers, upgrades } from "hardhat";
-import { DarwinSwapFactory, DarwinSwapLister, DarwinSwapPair, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
+import { DarwinSwapFactory, DarwinSwapLister, DarwinSwapPair, DarwinSwapRouter, DarwinStaking, Tokenomics2Library } from "../typechain-types";
 import { TestERC20 } from "../typechain-types/test";
 import { BigNumber } from "ethers";
+import { ADDRESSES } from "../scripts/constants";
 
 const ZERO = "0x0000000000000000000000000000000000000000";
 const ZEROT = "0x0000000000000000000000000000000000000003";
@@ -88,8 +89,8 @@ describe("Test Suite", function () {
     const token = await erc20Factory.deploy("Token", "TKN") as TestERC20;
     const token1 = await erc20Factory.deploy("Token1", "TKN1") as TestERC20;
     const busd = await erc20Factory.deploy("Binance USD", "BUSD") as TestERC20;
-    const lockerFactory = await ethers.getContractFactory("TokenLocker");
-    const locker = await lockerFactory.deploy() as TokenLocker;
+    const stakingFactory = await ethers.getContractFactory("DarwinStaking");
+    const staking = await stakingFactory.deploy(token.address, token1.address) as DarwinStaking;
     const tokenomics2LibFactory = await ethers.getContractFactory("Tokenomics2Library");
     const library = await tokenomics2LibFactory.deploy() as Tokenomics2Library;
     const darwinRouterFactory = await ethers.getContractFactory("DarwinSwapRouter", {libraries: {Tokenomics2Library: library.address}});
@@ -102,7 +103,7 @@ describe("Test Suite", function () {
     const router = await darwinRouterFactory.deploy(factory.address, weth.address) as DarwinSwapRouter;
     await factory.setRouter(router.address);
     await factory.setFeeTo(owner.address);
-    return {owner, addr1, addr2, weth, token, token1, locker, library, lister, factory, router, busd, erc20Factory, pairFactory};
+    return {owner, addr1, addr2, weth, token, token1, staking, library, lister, factory, router, busd, erc20Factory, pairFactory};
   }
 
 

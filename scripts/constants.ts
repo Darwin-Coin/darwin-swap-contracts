@@ -2,6 +2,7 @@ const TEST = true;
 
 const TESTNET_ADDRESSES = {
     darwin: "0xa5a5E675E2c66B599e601568ef9eB1650a4969F6",
+    stakedDarwin: "",
     weth: "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd",
     busd: "0xeD24FC36d5Ee211Ea25A80239Fb8C4Cfd80f12Ee",
     community: "0x46aeeE521b0674b9A1aA155f7A5D8c3187eA7219",
@@ -10,6 +11,7 @@ const TESTNET_ADDRESSES = {
 
 const MAINNET_ADDRESSES = {
     darwin: "0xB25406f5135eB6274c648B9B69A9218284904cFb",
+    stakedDarwin: "",
     weth: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
     busd: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
     community: "0x8c439c6e3C6006b3a7d2e7cff77bd92B337271e5",
