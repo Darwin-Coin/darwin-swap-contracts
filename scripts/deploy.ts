@@ -1,14 +1,14 @@
 import * as hardhat from "hardhat";
 import { ethers } from "hardhat";
 import { DarwinStaking, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
-import { ADDRESSES } from "./constants";
+import { addr } from "./constants";
 
 
 async function main() {
-  const VERIFY=false
-  const WETH=ADDRESSES.weth
-  const BUSD=ADDRESSES.busd
-  const FEETO=ADDRESSES.feeTo
+  const VERIFY=true
+  const WETH=addr.weth
+  const BUSD=addr.busd
+  const FEETO=addr.feeTo
 
   const [owner, ...others] = await hardhat.ethers.getSigners();
   console.log(`💻 Deployer: ${owner.address}`);
@@ -17,7 +17,7 @@ async function main() {
   const stakingFactory = await ethers.getContractFactory("DarwinStaking");
 
   //! [DEPLOY] STAKING
-  const staking = await stakingFactory.deploy(ADDRESSES.darwin, ADDRESSES.stakedDarwin) as DarwinStaking;
+  const staking = await stakingFactory.deploy(addr.darwin, addr.stakedDarwin) as DarwinStaking;
   await staking.deployed();
   console.log(`🔨 Deployed Darwin Staking at: ${staking.address}`);
 
@@ -25,7 +25,7 @@ async function main() {
     //? [VERIFY] STAKING
     await hardhat.run("verify:verify", {
       address: staking.address,
-      constructorArguments: [ADDRESSES.darwin, ADDRESSES.stakedDarwin]
+      constructorArguments: [addr.darwin, addr.stakedDarwin]
     });
   }
 

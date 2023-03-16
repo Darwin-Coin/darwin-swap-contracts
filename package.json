@@ -62,5 +62,8 @@
     "typechain": "^8.1.1",
     "typescript": "^4.9.5",
     "xdeployer": "^1.1.16"
+  },
+  "dependencies": {
+    "hardhat-change-network": "^0.0.7"
   }
 }
