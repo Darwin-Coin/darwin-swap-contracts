@@ -6,7 +6,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import {IDarwinMasterChef, IERC20} from "./interfaces/IMasterChef.sol";
+import "./interfaces/ITokenLocker.sol";
 import "../darwin-token-contracts/contracts/interface/IDarwin.sol";
+
+import "./TokenLocker.sol";
 
 /**
  * MasterChef is the master of Darwin. He makes Darwin and he is a fair guy.
@@ -21,6 +24,8 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
 
     // Darwin Protocol
     IERC20 public immutable darwin;
+    // Token Locker
+    ITokenLocker public immutable locker;
     // Darwin Max Supply
     uint256 public immutable maxSupply;
     // Darwin tokens created per second.
@@ -56,6 +61,15 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
         address _feeAddress,
         uint256 _startTime
     ){
+        // Create TokenLocker contract
+        bytes memory bytecode = type(TokenLocker).creationCode;
+        bytes32 salt = keccak256(abi.encodePacked(address(this)));
+        address _locker;
+        assembly {
+            _locker := create2(0, add(bytecode, 32), mload(bytecode), salt)
+        }
+        locker = ITokenLocker(_locker);
+
         darwin = _darwin;
         feeAddress = _feeAddress;
         startTime = _startTime;
@@ -207,7 +221,7 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
     }
 
     // Deposit LP tokens to MasterChef for DARWIN allocation.
-    function deposit(uint256 _pid, uint256 _amount) external nonReentrant {
+    function deposit(uint256 _pid, uint256 _amount, bool _lock, uint256 _lockDuration) external nonReentrant {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
 
@@ -228,6 +242,11 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
             }
         }
 
+        if (_lock) {
+            locker.lockToken(msg.sender, address(pool.lpToken), _amount, _lockDuration);
+            user.lockedAmount += _amount;
+        }
+
         user.rewardDebt = user.amount * pool.accDarwinPerShare / 1e18;
         emit Deposit(msg.sender, _pid, _amount);
     }
@@ -238,6 +257,18 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
         UserInfo storage user = userInfo[_pid][msg.sender];
 
         require(user.amount >= _amount, "withdraw: not good");
+
+        // Prefer withdrawing already-in-masterchef tokens. If not enough, pick them (if unlocked) from TokenLocker.
+        if (user.amount - user.lockedAmount < _amount) {
+            uint amountToUnlock;
+            if (_amount >= user.lockedAmount) {
+                amountToUnlock = user.lockedAmount;
+            } else {
+                amountToUnlock = _amount;
+            }
+            locker.withdrawToken(msg.sender, address(pool.lpToken), amountToUnlock);
+            user.lockedAmount -= amountToUnlock;
+        }
 
         updatePool(_pid);
         _payOrLockupPendingDarwin(_pid);

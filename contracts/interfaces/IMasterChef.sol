@@ -11,6 +11,7 @@ interface IDarwinMasterChef {
         uint256 rewardDebt;     // Reward debt. See explanation below.
         uint256 rewardLockedUp;  // Reward locked up.
         uint256 nextHarvestUntil; // When can the user harvest again.
+        uint256 lockedAmount;   // The part of `amount` that is locked.
         //
         // We do some fancy math here. Basically, any point in time, the amount of DARWINs
         // entitled to a user but is pending to be distributed is:
@@ -39,15 +40,7 @@ interface IDarwinMasterChef {
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event SetFeeAddress(address indexed user, address indexed newAddress);
-    event SetLockAddress(address indexed user, address indexed newAddress);
-    event SetDevAddress(address indexed user, address indexed newAddress);
-    event SetVotesAddresses(address indexed user, address[3] indexed newAddresses);
     event UpdateEmissionRate(address indexed user, uint256 newEmissionRate);
-    event SetDarwinUsdt(address indexed user, address indexed newDarwinUsdt);
     event RewardLockedUp(address indexed user, uint256 indexed pid, uint256 amountLockedUp);
     event StartTimeChanged(uint256 oldStartTime, uint256 newStartTime);
-    event SetHybridHarvest(address indexed user, bool newHybridHarvest);
-    event SetKingRotationInterval(address indexed user, uint256 newKingRotInterval, bool isImmediate);
-    event SetPoolLp(address indexed user, uint256 indexed pid, IERC20 newPoolLp);
-    event SetKingPoolMul(address indexed user, uint256 newAllocPoint);
 }

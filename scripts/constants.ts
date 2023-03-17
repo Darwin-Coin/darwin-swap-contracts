@@ -30,6 +30,7 @@ export const TESTNET_ADDRESSES = {
     busd: "0xeD24FC36d5Ee211Ea25A80239Fb8C4Cfd80f12Ee",
     community: "0x46aeeE521b0674b9A1aA155f7A5D8c3187eA7219",
     feeTo: "0x46aeeE521b0674b9A1aA155f7A5D8c3187eA7219",
+    masterChefFeeTo: "",
     deployer: "0x63a0704e005776B153248A500Dfd950873AFB186",
     drop: "",
     presale: "",
@@ -45,12 +46,13 @@ export const TESTNET_ADDRESSES = {
 };
 
 export const ARB_ADDRESSES = {
-    darwin: "0xB25406f5135eB6274c648B9B69A9218284904cFb",
+    darwin: "",
     stakedDarwin: "",
-    weth: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
-    busd: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
-    community: "0x8c439c6e3C6006b3a7d2e7cff77bd92B337271e5",
-    feeTo: "0x63a0704e005776B153248A500Dfd950873AFB186",
+    weth: "",
+    busd: "",
+    community: "",
+    feeTo: "",
+    masterChefFeeTo: "",
     deployer: "0x63a0704e005776B153248A500Dfd950873AFB186",
     drop: "0x0D683F642f5A5055DC31741957e05cccEdf469BA",
     presale: "",

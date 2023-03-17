@@ -1,20 +1,20 @@
 import * as hardhat from "hardhat";
 import { ethers } from "hardhat";
-import { DarwinStaking, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
-import { addr } from "./constants";
+import { DarwinMasterChef, DarwinStaking, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
+import { addr, VERIFY } from "./constants";
 
 
 async function main() {
-  const VERIFY=true
-  const WETH=addr.weth
-  const BUSD=addr.busd
-  const FEETO=addr.feeTo
-
   const [owner, ...others] = await hardhat.ethers.getSigners();
   console.log(`💻 Deployer: ${owner.address}`);
 
-  // DECLARE LOCKER FACTORY
+  // TODO: SET MASTERCHEF START DATE
+  const MASTERCHEF_START = 0;
+
+  // DECLARE FACTORIES 1
   const stakingFactory = await ethers.getContractFactory("DarwinStaking");
+  const masterChefFactory = await ethers.getContractFactory("DarwinMasterChef");
+  const lockerFactory = await ethers.getContractFactory("TokenLocker");
 
   //! [DEPLOY] STAKING
   const staking = await stakingFactory.deploy(addr.darwin, addr.stakedDarwin) as DarwinStaking;
@@ -26,6 +26,32 @@ async function main() {
     await hardhat.run("verify:verify", {
       address: staking.address,
       constructorArguments: [addr.darwin, addr.stakedDarwin]
+    });
+  }
+
+  //! [DEPLOY] MASTERCHEF
+  const masterChef = await masterChefFactory.deploy(addr.darwin, addr.masterChefFeeTo, MASTERCHEF_START) as DarwinMasterChef;
+  await masterChef.deployed();
+  console.log(`🔨 Deployed Darwin MasterChef at: ${masterChef.address}`);
+
+  if (VERIFY) {
+    //? [VERIFY] MASTERCHEF
+    await hardhat.run("verify:verify", {
+      address: masterChef.address,
+      constructorArguments: [addr.darwin, addr.masterChefFeeTo, MASTERCHEF_START]
+    });
+  }
+
+  //! [ATTACH] LOCKER
+  const locker = lockerFactory.attach(await masterChef.locker()) as TokenLocker;
+  await locker.deployed();
+  console.log(`🔨 Deployed Token Locker at: ${locker.address}`);
+
+  if (VERIFY) {
+    //? [VERIFY] LOCKER
+    await hardhat.run("verify:verify", {
+      address: locker.address,
+      constructorArguments: []
     });
   }
 
@@ -45,7 +71,7 @@ async function main() {
     });
   }
 
-  // DECLARE FACTORIES
+  // DECLARE FACTORIES 2
   const darwinRouterFactory = await ethers.getContractFactory("DarwinSwapRouter", {libraries: {Tokenomics2Library: library.address}});
   const darwinFactoryFactory = await ethers.getContractFactory("DarwinSwapFactory", {libraries: {Tokenomics2Library: library.address}});
   const darwinListerFactory = await ethers.getContractFactory("DarwinSwapLister", {libraries: {Tokenomics2Library: library.address}});
@@ -64,7 +90,7 @@ async function main() {
   }
 
   //! [DEPLOY] FACTORY
-  const factory = await darwinFactoryFactory.deploy(lister.address, BUSD) as DarwinSwapFactory;
+  const factory = await darwinFactoryFactory.deploy(lister.address, addr.busd) as DarwinSwapFactory;
   await factory.deployed();
   console.log(`🔨 Deployed Darwin Factory at: ${factory.address}`);
 
@@ -72,7 +98,7 @@ async function main() {
     //? [VERIFY] FACTORY
     await hardhat.run("verify:verify", {
       address: factory.address,
-      constructorArguments: [lister.address, BUSD]
+      constructorArguments: [lister.address, addr.busd]
     });
   }
 
@@ -82,7 +108,7 @@ async function main() {
   console.log("🏁 Lister initialized");
 
   //! [DEPLOY] ROUTER
-  const router = await darwinRouterFactory.deploy(factory.address, WETH) as DarwinSwapRouter;
+  const router = await darwinRouterFactory.deploy(factory.address, addr.weth) as DarwinSwapRouter;
   await router.deployed();
   console.log(`🔨 Deployed Darwin Router at: ${router.address}`);
 
@@ -90,14 +116,14 @@ async function main() {
     //? [VERIFY] ROUTER
     await hardhat.run("verify:verify", {
       address: router.address,
-      constructorArguments: [factory.address, WETH]
+      constructorArguments: [factory.address, addr.weth]
     });
   }
 
   //* [INIT] FACTORY
   const setRouter = await factory.setRouter(router.address);
   await setRouter.wait();
-  const setFeeTo = await factory.setFeeTo(FEETO);
+  const setFeeTo = await factory.setFeeTo(addr.feeTo);
   await setFeeTo.wait();
   console.log("🏁 Factory initialized");
 

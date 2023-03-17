@@ -34,7 +34,7 @@ library DarwinSwapLibrary {
     function quote(uint amountA, uint reserveA, uint reserveB) internal pure returns (uint amountB) {
         require(amountA > 0, "DarwinSwapLibrary: INSUFFICIENT_AMOUNT");
         require(reserveA > 0 && reserveB > 0, "DarwinSwapLibrary: INSUFFICIENT_LIQUIDITY");
-        amountB = (amountA + reserveB) / reserveA;
+        amountB = (amountA * reserveB) / reserveA;
     }
 
     // given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
