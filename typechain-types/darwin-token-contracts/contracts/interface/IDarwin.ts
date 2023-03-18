@@ -36,16 +36,10 @@ export interface IDarwinInterface extends utils.Interface {
     "distributeRewards(uint256)": FunctionFragment;
     "emergencyPause()": FunctionFragment;
     "emergencyUnPause()": FunctionFragment;
-    "isExcludedFromHoldingLimit(address)": FunctionFragment;
-    "isExcludedFromSellLimit(address)": FunctionFragment;
     "isPaused()": FunctionFragment;
-    "maxTokenHoldingSize()": FunctionFragment;
-    "maxTokenSellSize()": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
     "registerDarwinSwapPair(address)": FunctionFragment;
-    "registerPair(address)": FunctionFragment;
     "setDarwinSwapFactory(address)": FunctionFragment;
-    "setHoldingLimitWhitelist(address,bool)": FunctionFragment;
     "setLive()": FunctionFragment;
     "setMaintenance(address,bool)": FunctionFragment;
     "setMinter(address,bool)": FunctionFragment;
@@ -53,7 +47,6 @@ export interface IDarwinInterface extends utils.Interface {
     "setPresaleAddress(address)": FunctionFragment;
     "setReceiveRewards(address,bool)": FunctionFragment;
     "setSecurity(address,bool)": FunctionFragment;
-    "setSellLimitWhitelist(address,bool)": FunctionFragment;
     "setUpgrader(address,bool)": FunctionFragment;
     "stakedDarwin()": FunctionFragment;
   };
@@ -67,16 +60,10 @@ export interface IDarwinInterface extends utils.Interface {
       | "distributeRewards"
       | "emergencyPause"
       | "emergencyUnPause"
-      | "isExcludedFromHoldingLimit"
-      | "isExcludedFromSellLimit"
       | "isPaused"
-      | "maxTokenHoldingSize"
-      | "maxTokenSellSize"
       | "mint"
       | "registerDarwinSwapPair"
-      | "registerPair"
       | "setDarwinSwapFactory"
-      | "setHoldingLimitWhitelist"
       | "setLive"
       | "setMaintenance"
       | "setMinter"
@@ -84,7 +71,6 @@ export interface IDarwinInterface extends utils.Interface {
       | "setPresaleAddress"
       | "setReceiveRewards"
       | "setSecurity"
-      | "setSellLimitWhitelist"
       | "setUpgrader"
       | "stakedDarwin"
   ): FunctionFragment;
@@ -117,23 +103,7 @@ export interface IDarwinInterface extends utils.Interface {
     functionFragment: "emergencyUnPause",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "isExcludedFromHoldingLimit",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isExcludedFromSellLimit",
-    values: [PromiseOrValue<string>]
-  ): string;
   encodeFunctionData(functionFragment: "isPaused", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "maxTokenHoldingSize",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "maxTokenSellSize",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "mint",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
@@ -143,16 +113,8 @@ export interface IDarwinInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "registerPair",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setDarwinSwapFactory",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setHoldingLimitWhitelist",
-    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(functionFragment: "setLive", values?: undefined): string;
   encodeFunctionData(
@@ -177,10 +139,6 @@ export interface IDarwinInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setSecurity",
-    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setSellLimitWhitelist",
     values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
@@ -217,38 +175,14 @@ export interface IDarwinInterface extends utils.Interface {
     functionFragment: "emergencyUnPause",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "isExcludedFromHoldingLimit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isExcludedFromSellLimit",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "isPaused", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "maxTokenHoldingSize",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "maxTokenSellSize",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "registerDarwinSwapPair",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "registerPair",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "setDarwinSwapFactory",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setHoldingLimitWhitelist",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setLive", data: BytesLike): Result;
@@ -271,10 +205,6 @@ export interface IDarwinInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setSecurity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setSellLimitWhitelist",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -375,21 +305,7 @@ export interface IDarwin extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    isExcludedFromHoldingLimit(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isExcludedFromSellLimit(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     isPaused(overrides?: CallOverrides): Promise<[boolean]>;
-
-    maxTokenHoldingSize(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    maxTokenSellSize(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     mint(
       account: PromiseOrValue<string>,
@@ -402,19 +318,8 @@ export interface IDarwin extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    registerPair(
-      pairAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setDarwinSwapFactory(
       _darwinSwapFactory: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setHoldingLimitWhitelist(
-      account: PromiseOrValue<string>,
-      whitelisted: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -457,12 +362,6 @@ export interface IDarwin extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setSellLimitWhitelist(
-      account: PromiseOrValue<string>,
-      whitelisted: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setUpgrader(
       _account: PromiseOrValue<string>,
       _hasRole: PromiseOrValue<boolean>,
@@ -501,21 +400,7 @@ export interface IDarwin extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  isExcludedFromHoldingLimit(
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isExcludedFromSellLimit(
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   isPaused(overrides?: CallOverrides): Promise<boolean>;
-
-  maxTokenHoldingSize(overrides?: CallOverrides): Promise<BigNumber>;
-
-  maxTokenSellSize(overrides?: CallOverrides): Promise<BigNumber>;
 
   mint(
     account: PromiseOrValue<string>,
@@ -528,19 +413,8 @@ export interface IDarwin extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  registerPair(
-    pairAddress: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setDarwinSwapFactory(
     _darwinSwapFactory: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setHoldingLimitWhitelist(
-    account: PromiseOrValue<string>,
-    whitelisted: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -583,12 +457,6 @@ export interface IDarwin extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setSellLimitWhitelist(
-    account: PromiseOrValue<string>,
-    whitelisted: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setUpgrader(
     _account: PromiseOrValue<string>,
     _hasRole: PromiseOrValue<boolean>,
@@ -619,21 +487,7 @@ export interface IDarwin extends BaseContract {
 
     emergencyUnPause(overrides?: CallOverrides): Promise<void>;
 
-    isExcludedFromHoldingLimit(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isExcludedFromSellLimit(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     isPaused(overrides?: CallOverrides): Promise<boolean>;
-
-    maxTokenHoldingSize(overrides?: CallOverrides): Promise<BigNumber>;
-
-    maxTokenSellSize(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
       account: PromiseOrValue<string>,
@@ -646,19 +500,8 @@ export interface IDarwin extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    registerPair(
-      pairAddress: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     setDarwinSwapFactory(
       _darwinSwapFactory: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setHoldingLimitWhitelist(
-      account: PromiseOrValue<string>,
-      whitelisted: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -696,12 +539,6 @@ export interface IDarwin extends BaseContract {
     setSecurity(
       _addr: PromiseOrValue<string>,
       _hasRole: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    setSellLimitWhitelist(
-      account: PromiseOrValue<string>,
-      whitelisted: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -764,21 +601,7 @@ export interface IDarwin extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    isExcludedFromHoldingLimit(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isExcludedFromSellLimit(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     isPaused(overrides?: CallOverrides): Promise<BigNumber>;
-
-    maxTokenHoldingSize(overrides?: CallOverrides): Promise<BigNumber>;
-
-    maxTokenSellSize(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
       account: PromiseOrValue<string>,
@@ -791,19 +614,8 @@ export interface IDarwin extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    registerPair(
-      pairAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     setDarwinSwapFactory(
       _darwinSwapFactory: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setHoldingLimitWhitelist(
-      account: PromiseOrValue<string>,
-      whitelisted: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -843,12 +655,6 @@ export interface IDarwin extends BaseContract {
     setSecurity(
       _addr: PromiseOrValue<string>,
       _hasRole: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setSellLimitWhitelist(
-      account: PromiseOrValue<string>,
-      whitelisted: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -891,23 +697,7 @@ export interface IDarwin extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    isExcludedFromHoldingLimit(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isExcludedFromSellLimit(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     isPaused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    maxTokenHoldingSize(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    maxTokenSellSize(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mint(
       account: PromiseOrValue<string>,
@@ -920,19 +710,8 @@ export interface IDarwin extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    registerPair(
-      pairAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     setDarwinSwapFactory(
       _darwinSwapFactory: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setHoldingLimitWhitelist(
-      account: PromiseOrValue<string>,
-      whitelisted: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -972,12 +751,6 @@ export interface IDarwin extends BaseContract {
     setSecurity(
       _addr: PromiseOrValue<string>,
       _hasRole: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setSellLimitWhitelist(
-      account: PromiseOrValue<string>,
-      whitelisted: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

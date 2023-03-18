@@ -5,7 +5,7 @@ import { addr, MASTERCHEF_START, VERIFY } from "./constants";
 
 
 async function main() {
-  const [owner, ...others] = await hardhat.ethers.getSigners();
+  const [owner] = await hardhat.ethers.getSigners();
   console.log(`💻 Deployer: ${owner.address}`);
 
   // DECLARE FACTORIES 1

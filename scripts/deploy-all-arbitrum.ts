@@ -183,9 +183,6 @@ async function main() {
     "setSecurity(address,bool)",
     "setUpgrader(address,bool)",
     "setReceiveRewards(address,bool)",
-    "setHoldingLimitWhitelist(address,bool)",
-    "setSellLimitWhitelist(address,bool)",
-    "registerPair(address)",
     "communityPause()"
   ];
 
@@ -248,6 +245,11 @@ async function main() {
     });
   }
 
+  //* [INIT] DARWIN WITH STAKING
+  const setStaking = await darwin.setDarwinStaking(staking.address);
+  await setStaking.wait();
+  console.log(`🏁 Staking address set for Darwin and Staked Darwin`);
+
   //! [DEPLOY] MASTERCHEF
   const masterChef = await masterChefFactory.deploy(darwin.address, addr.masterChefFeeTo, MASTERCHEF_START) as DarwinMasterChef;
   await masterChef.deployed();
@@ -260,6 +262,11 @@ async function main() {
       constructorArguments: [darwin.address, addr.masterChefFeeTo, MASTERCHEF_START]
     });
   }
+
+  //* [INIT] DARWIN WITH STAKING
+  const setMasterChef = await darwin.setMasterChef(masterChef.address);
+  await setMasterChef.wait();
+  console.log(`🏁 MasterChef address set for Darwin`);
 
   //! [ATTACH] LOCKER
   const locker = lockerFactory.attach(await masterChef.locker()) as TokenLocker;
@@ -276,11 +283,6 @@ async function main() {
 
   // DECLARE LIBRARY FACTORY
   const tokenomics2LibFactory = await ethers.getContractFactory("Tokenomics2Library");
-
-  //* [INIT] DARWIN WITH STAKING
-  const setStaking = await darwin.setDarwinStaking(staking.address);
-  await setStaking.wait();
-  console.log(`🏁 Staking address set for Darwin and Staked Darwin`);
 
 
   //! [DEPLOY] TOKENOMICS2

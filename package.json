@@ -1,7 +1,7 @@
 {
   "name": "hardhat-project",
   "scripts": {
-    "sub": "git submodule update --remote --merge",
+    "update": "git submodule update --remote --merge",
     "test": "npx hardhat test",
     "check": "npx hardhat check",
     "clean": "npx hardhat clean",
@@ -54,7 +54,7 @@
     "ololog": "^1.1.175",
     "prettier": "^2.7.1",
     "prettier-plugin-solidity": "^1.0.0-dev.23",
-    "rimraf": "^3.0.0",
+    "rimraf": "^4.4.0",
     "solc": "0.6.6",
     "solhint-plugin-prettier": "^0.0.5",
     "solidity-coverage": "^0.7.22",
@@ -64,6 +64,7 @@
     "xdeployer": "^1.1.16"
   },
   "dependencies": {
+    "copyfiles": "^2.4.1",
     "hardhat-change-network": "^0.0.7"
   }
 }
