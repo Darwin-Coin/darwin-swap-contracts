@@ -38,6 +38,7 @@ export interface DarwinMasterChefInterface extends utils.Interface {
     "darwin()": FunctionFragment;
     "darwinPerSecond()": FunctionFragment;
     "deposit(uint256,uint256,bool,uint256)": FunctionFragment;
+    "depositByLPToken(address,uint256,bool,uint256)": FunctionFragment;
     "emergencyWithdraw(uint256)": FunctionFragment;
     "feeAddress()": FunctionFragment;
     "getHarvestUntil(uint256,address)": FunctionFragment;
@@ -62,6 +63,7 @@ export interface DarwinMasterChefInterface extends utils.Interface {
     "updatePool(uint256)": FunctionFragment;
     "userInfo(uint256,address)": FunctionFragment;
     "withdraw(uint256,uint256)": FunctionFragment;
+    "withdrawByLPToken(address,uint256)": FunctionFragment;
   };
 
   getFunction(
@@ -75,6 +77,7 @@ export interface DarwinMasterChefInterface extends utils.Interface {
       | "darwin"
       | "darwinPerSecond"
       | "deposit"
+      | "depositByLPToken"
       | "emergencyWithdraw"
       | "feeAddress"
       | "getHarvestUntil"
@@ -99,6 +102,7 @@ export interface DarwinMasterChefInterface extends utils.Interface {
       | "updatePool"
       | "userInfo"
       | "withdraw"
+      | "withdrawByLPToken"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -141,6 +145,15 @@ export interface DarwinMasterChefInterface extends utils.Interface {
     functionFragment: "deposit",
     values: [
       PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<boolean>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "depositByLPToken",
+    values: [
+      PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<boolean>,
       PromiseOrValue<BigNumberish>
@@ -237,6 +250,10 @@ export interface DarwinMasterChefInterface extends utils.Interface {
     functionFragment: "withdraw",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawByLPToken",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "MAX_DEPOSIT_FEE",
@@ -262,6 +279,10 @@ export interface DarwinMasterChefInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "depositByLPToken",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "emergencyWithdraw",
     data: BytesLike
@@ -325,6 +346,10 @@ export interface DarwinMasterChefInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "updatePool", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "userInfo", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawByLPToken",
+    data: BytesLike
+  ): Result;
 
   events: {
     "Deposit(address,uint256,uint256)": EventFragment;
@@ -506,6 +531,14 @@ export interface DarwinMasterChef extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    depositByLPToken(
+      lpToken: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _lock: PromiseOrValue<boolean>,
+      _lockDuration: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     emergencyWithdraw(
       _pid: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -613,17 +646,24 @@ export interface DarwinMasterChef extends BaseContract {
       arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
         amount: BigNumber;
         rewardDebt: BigNumber;
         rewardLockedUp: BigNumber;
         nextHarvestUntil: BigNumber;
         lockedAmount: BigNumber;
+        lockEnd: BigNumber;
       }
     >;
 
     withdraw(
       _pid: PromiseOrValue<BigNumberish>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    withdrawByLPToken(
+      lpToken: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -659,6 +699,14 @@ export interface DarwinMasterChef extends BaseContract {
 
   deposit(
     _pid: PromiseOrValue<BigNumberish>,
+    _amount: PromiseOrValue<BigNumberish>,
+    _lock: PromiseOrValue<boolean>,
+    _lockDuration: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  depositByLPToken(
+    lpToken: PromiseOrValue<string>,
     _amount: PromiseOrValue<BigNumberish>,
     _lock: PromiseOrValue<boolean>,
     _lockDuration: PromiseOrValue<BigNumberish>,
@@ -772,17 +820,24 @@ export interface DarwinMasterChef extends BaseContract {
     arg1: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+    [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
       amount: BigNumber;
       rewardDebt: BigNumber;
       rewardLockedUp: BigNumber;
       nextHarvestUntil: BigNumber;
       lockedAmount: BigNumber;
+      lockEnd: BigNumber;
     }
   >;
 
   withdraw(
     _pid: PromiseOrValue<BigNumberish>,
+    _amount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  withdrawByLPToken(
+    lpToken: PromiseOrValue<string>,
     _amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -823,6 +878,14 @@ export interface DarwinMasterChef extends BaseContract {
       _lockDuration: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    depositByLPToken(
+      lpToken: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _lock: PromiseOrValue<boolean>,
+      _lockDuration: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     emergencyWithdraw(
       _pid: PromiseOrValue<BigNumberish>,
@@ -927,12 +990,13 @@ export interface DarwinMasterChef extends BaseContract {
       arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
+      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
         amount: BigNumber;
         rewardDebt: BigNumber;
         rewardLockedUp: BigNumber;
         nextHarvestUntil: BigNumber;
         lockedAmount: BigNumber;
+        lockEnd: BigNumber;
       }
     >;
 
@@ -941,6 +1005,12 @@ export interface DarwinMasterChef extends BaseContract {
       _amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    withdrawByLPToken(
+      lpToken: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
   };
 
   filters: {
@@ -1062,6 +1132,14 @@ export interface DarwinMasterChef extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    depositByLPToken(
+      lpToken: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _lock: PromiseOrValue<boolean>,
+      _lockDuration: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     emergencyWithdraw(
       _pid: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1165,6 +1243,12 @@ export interface DarwinMasterChef extends BaseContract {
       _amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    withdrawByLPToken(
+      lpToken: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1200,6 +1284,14 @@ export interface DarwinMasterChef extends BaseContract {
 
     deposit(
       _pid: PromiseOrValue<BigNumberish>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _lock: PromiseOrValue<boolean>,
+      _lockDuration: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    depositByLPToken(
+      lpToken: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
       _lock: PromiseOrValue<boolean>,
       _lockDuration: PromiseOrValue<BigNumberish>,
@@ -1308,6 +1400,12 @@ export interface DarwinMasterChef extends BaseContract {
 
     withdraw(
       _pid: PromiseOrValue<BigNumberish>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawByLPToken(
+      lpToken: PromiseOrValue<string>,
       _amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
