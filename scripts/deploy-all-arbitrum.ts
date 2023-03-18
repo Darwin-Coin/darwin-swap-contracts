@@ -3,7 +3,7 @@ import { ethers, upgrades } from "hardhat";
 import { DarwinMasterChef, DarwinStaking, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
 import { DarwinBurner, DarwinCommunity } from "../darwin-token-contracts/typechain-types";
 import { Darwin, DarwinPrivateSale, DarwinVester5, DarwinVester7, StakedDarwin } from "../darwin-token-contracts/typechain-types/contracts";
-import { addr, BSC_ADDRESSES, VERIFY } from "./constants";
+import { addr, BSC_ADDRESSES, MASTERCHEF_START, VERIFY } from "./constants";
 import { BigNumber } from "ethers";
 
 type UserInfo = {
@@ -229,9 +229,6 @@ async function main() {
 
   const [owner] = await hardhat.ethers.getSigners();
   console.log(`💻 Deployer: ${owner.address}`);
-
-  // TODO: SET MASTERCHEF START DATE
-  const MASTERCHEF_START = 0;
 
   // DECLARE FACTORIES 1
   const stakingFactory = await ethers.getContractFactory("DarwinStaking");

@@ -1,15 +1,12 @@
 import * as hardhat from "hardhat";
 import { ethers } from "hardhat";
 import { DarwinMasterChef, DarwinStaking, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
-import { addr, VERIFY } from "./constants";
+import { addr, MASTERCHEF_START, VERIFY } from "./constants";
 
 
 async function main() {
   const [owner, ...others] = await hardhat.ethers.getSigners();
   console.log(`💻 Deployer: ${owner.address}`);
-
-  // TODO: SET MASTERCHEF START DATE
-  const MASTERCHEF_START = 0;
 
   // DECLARE FACTORIES 1
   const stakingFactory = await ethers.getContractFactory("DarwinStaking");
