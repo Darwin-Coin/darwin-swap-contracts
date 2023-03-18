@@ -221,7 +221,8 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
     }
 
     // Deposit LP tokens to MasterChef for DARWIN allocation.
-    function deposit(uint256 _pid, uint256 _amount, bool _lock, uint256 _lockDuration) external nonReentrant {
+    // Also usable (with _amount = 0) to increase the lock duration.
+    function deposit(uint256 _pid, uint256 _amount, bool _lock, uint256 _lockDuration) public nonReentrant {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
 
@@ -245,14 +246,26 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
         if (_lock) {
             locker.lockToken(msg.sender, address(pool.lpToken), _amount, _lockDuration);
             user.lockedAmount += _amount;
+            user.lockEnd = locker.userLockedToken(msg.sender, address(pool.lpToken)).endTime;
         }
 
         user.rewardDebt = user.amount * pool.accDarwinPerShare / 1e18;
         emit Deposit(msg.sender, _pid, _amount);
     }
 
+    // Deposit LP tokens to MasterChef for DARWIN allocation. Not based on poolId but on the pool's LP token.
+    function depositByLPToken(IERC20 lpToken, uint256 _amount, bool _lock, uint256 _lockDuration) external returns (bool) {
+        for (uint i = 0; i < poolInfo.length; i++) {
+            if (poolInfo[i].lpToken == lpToken) {
+                deposit(i, _amount, _lock, _lockDuration);
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Withdraw LP tokens from MasterChef.
-    function withdraw(uint256 _pid, uint256 _amount) external nonReentrant {
+    function withdraw(uint256 _pid, uint256 _amount) public nonReentrant {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
 
@@ -287,6 +300,17 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
 
         user.rewardDebt = user.amount * pool.accDarwinPerShare / 1e18;
         emit Withdraw(msg.sender, _pid, _amount);
+    }
+
+    // Withdraw LP tokens from MasterChef. Not based on poolId but on the pool's LP token.
+    function withdrawByLPToken(IERC20 lpToken, uint256 _amount) external returns (bool) {
+        for (uint i = 0; i < poolInfo.length; i++) {
+            if (poolInfo[i].lpToken == lpToken) {
+                withdraw(i, _amount);
+                return true;
+            }
+        }
+        return false;
     }
 
     function _getPoolHarvestInterval(uint256 _pid) private view returns (uint256) {

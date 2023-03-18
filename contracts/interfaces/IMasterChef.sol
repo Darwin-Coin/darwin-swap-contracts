@@ -12,6 +12,7 @@ interface IDarwinMasterChef {
         uint256 rewardLockedUp;  // Reward locked up.
         uint256 nextHarvestUntil; // When can the user harvest again.
         uint256 lockedAmount;   // The part of `amount` that is locked.
+        uint256 lockEnd;        // Timestamp of end of lock of the locked amount.
         //
         // We do some fancy math here. Basically, any point in time, the amount of DARWINs
         // entitled to a user but is pending to be distributed is:
