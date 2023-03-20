@@ -9,8 +9,8 @@ contract DarwinStaking is IDarwinStaking, ReentrancyGuard {
     IERC20 public darwin;
     IERC20 public stakedDarwin;
 
-    // TODO: SET ACTUAL APR
-    uint public constant BASE_APR = 7e18; // 7%
+    uint public constant BASE_APR = 5e18; // 5%
+    uint public constant LOCK_BONUS_APR = 2e18; // 2% more if locked
     uint private constant _SECONDS_IN_YEAR = 31_536_000;
 
     mapping(address => UserInfo) public userInfo;
@@ -24,14 +24,11 @@ contract DarwinStaking is IDarwinStaking, ReentrancyGuard {
         require(darwin.transferFrom(msg.sender, address(this), _amount), "DarwinStaking: STAKE_FAILED");
 
         _claim();
-        userInfo[msg.sender].claimed = 0;
-        userInfo[msg.sender].lastStakeTimestamp = block.timestamp;
-        if (userInfo[msg.sender].lockEnd == 0) {
+        if (userInfo[msg.sender].lockEnd <= block.timestamp) {
             userInfo[msg.sender].lockEnd = block.timestamp + _lockPeriod;
         } else {
             userInfo[msg.sender].lockEnd += _lockPeriod;
         }
-        userInfo[msg.sender].lockPeriod += _lockPeriod;
 
         stakedDarwin.mint(msg.sender, _amount);
 
@@ -44,7 +41,6 @@ contract DarwinStaking is IDarwinStaking, ReentrancyGuard {
             require(userInfo[msg.sender].lockEnd <= block.timestamp, "DarwinStaking: LOCKED");
             require(_amount <= stakedDarwin.balanceOf(msg.sender), "DarwinStaking: NOT_ENOUGH_sDARWIN");
             stakedDarwin.burn(msg.sender, _amount);
-            userInfo[msg.sender].lockPeriod = 0;
             require(darwin.transfer(msg.sender, _amount), "DarwinStaking: WITHDRAW_TRANSFER_FAILED");
         }
         emit Withdraw(msg.sender, _amount, claimAmount);
@@ -52,8 +48,8 @@ contract DarwinStaking is IDarwinStaking, ReentrancyGuard {
 
     function _claim() internal returns (uint claimAmount) {
         claimAmount = claimableDarwin(msg.sender);
+        userInfo[msg.sender].lastClaimTimestamp = block.timestamp;
         if (claimAmount > 0) {
-            userInfo[msg.sender].claimed += claimAmount;
             darwin.mint(msg.sender, claimAmount);
         }
     }
@@ -63,19 +59,17 @@ contract DarwinStaking is IDarwinStaking, ReentrancyGuard {
         if (staked == 0) {
             return 0;
         }
-        uint claimed = userInfo[_user].claimed;
-        uint start = userInfo[_user].lastStakeTimestamp;
-        uint timePassedFromLastStake = (block.timestamp - start);
+        uint claim = userInfo[_user].lastClaimTimestamp;
+        uint lockEnd = userInfo[_user].lockEnd;
+        uint timePassedFromLastClaim = (block.timestamp - claim);
 
-        claimable = (staked * (BASE_APR + lockBonusApr(_user)) * timePassedFromLastStake) / (100e18 * _SECONDS_IN_YEAR) - claimed;
-    }
+        // lock bonus calculations
+        uint bonusClaimable;
+        if (claim < lockEnd) {
+            uint timePassedUntilLockEndOrNow = ((lockEnd > block.timestamp ? block.timestamp : lockEnd) - claim);
+            bonusClaimable = (staked * LOCK_BONUS_APR * timePassedUntilLockEndOrNow) / (100e18 * _SECONDS_IN_YEAR);
+        }
 
-    function lockBonusApr(address _user) public view returns(uint256 bonus) {
-        // TODO: SET ACTUAL MAX BONUS APR
-        uint maxBonusApr = 7e18;
-        uint lockPeriod = userInfo[_user].lockPeriod;
-        // TODO: Max bonus currently set at 1 year lock, if lock period < 1 year the bonus is a fraction of 7%
-        lockPeriod = lockPeriod > _SECONDS_IN_YEAR ? _SECONDS_IN_YEAR : lockPeriod;
-        bonus = (maxBonusApr * lockPeriod) / _SECONDS_IN_YEAR;
+        claimable = (staked * BASE_APR * timePassedFromLastClaim) / (100e18 * _SECONDS_IN_YEAR) + bonusClaimable;
     }
 }

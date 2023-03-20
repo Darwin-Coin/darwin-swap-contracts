@@ -3,9 +3,7 @@ pragma solidity ^0.8.14;
 interface IDarwinStaking {
 
     struct UserInfo {
-        uint claimed;
-        uint lastStakeTimestamp;
-        uint lockPeriod;
+        uint lastClaimTimestamp;
         uint lockEnd;
     }
 
