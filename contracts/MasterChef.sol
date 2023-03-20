@@ -51,10 +51,10 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
     // The timestamp when DARWIN mining starts.
     uint256 public startTime;
 
-    // Maximum darwinPerSecond: 0.007.
-    uint256 public constant MAX_EMISSION_RATE = 0.007 ether;
-    // Initial darwinPerSecond: 0.0035.
-    uint256 private constant _INITIAL_EMISSION_RATE = 0.0035 ether;
+    // Maximum darwinPerSecond: 1.
+    uint256 public constant MAX_EMISSION_RATE = 1 ether;
+    // Initial darwinPerSecond: 0.72.
+    uint256 private constant _INITIAL_EMISSION_RATE = 0.72 ether;
 
     constructor(
         IERC20 _darwin,
