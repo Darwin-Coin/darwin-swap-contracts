@@ -11,6 +11,7 @@ import type * as test from "./test";
 export type { test };
 export type { AntiDumpGuard } from "./AntiDumpGuard";
 export type { DarwinLiquidityBundles } from "./DarwinLiquidityBundles";
+export type { DarwinNFT } from "./DarwinNFT";
 export type { DarwinStaking } from "./DarwinStaking";
 export type { DarwinSwapERC20 } from "./DarwinSwapERC20";
 export type { DarwinSwapFactory } from "./DarwinSwapFactory";

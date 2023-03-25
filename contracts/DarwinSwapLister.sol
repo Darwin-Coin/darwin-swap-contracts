@@ -94,7 +94,7 @@ contract DarwinSwapLister is IDarwinSwapLister {
     // Allows a token owner (or the Dev address, in case the token is owned by address(0) et similia) to ask for the validation and listing of his token. This way users are able to put add-ons Tokenomics (1.0 or 2.0) on their tokens. (only if they get validated)
     // Also allows to propose modifies to an already listed token.
     function proposeToken(address tokenAddress, TokenInfo memory proposalInfo) external {
-        require(tokenAddress != address(0) && proposalInfo.feeReceiver != address(0), "DarwinSwap: ZERO_ADDRESS");
+        require(tokenAddress != address(0), "DarwinSwap: ZERO_ADDRESS");
         require(bytes(proposalInfo.purpose).length > 0, "DarwinSwap: EMPTY_PURPOSE");
         require((_tokenInfo[tokenAddress].status == TokenStatus.UNLISTED || _tokenInfo[tokenAddress].status == TokenStatus.LISTED) && !isUserBannedFromListing[msg.sender], "DarwinSwap: TOKEN_PROPOSED_OR_BANNED");
         address owner = _getTokenOwner(tokenAddress);
@@ -106,6 +106,9 @@ contract DarwinSwapLister is IDarwinSwapLister {
         proposalInfo.validator = address(0);
         proposalInfo.valid = false;
         proposalInfo.official = false;
+        if (proposalInfo.feeReceiver == address(0)) {
+            proposalInfo.feeReceiver = msg.sender;
+        }
 
         bool valid = Tokenomics2Library.ensureTokenomics(proposalInfo, maxTok1Tax, maxTok2Tax);
         require(valid, "DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
