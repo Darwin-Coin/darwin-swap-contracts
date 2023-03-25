@@ -3,6 +3,7 @@
 /* eslint-disable */
 export * as iMasterChefSol from "./IMasterChef.sol";
 export { IAntiDumpGuard__factory } from "./IAntiDumpGuard__factory";
+export { IDarwinLiquidityBundles__factory } from "./IDarwinLiquidityBundles__factory";
 export { IDarwinStaking__factory } from "./IDarwinStaking__factory";
 export { IDarwinSwapCallee__factory } from "./IDarwinSwapCallee__factory";
 export { IDarwinSwapERC20__factory } from "./IDarwinSwapERC20__factory";

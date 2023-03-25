@@ -6,6 +6,7 @@ export * as interfaces from "./interfaces";
 export * as libraries from "./libraries";
 export * as test from "./test";
 export { AntiDumpGuard__factory } from "./AntiDumpGuard__factory";
+export { DarwinLiquidityBundles__factory } from "./DarwinLiquidityBundles__factory";
 export { DarwinStaking__factory } from "./DarwinStaking__factory";
 export { DarwinSwapERC20__factory } from "./DarwinSwapERC20__factory";
 export { DarwinSwapFactory__factory } from "./DarwinSwapFactory__factory";

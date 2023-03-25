@@ -132,7 +132,7 @@ export interface DarwinSwapListerInterface extends utils.Interface {
     "factory()": FunctionFragment;
     "isUserBannedFromListing(address)": FunctionFragment;
     "isValidator(address)": FunctionFragment;
-    "listDarwinWithBNB(address,address,address)": FunctionFragment;
+    "listDarwinWithWETH(address,address,address)": FunctionFragment;
     "listOfficialToken(address)": FunctionFragment;
     "maxTok1Tax()": FunctionFragment;
     "maxTok2Tax()": FunctionFragment;
@@ -145,6 +145,7 @@ export interface DarwinSwapListerInterface extends utils.Interface {
     "setMaxTok2Tax(uint256)": FunctionFragment;
     "setValidator(address,bool)": FunctionFragment;
     "tokenInfo(address)": FunctionFragment;
+    "validTokens(uint256)": FunctionFragment;
     "validateToken(address,uint8,bool)": FunctionFragment;
   };
 
@@ -155,7 +156,7 @@ export interface DarwinSwapListerInterface extends utils.Interface {
       | "factory"
       | "isUserBannedFromListing"
       | "isValidator"
-      | "listDarwinWithBNB"
+      | "listDarwinWithWETH"
       | "listOfficialToken"
       | "maxTok1Tax"
       | "maxTok2Tax"
@@ -168,6 +169,7 @@ export interface DarwinSwapListerInterface extends utils.Interface {
       | "setMaxTok2Tax"
       | "setValidator"
       | "tokenInfo"
+      | "validTokens"
       | "validateToken"
   ): FunctionFragment;
 
@@ -186,7 +188,7 @@ export interface DarwinSwapListerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "listDarwinWithBNB",
+    functionFragment: "listDarwinWithWETH",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
@@ -242,6 +244,10 @@ export interface DarwinSwapListerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "validTokens",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "validateToken",
     values: [
       PromiseOrValue<string>,
@@ -262,7 +268,7 @@ export interface DarwinSwapListerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "listDarwinWithBNB",
+    functionFragment: "listDarwinWithWETH",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -295,6 +301,10 @@ export interface DarwinSwapListerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "tokenInfo", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "validTokens",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "validateToken",
     data: BytesLike
@@ -390,7 +400,7 @@ export interface DarwinSwapLister extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    listDarwinWithBNB(
+    listDarwinWithWETH(
       darwin: PromiseOrValue<string>,
       weth: PromiseOrValue<string>,
       darwinCommunity: PromiseOrValue<string>,
@@ -455,6 +465,11 @@ export interface DarwinSwapLister extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[IDarwinSwapLister.TokenInfoStructOutput]>;
 
+    validTokens(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     validateToken(
       tokenToValidate: PromiseOrValue<string>,
       outcome: PromiseOrValue<BigNumberish>,
@@ -483,7 +498,7 @@ export interface DarwinSwapLister extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  listDarwinWithBNB(
+  listDarwinWithWETH(
     darwin: PromiseOrValue<string>,
     weth: PromiseOrValue<string>,
     darwinCommunity: PromiseOrValue<string>,
@@ -548,6 +563,11 @@ export interface DarwinSwapLister extends BaseContract {
     overrides?: CallOverrides
   ): Promise<IDarwinSwapLister.TokenInfoStructOutput>;
 
+  validTokens(
+    arg0: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   validateToken(
     tokenToValidate: PromiseOrValue<string>,
     outcome: PromiseOrValue<BigNumberish>,
@@ -576,7 +596,7 @@ export interface DarwinSwapLister extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    listDarwinWithBNB(
+    listDarwinWithWETH(
       darwin: PromiseOrValue<string>,
       weth: PromiseOrValue<string>,
       darwinCommunity: PromiseOrValue<string>,
@@ -641,6 +661,11 @@ export interface DarwinSwapLister extends BaseContract {
       overrides?: CallOverrides
     ): Promise<IDarwinSwapLister.TokenInfoStructOutput>;
 
+    validTokens(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     validateToken(
       tokenToValidate: PromiseOrValue<string>,
       outcome: PromiseOrValue<BigNumberish>,
@@ -697,7 +722,7 @@ export interface DarwinSwapLister extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    listDarwinWithBNB(
+    listDarwinWithWETH(
       darwin: PromiseOrValue<string>,
       weth: PromiseOrValue<string>,
       darwinCommunity: PromiseOrValue<string>,
@@ -762,6 +787,11 @@ export interface DarwinSwapLister extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    validTokens(
+      arg0: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     validateToken(
       tokenToValidate: PromiseOrValue<string>,
       outcome: PromiseOrValue<BigNumberish>,
@@ -791,7 +821,7 @@ export interface DarwinSwapLister extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    listDarwinWithBNB(
+    listDarwinWithWETH(
       darwin: PromiseOrValue<string>,
       weth: PromiseOrValue<string>,
       darwinCommunity: PromiseOrValue<string>,
@@ -853,6 +883,11 @@ export interface DarwinSwapLister extends BaseContract {
 
     tokenInfo(
       _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    validTokens(
+      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

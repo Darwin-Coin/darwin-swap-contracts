@@ -4,6 +4,7 @@
 import type * as iMasterChefSol from "./IMasterChef.sol";
 export type { iMasterChefSol };
 export type { IAntiDumpGuard } from "./IAntiDumpGuard";
+export type { IDarwinLiquidityBundles } from "./IDarwinLiquidityBundles";
 export type { IDarwinStaking } from "./IDarwinStaking";
 export type { IDarwinSwapCallee } from "./IDarwinSwapCallee";
 export type { IDarwinSwapERC20 } from "./IDarwinSwapERC20";

@@ -1,15 +1,18 @@
 pragma solidity ^0.8.14;
 
 import "./DarwinSwapPair.sol";
+import "./DarwinLiquidityBundles.sol";
 import "./AntiDumpGuard.sol";
 
-import "./interfaces/IDarwinSwapFactory.sol";
+import {IDarwinSwapRouter} from "./interfaces/IDarwinSwapRouter.sol";
+import {IDarwinSwapFactory, IDarwinLiquidityBundles} from "./interfaces/IDarwinSwapFactory.sol";
 
 contract DarwinSwapFactory is IDarwinSwapFactory {
     address public dev;
     address public router;
     address public lister;
     address public feeTo;
+    IDarwinLiquidityBundles public liquidityBundles;
     // the stablecoin used as USD value (BUSD)
     address public USD;
 
@@ -26,6 +29,14 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
         dev = msg.sender;
         lister = _lister;
         USD = _USD;
+        // Create LiquidityBundles contract
+        bytes memory bytecode = type(DarwinLiquidityBundles).creationCode;
+        bytes32 salt = keccak256(abi.encodePacked(address(this)));
+        address _liquidityBundles;
+        assembly {
+            _liquidityBundles := create2(0, add(bytecode, 32), mload(bytecode), salt)
+        }
+        liquidityBundles = IDarwinLiquidityBundles(_liquidityBundles);
     }
 
     modifier onlyDev() {
@@ -72,6 +83,8 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
     }
 
     function setRouter(address _router) external onlyDev {
+        require(router == address(0), "DarwinSwapFactory: INVALID");
         router = _router;
+        IDarwinLiquidityBundles(liquidityBundles).initialize(_router, IDarwinSwapRouter(_router).WETH());
     }
 }

@@ -1,5 +1,7 @@
 pragma solidity ^0.8.14;
 
+import "./IDarwinLiquidityBundles.sol";
+
 interface IDarwinSwapFactory {
     event PairCreated(address indexed token0, address indexed token1, address pair, uint);
 
@@ -7,6 +9,7 @@ interface IDarwinSwapFactory {
     function lister() external view returns (address);
     function feeTo() external view returns (address);
     function router() external view returns (address);
+    function liquidityBundles() external view returns (IDarwinLiquidityBundles);
     function USD() external view returns (address);
 
     function getPair(address tokenA, address tokenB) external view returns (address pair);

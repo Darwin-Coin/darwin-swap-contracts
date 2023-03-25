@@ -21,6 +21,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.AntiDumpGuard__factory>;
     getContractFactory(
+      name: "DarwinLiquidityBundles",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.DarwinLiquidityBundles__factory>;
+    getContractFactory(
       name: "DarwinStaking",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DarwinStaking__factory>;
@@ -48,6 +52,10 @@ declare module "hardhat/types/runtime" {
       name: "IAntiDumpGuard",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAntiDumpGuard__factory>;
+    getContractFactory(
+      name: "IDarwinLiquidityBundles",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IDarwinLiquidityBundles__factory>;
     getContractFactory(
       name: "IDarwinStaking",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -132,6 +140,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.AntiDumpGuard>;
     getContractAt(
+      name: "DarwinLiquidityBundles",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.DarwinLiquidityBundles>;
+    getContractAt(
       name: "DarwinStaking",
       address: string,
       signer?: ethers.Signer
@@ -166,6 +179,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IAntiDumpGuard>;
+    getContractAt(
+      name: "IDarwinLiquidityBundles",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IDarwinLiquidityBundles>;
     getContractAt(
       name: "IDarwinStaking",
       address: string,

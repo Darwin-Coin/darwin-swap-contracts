@@ -25,9 +25,9 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "../common";
+} from "../../common";
 
-export interface DarwinSwapFactoryInterface extends utils.Interface {
+export interface IDarwinSwapFactoryInterface extends utils.Interface {
   functions: {
     "INIT_CODE_HASH()": FunctionFragment;
     "USD()": FunctionFragment;
@@ -156,12 +156,12 @@ export type PairCreatedEvent = TypedEvent<
 
 export type PairCreatedEventFilter = TypedEventFilter<PairCreatedEvent>;
 
-export interface DarwinSwapFactory extends BaseContract {
+export interface IDarwinSwapFactory extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: DarwinSwapFactoryInterface;
+  interface: IDarwinSwapFactoryInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -190,7 +190,7 @@ export interface DarwinSwapFactory extends BaseContract {
     allPairs(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[string]>;
+    ): Promise<[string] & { pair: string }>;
 
     allPairsLength(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -205,10 +205,10 @@ export interface DarwinSwapFactory extends BaseContract {
     feeTo(overrides?: CallOverrides): Promise<[string]>;
 
     getPair(
-      arg0: PromiseOrValue<string>,
-      arg1: PromiseOrValue<string>,
+      tokenA: PromiseOrValue<string>,
+      tokenB: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<[string]>;
+    ): Promise<[string] & { pair: string }>;
 
     liquidityBundles(overrides?: CallOverrides): Promise<[string]>;
 
@@ -217,22 +217,22 @@ export interface DarwinSwapFactory extends BaseContract {
     router(overrides?: CallOverrides): Promise<[string]>;
 
     setDev(
-      _dev: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setFeeTo(
-      _feeTo: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setLister(
-      _lister: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setRouter(
-      _router: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -259,8 +259,8 @@ export interface DarwinSwapFactory extends BaseContract {
   feeTo(overrides?: CallOverrides): Promise<string>;
 
   getPair(
-    arg0: PromiseOrValue<string>,
-    arg1: PromiseOrValue<string>,
+    tokenA: PromiseOrValue<string>,
+    tokenB: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<string>;
 
@@ -271,22 +271,22 @@ export interface DarwinSwapFactory extends BaseContract {
   router(overrides?: CallOverrides): Promise<string>;
 
   setDev(
-    _dev: PromiseOrValue<string>,
+    arg0: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setFeeTo(
-    _feeTo: PromiseOrValue<string>,
+    arg0: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setLister(
-    _lister: PromiseOrValue<string>,
+    arg0: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setRouter(
-    _router: PromiseOrValue<string>,
+    arg0: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -313,8 +313,8 @@ export interface DarwinSwapFactory extends BaseContract {
     feeTo(overrides?: CallOverrides): Promise<string>;
 
     getPair(
-      arg0: PromiseOrValue<string>,
-      arg1: PromiseOrValue<string>,
+      tokenA: PromiseOrValue<string>,
+      tokenB: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -325,22 +325,22 @@ export interface DarwinSwapFactory extends BaseContract {
     router(overrides?: CallOverrides): Promise<string>;
 
     setDev(
-      _dev: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setFeeTo(
-      _feeTo: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setLister(
-      _lister: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     setRouter(
-      _router: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -383,8 +383,8 @@ export interface DarwinSwapFactory extends BaseContract {
     feeTo(overrides?: CallOverrides): Promise<BigNumber>;
 
     getPair(
-      arg0: PromiseOrValue<string>,
-      arg1: PromiseOrValue<string>,
+      tokenA: PromiseOrValue<string>,
+      tokenB: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -395,22 +395,22 @@ export interface DarwinSwapFactory extends BaseContract {
     router(overrides?: CallOverrides): Promise<BigNumber>;
 
     setDev(
-      _dev: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setFeeTo(
-      _feeTo: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setLister(
-      _lister: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setRouter(
-      _router: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -438,8 +438,8 @@ export interface DarwinSwapFactory extends BaseContract {
     feeTo(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getPair(
-      arg0: PromiseOrValue<string>,
-      arg1: PromiseOrValue<string>,
+      tokenA: PromiseOrValue<string>,
+      tokenB: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -450,22 +450,22 @@ export interface DarwinSwapFactory extends BaseContract {
     router(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     setDev(
-      _dev: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setFeeTo(
-      _feeTo: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setLister(
-      _lister: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setRouter(
-      _router: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

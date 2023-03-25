@@ -85,7 +85,8 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         emit Sync(_reserve0, _reserve1);
     }
 
-    // if fee is on, mint liquidity equivalent to 2/3th of the growth in sqrt(k)
+    // if fee is on, mint liquidity equivalent to 1/2th of the growth in sqrt(k) to feeTo
+    // and mint 1/6th to liquidityBundles contract
     function _mintFee(uint256 reserve0, uint256 reserve1) private returns (bool feeOn) {
         address feeTo = IDarwinSwapFactory(factory).feeTo();
         feeOn = feeTo != address(0);
@@ -95,10 +96,18 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
                 uint rootK = Math.sqrt(reserve0 * reserve1);
                 uint rootKLast = Math.sqrt(_kLast);
                 if (rootK > rootKLast) {
-                    uint numerator = totalSupply * (rootK - rootKLast) * 2;
-                    uint denominator = rootK + rootKLast * 2;
-                    uint liquidity = numerator / denominator;
-                    if (liquidity > 0) _mint(feeTo, liquidity);
+                    {
+                        uint numerator = totalSupply * (rootK - rootKLast);
+                        uint denominator = rootK + rootKLast;
+                        uint liquidity = numerator / denominator;
+                        if (liquidity > 0) _mint(feeTo, liquidity);
+                    }
+                    {
+                        uint numerator = totalSupply * (rootK - rootKLast);
+                        uint denominator = rootK + rootKLast * 5;
+                        uint liquidity = numerator / denominator;
+                        if (liquidity > 0) _mint(address(IDarwinSwapFactory(factory).liquidityBundles()), liquidity);
+                    }
                 }
             }
         } else if (_kLast != 0) {

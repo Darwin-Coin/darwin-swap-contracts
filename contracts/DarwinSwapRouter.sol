@@ -72,6 +72,7 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         TransferHelper.safeTransferFrom(tokenA, msg.sender, pair, amountA, address(0), address(0));
         TransferHelper.safeTransferFrom(tokenB, msg.sender, pair, amountB, address(0), address(0));
         liquidity = IDarwinSwapPair(pair).mint(to);
+        IDarwinSwapFactory(factory).liquidityBundles().update(pair);
     }
     function addLiquidityETH(
         address token,
@@ -96,6 +97,7 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         liquidity = IDarwinSwapPair(pair).mint(to);
         // refund dust eth, if any
         if (msg.value > amountETH) TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
+        IDarwinSwapFactory(factory).liquidityBundles().update(pair);
     }
     function addLiquidityWithoutReceipt(
         address tokenA,
@@ -123,6 +125,9 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         address pair = DarwinSwapLibrary.pairFor(factory, tokenA, tokenB);
         IDarwinSwapERC20(pair).transferFrom(msg.sender, pair, liquidity); // send liquidity to pair
         (uint amount0, uint amount1) = IDarwinSwapPair(pair).burn(to);
+        if (msg.sender != address(IDarwinSwapFactory(factory).liquidityBundles())) {
+            IDarwinSwapFactory(factory).liquidityBundles().update(pair);
+        }
         (address token0,) = DarwinSwapLibrary.sortTokens(tokenA, tokenB);
         (amountA, amountB) = tokenA == token0 ? (amount0, amount1) : (amount1, amount0);
         require(amountA >= amountAMin, "DarwinSwapRouter: INSUFFICIENT_A_AMOUNT");

@@ -20,6 +20,8 @@ contract DarwinSwapLister is IDarwinSwapLister {
     mapping(address => bool) public isValidator;
     mapping(address => bool) public isUserBannedFromListing;
 
+    address[] public validTokens;
+
     constructor() {
         dev = msg.sender;
         isValidator[msg.sender] = true;
@@ -75,6 +77,16 @@ contract DarwinSwapLister is IDarwinSwapLister {
             _tokenInfo[tokenToValidate].addedToks = blankToks;
 
         } else { // outcome == TokenStatus.LISTED and token valid
+            bool found;
+            for (uint i = 0; i < validTokens.length; i++) {
+                if (validTokens[i] == tokenToValidate) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                validTokens.push(tokenToValidate);
+            }
             emit TokenValidated(tokenToValidate);
         }
     }
@@ -105,14 +117,8 @@ contract DarwinSwapLister is IDarwinSwapLister {
         emit TokenProposed(tokenAddress, proposalInfo);
     }
 
-    // Lists DARWIN and pairs with BNB, with 5% tax on LP on buys
-    function listDarwinWithBNB(address darwin, address weth, address darwinCommunity) external onlyDev {
-        // BNB validate
-        _tokenInfo[weth].status = TokenStatus.LISTED;
-        _tokenInfo[weth].validator = msg.sender;
-        _tokenInfo[weth].valid = true;
-        _tokenInfo[weth].official = true;
-
+    // Lists DARWIN and pairs with WETH, with 5% tax on LP on buys
+    function listDarwinWithWETH(address darwin, address weth, address darwinCommunity) external onlyDev {
         // DARWIN validate
         _tokenInfo[darwin].addedToks.tokenA2TaxOnBuy = 250;
         _tokenInfo[darwin].addedToks.tokenB2TaxOnBuy = 250;

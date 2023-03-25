@@ -1,6 +1,6 @@
 import * as hardhat from "hardhat";
 import { ethers, upgrades } from "hardhat";
-import { DarwinMasterChef, DarwinStaking, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
+import { DarwinLiquidityBundles, DarwinMasterChef, DarwinStaking, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
 import { DarwinBurner, DarwinCommunity } from "../darwin-token-contracts/typechain-types";
 import { Darwin, DarwinPrivateSale, DarwinVester5, DarwinVester7, StakedDarwin } from "../darwin-token-contracts/typechain-types/contracts";
 import { addr, BSC_ADDRESSES, MASTERCHEF_START, VERIFY } from "./constants";
@@ -231,6 +231,7 @@ async function main() {
   const stakingFactory = await ethers.getContractFactory("DarwinStaking");
   const masterChefFactory = await ethers.getContractFactory("DarwinMasterChef");
   const lockerFactory = await ethers.getContractFactory("TokenLocker");
+  const bundlesFactory = await ethers.getContractFactory("DarwinLiquidityBundles");
 
   //! [DEPLOY] STAKING
   const staking = await stakingFactory.deploy(darwin.address, stakedDarwin.address) as DarwinStaking;
@@ -263,7 +264,7 @@ async function main() {
     });
   }
 
-  //* [INIT] DARWIN WITH STAKING
+  //* [INIT] DARWIN WITH MASTERCHEF
   const setMasterChef = await darwin.setMasterChef(masterChef.address);
   await setMasterChef.wait();
   console.log(`🏁 MasterChef address set for Darwin`);
@@ -338,6 +339,19 @@ async function main() {
   const setFactory = await lister.setFactory(factory.address);
   await setFactory.wait()
   console.log("🏁 Lister initialized");
+
+  //! [ATTACH] BUNDLES
+  const bundles = bundlesFactory.attach(await factory.liquidityBundles()) as DarwinLiquidityBundles;
+  await bundles.deployed();
+  console.log(`🔨 Deployed Liquidity Bundles at: ${bundles.address}`);
+
+  if (VERIFY) {
+    //? [VERIFY] BUNDLES
+    await hardhat.run("verify:verify", {
+      address: bundles.address,
+      constructorArguments: []
+    });
+  }
 
   //! [DEPLOY] ROUTER
   const router = await darwinRouterFactory.deploy(factory.address, addr.weth) as DarwinSwapRouter;
