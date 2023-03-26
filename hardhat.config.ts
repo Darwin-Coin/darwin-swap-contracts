@@ -24,15 +24,25 @@ const config: HardhatUserConfig = {
     },
 
     networks: {
+        bsc: {
+            url: "https://bsc-dataseed.binance.org/",
+            chainId: 56,
+            accounts: [String(process.env.MAINNET_PRIVATEKEY)]
+        },
+        arbitrumOne: {
+            url: "https://arbitrum-one.public.blastapi.io",
+            chainId: 42161,
+            accounts: [String(process.env.MAINNET_PRIVATEKEY)]
+        },
         bscTestnet: {
             url: "https://bsc-testnet.public.blastapi.io",
             chainId: 97,
-            accounts: [String(process.env.BSC_TESTNET_PRIVATEKEY)]
+            accounts: [String(process.env.TESTNET_PRIVATEKEY)]
         },
-        bscMainnet: {
-            url: "https://bsc-dataseed.binance.org/",
-            chainId: 56,
-            accounts: [String(process.env.BSC_MAINNET_PRIVATEKEY)]
+        arbitrumGoerli: {
+            url: "https://endpoints.omniatech.io/v1/arbitrum/goerli/public",
+            chainId: 421613,
+            accounts: [String(process.env.TESTNET_PRIVATEKEY)]
         },
 
         hardhat: {
@@ -57,7 +67,8 @@ const config: HardhatUserConfig = {
     etherscan: {
         apiKey: {
             bsc: String(process.env.BSCSCAN_API_KEY),
-            bscTestnet: String(process.env.BSCSCAN_API_KEY)
+            bscTestnet: String(process.env.BSCSCAN_API_KEY),
+            arbitrumOne: String(process.env.ARBISCAN_API_KEY)
         }
     }
 };

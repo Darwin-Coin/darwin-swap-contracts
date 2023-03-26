@@ -47,7 +47,7 @@ async function main() {
 
 
   // ARBITRUM
-  hardhat.changeNetwork("arbitrum");
+  hardhat.changeNetwork("arbitrumOne");
   console.log(`⛓️ Chain: Arbitrum`);
 
   // DECLARE ARBITRUM FACTORIES
