@@ -12,5 +12,7 @@ export { IDarwinSwapLister__factory } from "./IDarwinSwapLister__factory";
 export { IDarwinSwapPair__factory } from "./IDarwinSwapPair__factory";
 export { IDarwinSwapRouter__factory } from "./IDarwinSwapRouter__factory";
 export { IERC20__factory } from "./IERC20__factory";
+export { IEvoturesNFT__factory } from "./IEvoturesNFT__factory";
+export { ILootboxTicket__factory } from "./ILootboxTicket__factory";
 export { ITokenLocker__factory } from "./ITokenLocker__factory";
 export { IWETH__factory } from "./IWETH__factory";

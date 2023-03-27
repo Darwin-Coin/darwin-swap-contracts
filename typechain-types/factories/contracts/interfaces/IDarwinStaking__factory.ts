@@ -41,6 +41,31 @@ const _abi = [
       {
         indexed: true,
         internalType: "uint256",
+        name: "evotureTokenId",
+        type: "uint256",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "multiplier",
+        type: "uint256",
+      },
+    ],
+    name: "StakeEvoture",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
         name: "amount",
         type: "uint256",
       },
@@ -52,6 +77,25 @@ const _abi = [
       },
     ],
     name: "Withdraw",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "evotureTokenId",
+        type: "uint256",
+      },
+    ],
+    name: "WithdrawEvoture",
     type: "event",
   },
 ] as const;

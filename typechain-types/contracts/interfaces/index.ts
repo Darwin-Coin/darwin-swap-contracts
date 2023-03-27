@@ -13,5 +13,7 @@ export type { IDarwinSwapLister } from "./IDarwinSwapLister";
 export type { IDarwinSwapPair } from "./IDarwinSwapPair";
 export type { IDarwinSwapRouter } from "./IDarwinSwapRouter";
 export type { IERC20 } from "./IERC20";
+export type { IEvoturesNFT } from "./IEvoturesNFT";
+export type { ILootboxTicket } from "./ILootboxTicket";
 export type { ITokenLocker } from "./ITokenLocker";
 export type { IWETH } from "./IWETH";

@@ -14,4 +14,6 @@ export { DarwinSwapFactory__factory } from "./DarwinSwapFactory__factory";
 export { DarwinSwapLister__factory } from "./DarwinSwapLister__factory";
 export { DarwinSwapPair__factory } from "./DarwinSwapPair__factory";
 export { DarwinSwapRouter__factory } from "./DarwinSwapRouter__factory";
+export { EvoturesNFT__factory } from "./EvoturesNFT__factory";
+export { LootboxTicket__factory } from "./LootboxTicket__factory";
 export { TokenLocker__factory } from "./TokenLocker__factory";

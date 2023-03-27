@@ -1,6 +1,6 @@
 import * as hardhat from "hardhat";
 import { ethers, upgrades } from "hardhat";
-import { DarwinLiquidityBundles, DarwinMasterChef, DarwinStaking, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
+import { DarwinLiquidityBundles, DarwinMasterChef, DarwinStaking, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, EvoturesNFT, LootboxTicket, TokenLocker, Tokenomics2Library } from "../typechain-types";
 import { DarwinBurner, DarwinCommunity } from "../darwin-token-contracts/typechain-types";
 import { Darwin, DarwinPrivateSale, DarwinVester5, DarwinVester7, StakedDarwin } from "../darwin-token-contracts/typechain-types/contracts";
 import { addr, BSC_ADDRESSES, MASTERCHEF_START, VERIFY } from "./constants";
@@ -232,9 +232,37 @@ async function main() {
   const masterChefFactory = await ethers.getContractFactory("DarwinMasterChef");
   const lockerFactory = await ethers.getContractFactory("TokenLocker");
   const bundlesFactory = await ethers.getContractFactory("DarwinLiquidityBundles");
+  const evoturesFactory = await ethers.getContractFactory("EvoturesNFT");
+  const ticketFactory = await ethers.getContractFactory("LootboxTicket");
+
+  //! [DEPLOY] EVOTURES
+  const evotures = await evoturesFactory.deploy() as EvoturesNFT;
+  await evotures.deployed();
+  console.log(`🔨 Deployed Evotures NFT at: ${evotures.address}`);
+
+  if (VERIFY) {
+    //? [VERIFY] EVOTURES
+    await hardhat.run("verify:verify", {
+      address: evotures.address,
+      constructorArguments: []
+    });
+  }
+
+  //! [ATTACH] TICKET
+  const ticket = ticketFactory.attach(await evotures.ticketsContract()) as LootboxTicket;
+  await ticket.deployed();
+  console.log(`🔨 Deployed Lootbox Ticket at: ${ticket.address}`);
+
+  if (VERIFY) {
+    //? [VERIFY] TICKET
+    await hardhat.run("verify:verify", {
+      address: ticket.address,
+      constructorArguments: []
+    });
+  }
 
   //! [DEPLOY] STAKING
-  const staking = await stakingFactory.deploy(darwin.address, stakedDarwin.address) as DarwinStaking;
+  const staking = await stakingFactory.deploy(darwin.address, stakedDarwin.address, evotures.address) as DarwinStaking;
   await staking.deployed();
   console.log(`🔨 Deployed Darwin Staking at: ${staking.address}`);
 

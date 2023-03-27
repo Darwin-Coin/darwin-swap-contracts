@@ -23,11 +23,15 @@ export interface IDarwinStakingInterface extends utils.Interface {
 
   events: {
     "Stake(address,uint256)": EventFragment;
+    "StakeEvoture(address,uint256,uint256)": EventFragment;
     "Withdraw(address,uint256,uint256)": EventFragment;
+    "WithdrawEvoture(address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Stake"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "StakeEvoture"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Withdraw"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "WithdrawEvoture"): EventFragment;
 }
 
 export interface StakeEventObject {
@@ -37,6 +41,18 @@ export interface StakeEventObject {
 export type StakeEvent = TypedEvent<[string, BigNumber], StakeEventObject>;
 
 export type StakeEventFilter = TypedEventFilter<StakeEvent>;
+
+export interface StakeEvotureEventObject {
+  user: string;
+  evotureTokenId: BigNumber;
+  multiplier: BigNumber;
+}
+export type StakeEvotureEvent = TypedEvent<
+  [string, BigNumber, BigNumber],
+  StakeEvotureEventObject
+>;
+
+export type StakeEvotureEventFilter = TypedEventFilter<StakeEvotureEvent>;
 
 export interface WithdrawEventObject {
   user: string;
@@ -49,6 +65,17 @@ export type WithdrawEvent = TypedEvent<
 >;
 
 export type WithdrawEventFilter = TypedEventFilter<WithdrawEvent>;
+
+export interface WithdrawEvotureEventObject {
+  user: string;
+  evotureTokenId: BigNumber;
+}
+export type WithdrawEvotureEvent = TypedEvent<
+  [string, BigNumber],
+  WithdrawEvotureEventObject
+>;
+
+export type WithdrawEvotureEventFilter = TypedEventFilter<WithdrawEvotureEvent>;
 
 export interface IDarwinStaking extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -90,6 +117,17 @@ export interface IDarwinStaking extends BaseContract {
       amount?: PromiseOrValue<BigNumberish> | null
     ): StakeEventFilter;
 
+    "StakeEvoture(address,uint256,uint256)"(
+      user?: PromiseOrValue<string> | null,
+      evotureTokenId?: PromiseOrValue<BigNumberish> | null,
+      multiplier?: PromiseOrValue<BigNumberish> | null
+    ): StakeEvotureEventFilter;
+    StakeEvoture(
+      user?: PromiseOrValue<string> | null,
+      evotureTokenId?: PromiseOrValue<BigNumberish> | null,
+      multiplier?: PromiseOrValue<BigNumberish> | null
+    ): StakeEvotureEventFilter;
+
     "Withdraw(address,uint256,uint256)"(
       user?: PromiseOrValue<string> | null,
       amount?: PromiseOrValue<BigNumberish> | null,
@@ -100,6 +138,15 @@ export interface IDarwinStaking extends BaseContract {
       amount?: PromiseOrValue<BigNumberish> | null,
       rewards?: PromiseOrValue<BigNumberish> | null
     ): WithdrawEventFilter;
+
+    "WithdrawEvoture(address,uint256)"(
+      user?: PromiseOrValue<string> | null,
+      evotureTokenId?: PromiseOrValue<BigNumberish> | null
+    ): WithdrawEvotureEventFilter;
+    WithdrawEvoture(
+      user?: PromiseOrValue<string> | null,
+      evotureTokenId?: PromiseOrValue<BigNumberish> | null
+    ): WithdrawEvotureEventFilter;
   };
 
   estimateGas: {};

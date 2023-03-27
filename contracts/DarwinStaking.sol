@@ -1,13 +1,17 @@
 pragma solidity ^0.8.14;
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
 import "./interfaces/IDarwinStaking.sol";
 import "./interfaces/IERC20.sol";
+import "./interfaces/IEvoturesNFT.sol";
 
-contract DarwinStaking is IDarwinStaking, ReentrancyGuard {
+contract DarwinStaking is IDarwinStaking, ReentrancyGuard, IERC721Receiver {
     IERC20 public darwin;
     IERC20 public stakedDarwin;
+    IEvoturesNFT public evotures;
 
     uint public constant BASE_APR = 5e18; // 5%
     uint public constant LOCK_BONUS_APR = 2e18; // 2% more if locked
@@ -15,9 +19,10 @@ contract DarwinStaking is IDarwinStaking, ReentrancyGuard {
 
     mapping(address => UserInfo) public userInfo;
 
-    constructor(address _darwin, address _stakedDarwin) {
+    constructor(address _darwin, address _stakedDarwin, address _evotures) {
         darwin = IERC20(_darwin);
         stakedDarwin = IERC20(_stakedDarwin);
+        evotures = IEvoturesNFT(_evotures);
     }
 
     function stake(uint _amount, uint _lockPeriod) external nonReentrant {
@@ -61,6 +66,7 @@ contract DarwinStaking is IDarwinStaking, ReentrancyGuard {
         }
         uint claim = userInfo[_user].lastClaimTimestamp;
         uint lockEnd = userInfo[_user].lockEnd;
+        uint boost = userInfo[_user].boost;
         uint timePassedFromLastClaim = (block.timestamp - claim);
 
         // lock bonus calculations
@@ -71,5 +77,39 @@ contract DarwinStaking is IDarwinStaking, ReentrancyGuard {
         }
 
         claimable = (staked * BASE_APR * timePassedFromLastClaim) / (100e18 * _SECONDS_IN_YEAR) + bonusClaimable;
+        
+        if (boost > 0) {
+            claimable += ((claimable * boost) / 100);
+        }
+    }
+
+    function stakeEvoture(uint _evotureTokenId) external nonReentrant {
+        require(userInfo[msg.sender].boost == 0, "DarwinStaking: EVOTURE_ALREADY_STAKED");
+
+        _claim();
+        IERC721(address(evotures)).safeTransferFrom(msg.sender, address(this), _evotureTokenId);
+        userInfo[msg.sender].boost = evotures.stats(_evotureTokenId).multiplier;
+        userInfo[msg.sender].evotureTokenId = _evotureTokenId;
+
+        emit StakeEvoture(msg.sender, _evotureTokenId, userInfo[msg.sender].boost);
+    }
+
+    function withdrawEvoture() external nonReentrant {
+        require(userInfo[msg.sender].boost > 0, "DarwinStaking: NO_EVOTURE_TO_WITHDRAW");
+
+        _claim();
+        IERC721(address(evotures)).safeTransferFrom(address(this), msg.sender, userInfo[msg.sender].evotureTokenId);
+        userInfo[msg.sender].boost = 0;
+
+        emit WithdrawEvoture(msg.sender, userInfo[msg.sender].evotureTokenId);
+    }
+
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
     }
 }

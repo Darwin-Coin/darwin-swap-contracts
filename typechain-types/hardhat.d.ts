@@ -77,6 +77,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DarwinSwapRouter__factory>;
     getContractFactory(
+      name: "EvoturesNFT",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.EvoturesNFT__factory>;
+    getContractFactory(
       name: "IAntiDumpGuard",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IAntiDumpGuard__factory>;
@@ -117,6 +121,14 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20__factory>;
     getContractFactory(
+      name: "IEvoturesNFT",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IEvoturesNFT__factory>;
+    getContractFactory(
+      name: "ILootboxTicket",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ILootboxTicket__factory>;
+    getContractFactory(
       name: "IDarwinMasterChef",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IDarwinMasterChef__factory>;
@@ -136,6 +148,10 @@ declare module "hardhat/types/runtime" {
       name: "Tokenomics2Library",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Tokenomics2Library__factory>;
+    getContractFactory(
+      name: "LootboxTicket",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.LootboxTicket__factory>;
     getContractFactory(
       name: "DarwinMasterChef",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -238,6 +254,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.DarwinSwapRouter>;
     getContractAt(
+      name: "EvoturesNFT",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.EvoturesNFT>;
+    getContractAt(
       name: "IAntiDumpGuard",
       address: string,
       signer?: ethers.Signer
@@ -288,6 +309,16 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20>;
     getContractAt(
+      name: "IEvoturesNFT",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IEvoturesNFT>;
+    getContractAt(
+      name: "ILootboxTicket",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ILootboxTicket>;
+    getContractAt(
       name: "IDarwinMasterChef",
       address: string,
       signer?: ethers.Signer
@@ -312,6 +343,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Tokenomics2Library>;
+    getContractAt(
+      name: "LootboxTicket",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.LootboxTicket>;
     getContractAt(
       name: "DarwinMasterChef",
       address: string,

@@ -18,4 +18,6 @@ export type { DarwinSwapFactory } from "./DarwinSwapFactory";
 export type { DarwinSwapLister } from "./DarwinSwapLister";
 export type { DarwinSwapPair } from "./DarwinSwapPair";
 export type { DarwinSwapRouter } from "./DarwinSwapRouter";
+export type { EvoturesNFT } from "./EvoturesNFT";
+export type { LootboxTicket } from "./LootboxTicket";
 export type { TokenLocker } from "./TokenLocker";
