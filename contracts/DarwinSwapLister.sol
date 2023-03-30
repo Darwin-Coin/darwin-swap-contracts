@@ -22,8 +22,7 @@ contract DarwinSwapLister is IDarwinSwapLister {
 
     // Frontend purposes
     address[] public validTokens;
-    // Frontend purposes
-    address[] public proposedTokens;
+    address[] private _proposedTokens;
 
     constructor() {
         dev = msg.sender;
@@ -69,10 +68,10 @@ contract DarwinSwapLister is IDarwinSwapLister {
         _tokenInfo[tokenToValidate].validator = msg.sender;
         _tokenInfo[tokenToValidate].status = outcome;
 
-        for (uint i = 0; i < proposedTokens.length; i++) {
-            if (proposedTokens[i] == tokenToValidate) {
-                proposedTokens[i] = proposedTokens[proposedTokens.length - 1];
-                proposedTokens.pop();
+        for (uint i = 0; i < _proposedTokens.length; i++) {
+            if (_proposedTokens[i] == tokenToValidate) {
+                _proposedTokens[i] = _proposedTokens[_proposedTokens.length - 1];
+                _proposedTokens.pop();
                 break;
             }
         }
@@ -128,7 +127,7 @@ contract DarwinSwapLister is IDarwinSwapLister {
 
         _tokenInfo[tokenAddress] = proposalInfo;
 
-        proposedTokens.push(tokenAddress);
+        _proposedTokens.push(tokenAddress);
 
         emit TokenProposed(tokenAddress, proposalInfo);
     }
@@ -227,5 +226,13 @@ contract DarwinSwapLister is IDarwinSwapLister {
                 return 0x0000000000000000000000000000000000000000;
             }
         }
+    }
+
+    function proposals() external view returns(address[] memory, TokenInfo[] memory) {
+        TokenInfo[] memory props = new TokenInfo[](_proposedTokens.length);
+        for (uint i = 0; i < _proposedTokens.length; i++) {
+            props[i] = _tokenInfo[_proposedTokens[i]];
+        }
+        return (_proposedTokens, props);
     }
 }

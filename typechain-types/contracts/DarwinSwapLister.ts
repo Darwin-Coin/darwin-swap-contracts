@@ -136,8 +136,8 @@ export interface DarwinSwapListerInterface extends utils.Interface {
     "listOfficialToken(address)": FunctionFragment;
     "maxTok1Tax()": FunctionFragment;
     "maxTok2Tax()": FunctionFragment;
+    "proposals()": FunctionFragment;
     "proposeToken(address,((uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint8,address,address,address,bool,bool,uint256,string))": FunctionFragment;
-    "proposedTokens(uint256)": FunctionFragment;
     "setBanToken(address,bool)": FunctionFragment;
     "setBanUser(address,bool)": FunctionFragment;
     "setDev(address)": FunctionFragment;
@@ -161,8 +161,8 @@ export interface DarwinSwapListerInterface extends utils.Interface {
       | "listOfficialToken"
       | "maxTok1Tax"
       | "maxTok2Tax"
+      | "proposals"
       | "proposeToken"
-      | "proposedTokens"
       | "setBanToken"
       | "setBanUser"
       | "setDev"
@@ -209,13 +209,10 @@ export interface DarwinSwapListerInterface extends utils.Interface {
     functionFragment: "maxTok2Tax",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "proposals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "proposeToken",
     values: [PromiseOrValue<string>, IDarwinSwapLister.TokenInfoStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "proposedTokens",
-    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setBanToken",
@@ -283,12 +280,9 @@ export interface DarwinSwapListerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "maxTok1Tax", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "maxTok2Tax", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "proposals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeToken",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proposedTokens",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -426,16 +420,15 @@ export interface DarwinSwapLister extends BaseContract {
 
     maxTok2Tax(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    proposals(
+      overrides?: CallOverrides
+    ): Promise<[string[], IDarwinSwapLister.TokenInfoStructOutput[]]>;
+
     proposeToken(
       tokenAddress: PromiseOrValue<string>,
       proposalInfo: IDarwinSwapLister.TokenInfoStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    proposedTokens(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
 
     setBanToken(
       _token: PromiseOrValue<string>,
@@ -529,16 +522,15 @@ export interface DarwinSwapLister extends BaseContract {
 
   maxTok2Tax(overrides?: CallOverrides): Promise<BigNumber>;
 
+  proposals(
+    overrides?: CallOverrides
+  ): Promise<[string[], IDarwinSwapLister.TokenInfoStructOutput[]]>;
+
   proposeToken(
     tokenAddress: PromiseOrValue<string>,
     proposalInfo: IDarwinSwapLister.TokenInfoStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  proposedTokens(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<string>;
 
   setBanToken(
     _token: PromiseOrValue<string>,
@@ -632,16 +624,15 @@ export interface DarwinSwapLister extends BaseContract {
 
     maxTok2Tax(overrides?: CallOverrides): Promise<BigNumber>;
 
+    proposals(
+      overrides?: CallOverrides
+    ): Promise<[string[], IDarwinSwapLister.TokenInfoStructOutput[]]>;
+
     proposeToken(
       tokenAddress: PromiseOrValue<string>,
       proposalInfo: IDarwinSwapLister.TokenInfoStruct,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    proposedTokens(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<string>;
 
     setBanToken(
       _token: PromiseOrValue<string>,
@@ -763,15 +754,12 @@ export interface DarwinSwapLister extends BaseContract {
 
     maxTok2Tax(overrides?: CallOverrides): Promise<BigNumber>;
 
+    proposals(overrides?: CallOverrides): Promise<BigNumber>;
+
     proposeToken(
       tokenAddress: PromiseOrValue<string>,
       proposalInfo: IDarwinSwapLister.TokenInfoStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    proposedTokens(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     setBanToken(
@@ -867,15 +855,12 @@ export interface DarwinSwapLister extends BaseContract {
 
     maxTok2Tax(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    proposals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     proposeToken(
       tokenAddress: PromiseOrValue<string>,
       proposalInfo: IDarwinSwapLister.TokenInfoStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    proposedTokens(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     setBanToken(
