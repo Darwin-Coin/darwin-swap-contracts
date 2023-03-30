@@ -32,9 +32,9 @@ export const TESTNET_ADDRESSES = {
     busd: "0xeD24FC36d5Ee211Ea25A80239Fb8C4Cfd80f12Ee",
     community: "0x46aeeE521b0674b9A1aA155f7A5D8c3187eA7219",
     feeTo: "0x46aeeE521b0674b9A1aA155f7A5D8c3187eA7219",
-    masterChefFeeTo: "",
-    deployer: "0x63a0704e005776B153248A500Dfd950873AFB186",
-    drop: "",
+    masterChefFeeTo: "0x46aeeE521b0674b9A1aA155f7A5D8c3187eA7219",
+    deployer: "0x46aeeE521b0674b9A1aA155f7A5D8c3187eA7219",
+    drop: "0xce0Cb550096E32D047d6741ED702daF2782cD2b8",
     presale: "",
     privateSales: [
         ""

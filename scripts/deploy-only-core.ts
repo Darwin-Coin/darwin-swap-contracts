@@ -1,51 +1,12 @@
 import * as hardhat from "hardhat";
 import { ethers } from "hardhat";
-import { DarwinLiquidityBundles, DarwinMasterChef, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
-import { Darwin, Darwin__factory } from "../darwin-token-contracts/typechain-types";
-import { addr, MASTERCHEF_START, VERIFY } from "./constants";
+import { DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, Tokenomics2Library } from "../typechain-types";
+import { addr, VERIFY } from "./constants";
 
 
 async function main() {
   const [owner] = await hardhat.ethers.getSigners();
   console.log(`💻 Deployer: ${owner.address}`);
-
-  const DARWIN = Darwin__factory.connect(addr.darwin, owner) as Darwin;
-
-  // DECLARE FACTORIES 1
-  const masterChefFactory = await ethers.getContractFactory("DarwinMasterChef");
-  const lockerFactory = await ethers.getContractFactory("TokenLocker");
-  const bundlesFactory = await ethers.getContractFactory("DarwinLiquidityBundles");
-
-  //! [DEPLOY] MASTERCHEF
-  const masterChef = await masterChefFactory.deploy(addr.darwin, addr.masterChefFeeTo, MASTERCHEF_START) as DarwinMasterChef;
-  await masterChef.deployed();
-  console.log(`🔨 Deployed Darwin MasterChef at: ${masterChef.address}`);
-
-  if (VERIFY) {
-    //? [VERIFY] MASTERCHEF
-    await hardhat.run("verify:verify", {
-      address: masterChef.address,
-      constructorArguments: [addr.darwin, addr.masterChefFeeTo, MASTERCHEF_START]
-    });
-  }
-
-  //* [INIT] DARWIN WITH MASTERCHEF
-  const setMasterChef = await DARWIN.setMasterChef(masterChef.address);
-  await setMasterChef.wait();
-  console.log(`🏁 MasterChef address set for Darwin`);
-
-  //! [ATTACH] LOCKER
-  const locker = lockerFactory.attach(await masterChef.locker()) as TokenLocker;
-  await locker.deployed();
-  console.log(`🔨 Deployed Token Locker at: ${locker.address}`);
-
-  if (VERIFY) {
-    //? [VERIFY] LOCKER
-    await hardhat.run("verify:verify", {
-      address: locker.address,
-      constructorArguments: []
-    });
-  }
 
   // DECLARE LIBRARY FACTORY
   const tokenomics2LibFactory = await ethers.getContractFactory("Tokenomics2Library");
@@ -95,28 +56,10 @@ async function main() {
     });
   }
 
-  //* [INIT] DARWIN WITH FACTORY
-  const dSetFactory = await DARWIN.setDarwinSwapFactory(factory.address);
-  await dSetFactory.wait();
-  console.log(`🏁 Factory address set for Darwin`);
-
   //* [INIT] LISTER
   const setFactory = await lister.setFactory(factory.address);
   await setFactory.wait()
   console.log("🏁 Lister initialized");
-
-  //! [ATTACH] BUNDLES
-  const bundles = bundlesFactory.attach(await factory.liquidityBundles()) as DarwinLiquidityBundles;
-  await bundles.deployed();
-  console.log(`🔨 Deployed Liquidity Bundles at: ${bundles.address}`);
-
-  if (VERIFY) {
-    //? [VERIFY] BUNDLES
-    await hardhat.run("verify:verify", {
-      address: bundles.address,
-      constructorArguments: []
-    });
-  }
 
   //! [DEPLOY] ROUTER
   const router = await darwinRouterFactory.deploy(factory.address, addr.weth) as DarwinSwapRouter;
