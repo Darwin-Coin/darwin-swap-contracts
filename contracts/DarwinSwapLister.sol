@@ -20,7 +20,10 @@ contract DarwinSwapLister is IDarwinSwapLister {
     mapping(address => bool) public isValidator;
     mapping(address => bool) public isUserBannedFromListing;
 
+    // Frontend purposes
     address[] public validTokens;
+    // Frontend purposes
+    address[] public proposedTokens;
 
     constructor() {
         dev = msg.sender;
@@ -65,6 +68,14 @@ contract DarwinSwapLister is IDarwinSwapLister {
         _tokenInfo[tokenToValidate].valid = isTokenValid;
         _tokenInfo[tokenToValidate].validator = msg.sender;
         _tokenInfo[tokenToValidate].status = outcome;
+
+        for (uint i = 0; i < proposedTokens.length; i++) {
+            if (proposedTokens[i] == tokenToValidate) {
+                proposedTokens[i] = proposedTokens[proposedTokens.length - 1];
+                proposedTokens.pop();
+                break;
+            }
+        }
 
         if (outcome == TokenStatus.BANNED) {
             isUserBannedFromListing[_tokenInfo[tokenToValidate].owner] = true;
@@ -116,6 +127,8 @@ contract DarwinSwapLister is IDarwinSwapLister {
         proposalInfo.addedToks = Tokenomics2Library.adjustTokenomics(proposalInfo.addedToks);
 
         _tokenInfo[tokenAddress] = proposalInfo;
+
+        proposedTokens.push(tokenAddress);
 
         emit TokenProposed(tokenAddress, proposalInfo);
     }
@@ -187,6 +200,16 @@ contract DarwinSwapLister is IDarwinSwapLister {
         _tokenInfo[_token].validator = msg.sender;
         _tokenInfo[_token].valid = true;
         _tokenInfo[_token].official = true;
+        bool found;
+        for (uint i = 0; i < validTokens.length; i++) {
+            if (validTokens[i] == _token) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            validTokens.push(_token);
+        }
     }
 
     function setFactory(address _factory) external onlyDev {
