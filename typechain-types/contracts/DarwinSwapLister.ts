@@ -422,7 +422,12 @@ export interface DarwinSwapLister extends BaseContract {
 
     proposals(
       overrides?: CallOverrides
-    ): Promise<[string[], IDarwinSwapLister.TokenInfoStructOutput[]]>;
+    ): Promise<
+      [string[], IDarwinSwapLister.TokenInfoStructOutput[]] & {
+        tokens: string[];
+        props: IDarwinSwapLister.TokenInfoStructOutput[];
+      }
+    >;
 
     proposeToken(
       tokenAddress: PromiseOrValue<string>,
@@ -524,7 +529,12 @@ export interface DarwinSwapLister extends BaseContract {
 
   proposals(
     overrides?: CallOverrides
-  ): Promise<[string[], IDarwinSwapLister.TokenInfoStructOutput[]]>;
+  ): Promise<
+    [string[], IDarwinSwapLister.TokenInfoStructOutput[]] & {
+      tokens: string[];
+      props: IDarwinSwapLister.TokenInfoStructOutput[];
+    }
+  >;
 
   proposeToken(
     tokenAddress: PromiseOrValue<string>,
@@ -626,7 +636,12 @@ export interface DarwinSwapLister extends BaseContract {
 
     proposals(
       overrides?: CallOverrides
-    ): Promise<[string[], IDarwinSwapLister.TokenInfoStructOutput[]]>;
+    ): Promise<
+      [string[], IDarwinSwapLister.TokenInfoStructOutput[]] & {
+        tokens: string[];
+        props: IDarwinSwapLister.TokenInfoStructOutput[];
+      }
+    >;
 
     proposeToken(
       tokenAddress: PromiseOrValue<string>,

@@ -228,8 +228,8 @@ contract DarwinSwapLister is IDarwinSwapLister {
         }
     }
 
-    function proposals() external view returns(address[] memory, TokenInfo[] memory) {
-        TokenInfo[] memory props = new TokenInfo[](_proposedTokens.length);
+    function proposals() external view returns(address[] memory tokens, TokenInfo[] memory props) {
+        props = new TokenInfo[](_proposedTokens.length);
         for (uint i = 0; i < _proposedTokens.length; i++) {
             props[i] = _tokenInfo[_proposedTokens[i]];
         }
