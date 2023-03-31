@@ -97,20 +97,20 @@ interface IDarwinSwapRouter {
 
     function swapExactTokensForTokensSupportingFeeOnTransferTokens(
         uint amountIn,
-        //uint amountOutMin,
+        uint amountOutMin,
         address[] calldata path,
         address to,
         uint deadline
     ) external;
     function swapExactETHForTokensSupportingFeeOnTransferTokens(
-        //uint amountOutMin,
+        uint amountOutMin,
         address[] calldata path,
         address to,
         uint deadline
     ) external payable;
     function swapExactTokensForETHSupportingFeeOnTransferTokens(
         uint amountIn,
-        //uint amountOutMin,
+        uint amountOutMin,
         address[] calldata path,
         address to,
         uint deadline

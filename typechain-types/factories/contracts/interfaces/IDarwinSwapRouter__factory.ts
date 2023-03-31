@@ -679,6 +679,11 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "amountOutMin",
+        type: "uint256",
+      },
+      {
         internalType: "address[]",
         name: "path",
         type: "address[]",
@@ -707,6 +712,11 @@ const _abi = [
         type: "uint256",
       },
       {
+        internalType: "uint256",
+        name: "amountOutMin",
+        type: "uint256",
+      },
+      {
         internalType: "address[]",
         name: "path",
         type: "address[]",
@@ -732,6 +742,11 @@ const _abi = [
       {
         internalType: "uint256",
         name: "amountIn",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "amountOutMin",
         type: "uint256",
       },
       {

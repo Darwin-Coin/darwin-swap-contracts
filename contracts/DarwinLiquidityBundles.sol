@@ -135,12 +135,12 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
                 address[] memory path = new address[](2);
                 path[0] = token0;
                 path[1] = token1;
-                darwinRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens(amount0, path, address(this), block.timestamp + 600);
+                darwinRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens(amount0, 0, path, address(this), block.timestamp + 600);
             } else if (token1 == WETH) {
                 address[] memory path = new address[](2);
                 path[0] = token1;
                 path[1] = token0;
-                darwinRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens(amount1, path, address(this), block.timestamp + 600);
+                darwinRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens(amount1, 0, path, address(this), block.timestamp + 600);
             }
         }
     }

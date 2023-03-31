@@ -42,9 +42,9 @@ export interface DarwinSwapRouterInterface extends utils.Interface {
     "removeLiquidityETHWithPermit(address,uint256,uint256,uint256,address,uint256,bool,uint8,bytes32,bytes32)": FunctionFragment;
     "removeLiquidityETHWithPermitSupportingFeeOnTransferTokens(address,uint256,uint256,uint256,address,uint256,bool,uint8,bytes32,bytes32)": FunctionFragment;
     "removeLiquidityWithPermit(address,address,uint256,uint256,uint256,address,uint256,bool,uint8,bytes32,bytes32)": FunctionFragment;
-    "swapExactETHForTokensSupportingFeeOnTransferTokens(address[],address,uint256)": FunctionFragment;
-    "swapExactTokensForETHSupportingFeeOnTransferTokens(uint256,address[],address,uint256)": FunctionFragment;
-    "swapExactTokensForTokensSupportingFeeOnTransferTokens(uint256,address[],address,uint256)": FunctionFragment;
+    "swapExactETHForTokensSupportingFeeOnTransferTokens(uint256,address[],address,uint256)": FunctionFragment;
+    "swapExactTokensForETHSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)": FunctionFragment;
+    "swapExactTokensForTokensSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)": FunctionFragment;
   };
 
   getFunction(
@@ -221,6 +221,7 @@ export interface DarwinSwapRouterInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "swapExactETHForTokensSupportingFeeOnTransferTokens",
     values: [
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>[],
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>
@@ -230,6 +231,7 @@ export interface DarwinSwapRouterInterface extends utils.Interface {
     functionFragment: "swapExactTokensForETHSupportingFeeOnTransferTokens",
     values: [
       PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>[],
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>
@@ -238,6 +240,7 @@ export interface DarwinSwapRouterInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "swapExactTokensForTokensSupportingFeeOnTransferTokens",
     values: [
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>[],
       PromiseOrValue<string>,
@@ -486,6 +489,7 @@ export interface DarwinSwapRouter extends BaseContract {
     ): Promise<ContractTransaction>;
 
     swapExactETHForTokensSupportingFeeOnTransferTokens(
+      amountOutMin: PromiseOrValue<BigNumberish>,
       path: PromiseOrValue<string>[],
       to: PromiseOrValue<string>,
       deadline: PromiseOrValue<BigNumberish>,
@@ -494,6 +498,7 @@ export interface DarwinSwapRouter extends BaseContract {
 
     swapExactTokensForETHSupportingFeeOnTransferTokens(
       amountIn: PromiseOrValue<BigNumberish>,
+      amountOutMin: PromiseOrValue<BigNumberish>,
       path: PromiseOrValue<string>[],
       to: PromiseOrValue<string>,
       deadline: PromiseOrValue<BigNumberish>,
@@ -502,6 +507,7 @@ export interface DarwinSwapRouter extends BaseContract {
 
     swapExactTokensForTokensSupportingFeeOnTransferTokens(
       amountIn: PromiseOrValue<BigNumberish>,
+      amountOutMin: PromiseOrValue<BigNumberish>,
       path: PromiseOrValue<string>[],
       to: PromiseOrValue<string>,
       deadline: PromiseOrValue<BigNumberish>,
@@ -652,6 +658,7 @@ export interface DarwinSwapRouter extends BaseContract {
   ): Promise<ContractTransaction>;
 
   swapExactETHForTokensSupportingFeeOnTransferTokens(
+    amountOutMin: PromiseOrValue<BigNumberish>,
     path: PromiseOrValue<string>[],
     to: PromiseOrValue<string>,
     deadline: PromiseOrValue<BigNumberish>,
@@ -660,6 +667,7 @@ export interface DarwinSwapRouter extends BaseContract {
 
   swapExactTokensForETHSupportingFeeOnTransferTokens(
     amountIn: PromiseOrValue<BigNumberish>,
+    amountOutMin: PromiseOrValue<BigNumberish>,
     path: PromiseOrValue<string>[],
     to: PromiseOrValue<string>,
     deadline: PromiseOrValue<BigNumberish>,
@@ -668,6 +676,7 @@ export interface DarwinSwapRouter extends BaseContract {
 
   swapExactTokensForTokensSupportingFeeOnTransferTokens(
     amountIn: PromiseOrValue<BigNumberish>,
+    amountOutMin: PromiseOrValue<BigNumberish>,
     path: PromiseOrValue<string>[],
     to: PromiseOrValue<string>,
     deadline: PromiseOrValue<BigNumberish>,
@@ -838,6 +847,7 @@ export interface DarwinSwapRouter extends BaseContract {
     >;
 
     swapExactETHForTokensSupportingFeeOnTransferTokens(
+      amountOutMin: PromiseOrValue<BigNumberish>,
       path: PromiseOrValue<string>[],
       to: PromiseOrValue<string>,
       deadline: PromiseOrValue<BigNumberish>,
@@ -846,6 +856,7 @@ export interface DarwinSwapRouter extends BaseContract {
 
     swapExactTokensForETHSupportingFeeOnTransferTokens(
       amountIn: PromiseOrValue<BigNumberish>,
+      amountOutMin: PromiseOrValue<BigNumberish>,
       path: PromiseOrValue<string>[],
       to: PromiseOrValue<string>,
       deadline: PromiseOrValue<BigNumberish>,
@@ -854,6 +865,7 @@ export interface DarwinSwapRouter extends BaseContract {
 
     swapExactTokensForTokensSupportingFeeOnTransferTokens(
       amountIn: PromiseOrValue<BigNumberish>,
+      amountOutMin: PromiseOrValue<BigNumberish>,
       path: PromiseOrValue<string>[],
       to: PromiseOrValue<string>,
       deadline: PromiseOrValue<BigNumberish>,
@@ -1007,6 +1019,7 @@ export interface DarwinSwapRouter extends BaseContract {
     ): Promise<BigNumber>;
 
     swapExactETHForTokensSupportingFeeOnTransferTokens(
+      amountOutMin: PromiseOrValue<BigNumberish>,
       path: PromiseOrValue<string>[],
       to: PromiseOrValue<string>,
       deadline: PromiseOrValue<BigNumberish>,
@@ -1015,6 +1028,7 @@ export interface DarwinSwapRouter extends BaseContract {
 
     swapExactTokensForETHSupportingFeeOnTransferTokens(
       amountIn: PromiseOrValue<BigNumberish>,
+      amountOutMin: PromiseOrValue<BigNumberish>,
       path: PromiseOrValue<string>[],
       to: PromiseOrValue<string>,
       deadline: PromiseOrValue<BigNumberish>,
@@ -1023,6 +1037,7 @@ export interface DarwinSwapRouter extends BaseContract {
 
     swapExactTokensForTokensSupportingFeeOnTransferTokens(
       amountIn: PromiseOrValue<BigNumberish>,
+      amountOutMin: PromiseOrValue<BigNumberish>,
       path: PromiseOrValue<string>[],
       to: PromiseOrValue<string>,
       deadline: PromiseOrValue<BigNumberish>,
@@ -1174,6 +1189,7 @@ export interface DarwinSwapRouter extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     swapExactETHForTokensSupportingFeeOnTransferTokens(
+      amountOutMin: PromiseOrValue<BigNumberish>,
       path: PromiseOrValue<string>[],
       to: PromiseOrValue<string>,
       deadline: PromiseOrValue<BigNumberish>,
@@ -1182,6 +1198,7 @@ export interface DarwinSwapRouter extends BaseContract {
 
     swapExactTokensForETHSupportingFeeOnTransferTokens(
       amountIn: PromiseOrValue<BigNumberish>,
+      amountOutMin: PromiseOrValue<BigNumberish>,
       path: PromiseOrValue<string>[],
       to: PromiseOrValue<string>,
       deadline: PromiseOrValue<BigNumberish>,
@@ -1190,6 +1207,7 @@ export interface DarwinSwapRouter extends BaseContract {
 
     swapExactTokensForTokensSupportingFeeOnTransferTokens(
       amountIn: PromiseOrValue<BigNumberish>,
+      amountOutMin: PromiseOrValue<BigNumberish>,
       path: PromiseOrValue<string>[],
       to: PromiseOrValue<string>,
       deadline: PromiseOrValue<BigNumberish>,

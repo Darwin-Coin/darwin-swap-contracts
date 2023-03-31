@@ -258,14 +258,21 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
     }
     function swapExactTokensForTokensSupportingFeeOnTransferTokens(
         uint amountIn,
+        uint amountOutMin,
         address[] calldata path,
         address to,
         uint deadline
     ) external virtual override ensure(deadline) {
+        uint balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
         _swapSupportingFeeOnTransferTokens(amountIn, path, to);
+        require(
+            IERC20(path[path.length - 1]).balanceOf(to) - balanceBefore >= amountOutMin,
+            "DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT"
+        );
         IAntiDumpGuard(IDarwinSwapPair(DarwinSwapLibrary.pairFor(factory, path[0], path[1])).antiDumpGuard()).buyBackAndPair(path[0]);
     }
     function swapExactETHForTokensSupportingFeeOnTransferTokens(
+        uint amountOutMin,
         address[] calldata path,
         address to,
         uint deadline
@@ -282,10 +289,16 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         if (IERC20(WETH).allowance(address(this), address(this)) < amountIn) {
             IERC20(WETH).approve(address(this), amountIn);
         }
+        uint balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
         _swapSupportingFeeOnTransferTokens(amountIn, path, to);
+        require(
+            IERC20(path[path.length - 1]).balanceOf(to) - balanceBefore >= amountOutMin,
+            "DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT"
+        );
     }
     function swapExactTokensForETHSupportingFeeOnTransferTokens(
         uint amountIn,
+        uint amountOutMin,
         address[] calldata path,
         address to,
         uint deadline
@@ -298,6 +311,7 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         require(path[path.length - 1] == WETH, "DarwinSwapRouter: INVALID_PATH");
         _swapSupportingFeeOnTransferTokens(amountIn, path, address(this));
         uint amountOut = IERC20(WETH).balanceOf(address(this));
+        require(amountOut >= amountOutMin, "DarwinSwapRouter: INSUFFICIENT_OUTPUT_AMOUNT");
         IWETH(WETH).withdraw(amountOut);
         TransferHelper.safeTransferETH(to, amountOut);
         IAntiDumpGuard(IDarwinSwapPair(DarwinSwapLibrary.pairFor(factory, path[0], path[1])).antiDumpGuard()).buyBackAndPair(path[0]);
