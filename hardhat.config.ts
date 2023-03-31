@@ -3,6 +3,7 @@ import '@nomicfoundation/hardhat-toolbox';
 import '@nomicfoundation/hardhat-chai-matchers';
 import '@nomiclabs/hardhat-solhint';
 import '@openzeppelin/hardhat-upgrades';
+import 'hardhat-gas-reporter';
 
 import * as dotenv from "dotenv";
 dotenv.config();
