@@ -4,6 +4,7 @@ import '@nomicfoundation/hardhat-chai-matchers';
 import '@nomiclabs/hardhat-solhint';
 import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-gas-reporter';
+import '@nomiclabs/hardhat-etherscan';
 
 import * as dotenv from "dotenv";
 dotenv.config();
