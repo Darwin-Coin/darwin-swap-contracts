@@ -47,6 +47,13 @@ interface IDarwinSwapLister {
         BANNED //? This token and its owner are banned from listing on DarwinSwap (because it has been recognized as harmful during a verification)
     }
 
+    struct Token {
+        string name;
+        string symbol;
+        address addr;
+        uint decimals;
+    }
+
     event TokenProposed(address indexed tokenAddress, TokenInfo indexed proposalInfo);
     event TokenBanned(address indexed tokenAddress, address indexed ownerAddress);
     event TokenValidated(address indexed tokenAddress);

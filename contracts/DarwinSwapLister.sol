@@ -21,7 +21,7 @@ contract DarwinSwapLister is IDarwinSwapLister {
     mapping(address => bool) public isUserBannedFromListing;
 
     // Frontend purposes
-    address[] public validTokens;
+    address[] private _validTokens;
     address[] private _proposedTokens;
 
     constructor() {
@@ -80,14 +80,14 @@ contract DarwinSwapLister is IDarwinSwapLister {
 
         } else { // outcome == TokenStatus.LISTED and token valid
             bool found;
-            for (uint i = 0; i < validTokens.length; i++) {
-                if (validTokens[i] == tokenToValidate) {
+            for (uint i = 0; i < _validTokens.length; i++) {
+                if (_validTokens[i] == tokenToValidate) {
                     found = true;
                     break;
                 }
             }
             if (!found) {
-                validTokens.push(tokenToValidate);
+                _validTokens.push(tokenToValidate);
             }
             emit TokenValidated(tokenToValidate);
         }
@@ -192,14 +192,14 @@ contract DarwinSwapLister is IDarwinSwapLister {
         _tokenInfo[_token].valid = true;
         _tokenInfo[_token].official = true;
         bool found;
-        for (uint i = 0; i < validTokens.length; i++) {
-            if (validTokens[i] == _token) {
+        for (uint i = 0; i < _validTokens.length; i++) {
+            if (_validTokens[i] == _token) {
                 found = true;
                 break;
             }
         }
         if (!found) {
-            validTokens.push(_token);
+            _validTokens.push(_token);
         }
     }
 
@@ -226,5 +226,16 @@ contract DarwinSwapLister is IDarwinSwapLister {
             props[i] = _tokenInfo[_proposedTokens[i]];
         }
         return (_proposedTokens, props);
+    }
+
+    function validTokens() external view returns(Token[] memory) {
+        Token[] memory tokens = new Token[](_validTokens.length);
+        for (uint i = 0; i < _validTokens.length; i++) {
+            tokens[i].name = IERC20(_validTokens[i]).name();
+            tokens[i].symbol = IERC20(_validTokens[i]).symbol();
+            tokens[i].addr = _validTokens[i];
+            tokens[i].decimals = IERC20(_validTokens[i]).decimals();
+        }
+        return tokens;
     }
 }

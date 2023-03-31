@@ -123,6 +123,20 @@ export declare namespace IDarwinSwapLister {
     antiDumpTriggerPrice: BigNumber;
     purpose: string;
   };
+
+  export type TokenStruct = {
+    name: PromiseOrValue<string>;
+    symbol: PromiseOrValue<string>;
+    addr: PromiseOrValue<string>;
+    decimals: PromiseOrValue<BigNumberish>;
+  };
+
+  export type TokenStructOutput = [string, string, string, BigNumber] & {
+    name: string;
+    symbol: string;
+    addr: string;
+    decimals: BigNumber;
+  };
 }
 
 export interface DarwinSwapListerInterface extends utils.Interface {
@@ -146,7 +160,7 @@ export interface DarwinSwapListerInterface extends utils.Interface {
     "setMaxTok2Tax(uint256)": FunctionFragment;
     "setValidator(address,bool)": FunctionFragment;
     "tokenInfo(address)": FunctionFragment;
-    "validTokens(uint256)": FunctionFragment;
+    "validTokens()": FunctionFragment;
     "validateToken(address,uint8,bool)": FunctionFragment;
   };
 
@@ -248,7 +262,7 @@ export interface DarwinSwapListerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "validTokens",
-    values: [PromiseOrValue<BigNumberish>]
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "validateToken",
@@ -479,9 +493,8 @@ export interface DarwinSwapLister extends BaseContract {
     ): Promise<[IDarwinSwapLister.TokenInfoStructOutput]>;
 
     validTokens(
-      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[string]>;
+    ): Promise<[IDarwinSwapLister.TokenStructOutput[]]>;
 
     validateToken(
       tokenToValidate: PromiseOrValue<string>,
@@ -586,9 +599,8 @@ export interface DarwinSwapLister extends BaseContract {
   ): Promise<IDarwinSwapLister.TokenInfoStructOutput>;
 
   validTokens(
-    arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
-  ): Promise<string>;
+  ): Promise<IDarwinSwapLister.TokenStructOutput[]>;
 
   validateToken(
     tokenToValidate: PromiseOrValue<string>,
@@ -693,9 +705,8 @@ export interface DarwinSwapLister extends BaseContract {
     ): Promise<IDarwinSwapLister.TokenInfoStructOutput>;
 
     validTokens(
-      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<IDarwinSwapLister.TokenStructOutput[]>;
 
     validateToken(
       tokenToValidate: PromiseOrValue<string>,
@@ -820,10 +831,7 @@ export interface DarwinSwapLister extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    validTokens(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    validTokens(overrides?: CallOverrides): Promise<BigNumber>;
 
     validateToken(
       tokenToValidate: PromiseOrValue<string>,
@@ -921,10 +929,7 @@ export interface DarwinSwapLister extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    validTokens(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    validTokens(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     validateToken(
       tokenToValidate: PromiseOrValue<string>,
