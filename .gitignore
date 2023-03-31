@@ -11,3 +11,4 @@ yarn.lock
 cache
 artifacts
 remappings.txt
+hardhat.config.ts
