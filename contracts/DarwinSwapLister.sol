@@ -46,14 +46,6 @@ contract DarwinSwapLister is IDarwinSwapLister {
         require(_tokenInfo[tokenA].status != TokenStatus.BANNED && !isUserBannedFromListing[tx.origin], "DarwinSwap: TOKENA_OR_CALLER_BANNED");
         require(_tokenInfo[tokenB].status != TokenStatus.BANNED && !isUserBannedFromListing[tx.origin], "DarwinSwap: TOKENB_OR_CALLER_BANNED");
 
-        if (_tokenInfo[tokenA].status == TokenStatus.UNLISTED) {
-            _tokenInfo[tokenA].status = TokenStatus.LISTED;
-        }
-
-        if (_tokenInfo[tokenB].status == TokenStatus.UNLISTED) {
-            _tokenInfo[tokenB].status = TokenStatus.LISTED;
-        }
-
         pair = IDarwinSwapFactory(factory).createPair(tokenA, tokenB);
     }
 
