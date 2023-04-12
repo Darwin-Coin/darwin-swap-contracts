@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.14;
 
+import "../libraries/Tokenomics2Library.sol";
+
 // helper methods for interacting with ERC20 tokens and sending ETH that do not consistently return true/false
 library TransferHelper {
     function safeApprove(
@@ -34,8 +36,14 @@ library TransferHelper {
         address token,
         address from,
         address to,
-        uint256 value
+        uint256 value,
+        address tokenB,
+        address factory
     ) internal {
+        // NOTE: DarwinSwap: TOKS1_SELL
+        if (tokenB != address(0) && factory != address(0)) {
+            value -= Tokenomics2Library.handleToks1Sell(token, from, value, tokenB, factory);
+        }
         // bytes4(keccak256(bytes("transferFrom(address,address,uint256)")));
         (bool success, bytes memory data) = token.call(abi.encodeWithSelector(0x23b872dd, from, to, value));
         require(

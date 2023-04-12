@@ -4,12 +4,10 @@ package-lock.json
 .env
 coverage
 coverage.json
-typechain
-typechain-types
 yarn.lock
 **/.DS_Store
 
 #Hardhat files
 cache
 artifacts
-
+remappings.txt
