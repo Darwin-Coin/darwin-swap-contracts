@@ -10,7 +10,8 @@
     "prettier": "./node_modules/.bin/prettier --write contracts/**/*.sol",
     "xdeploy": "npx hardhat xdeploy",
     "deploy": "npx hardhat run ./scripts/deploy.ts --network",
-    "deploycore": "npx hardhat run ./scripts/deploy-only-core.ts --network"
+    "deploycore": "npx hardhat run ./scripts/deploy-only-core.ts --network",
+    "refresh": "git submodule deinit -f ./darwin-token-contracts && npx rimraf .git/modules/darwin-token-contracts && git rm -rf ./darwin-token-contracts && git submodule add https://github.com/Darwin-Coin/darwin-token-contracts && git submodule update --remote --merge"
   },
   "husky": {
     "hooks": {
