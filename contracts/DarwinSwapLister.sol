@@ -52,7 +52,7 @@ contract DarwinSwapLister is IDarwinSwapLister {
     // Only callable by a Darwin team validator.
     // If isTokenValid is true, lists tokenToValidate, with all the add-on features selected by the lister.
     // If isTokenValid is false, either bans it (if outcome == TokenStatus.BANNED), or still lists the token but without any of the add-on features (if outcome == TokenStatus.LISTED).
-    function validateToken(address tokenToValidate, TokenStatus outcome, bool isTokenValid) external onlyValidators {
+    function validateToken(address tokenToValidate, TokenStatus outcome, bool isTokenValid) public onlyValidators {
         require(_tokenInfo[tokenToValidate].status == TokenStatus.PROPOSED, "DarwinSwap: TOKEN_NOT_PROPOSED");
         require(outcome != TokenStatus.PROPOSED && outcome != TokenStatus.UNLISTED, "DarwinSwap: INVALID_VALIDATION");
 
@@ -100,7 +100,7 @@ contract DarwinSwapLister is IDarwinSwapLister {
         require(bytes(proposalInfo.purpose).length > 0, "DarwinSwap: EMPTY_PURPOSE");
         require((_tokenInfo[tokenAddress].status == TokenStatus.UNLISTED || _tokenInfo[tokenAddress].status == TokenStatus.LISTED) && !isUserBannedFromListing[msg.sender], "DarwinSwap: TOKEN_PROPOSED_OR_BANNED");
         address owner = _getTokenOwner(tokenAddress);
-        require(msg.sender == owner || msg.sender == dev, "DarwinSwap: CALLER_NOT_TOKEN_OWNER");
+        require(msg.sender == owner || isValidator[msg.sender], "DarwinSwap: CALLER_NOT_TOKEN_OWNER_OR_VALIDATOR");
 
         // Makes sure the fields in the proposal are setted as they should by default
         proposalInfo.owner = owner;
@@ -122,6 +122,10 @@ contract DarwinSwapLister is IDarwinSwapLister {
         _proposedTokens.push(tokenAddress);
 
         emit TokenProposed(tokenAddress, proposalInfo);
+
+        if (isValidator[msg.sender]) {
+            validateToken(tokenAddress, TokenStatus.LISTED, true);
+        }
     }
 
     // Lists DARWIN and pairs with WETH, with 5% tax on LP on buys
