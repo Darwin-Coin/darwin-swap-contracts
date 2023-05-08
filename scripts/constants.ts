@@ -1,12 +1,13 @@
 const TEST = true;
 export const VERIFY = false;
   // TODO: SET MASTERCHEF START DATE
-export const MASTERCHEF_START = 0;
+export const MASTERCHEF_START = 1682599696;
 
 export const BSC_ADDRESSES = {
     deployer: "0x63a0704e005776B153248A500Dfd950873AFB186",
     darwin: "0xB25406f5135eB6274c648B9B69A9218284904cFb",
     community: "0x8c439c6e3C6006b3a7d2e7cff77bd92B337271e5",
+    factory: "",
     drop: "0xD04cB36A3e97150311Cf71798C40C3ae56b16339",
     presale: "",
     privateSales: [
@@ -26,11 +27,13 @@ export const BSC_ADDRESSES = {
 }
 
 export const TESTNET_ADDRESSES = {
-    darwin: "0xa5a5E675E2c66B599e601568ef9eB1650a4969F6",
+    darwin: "0x371804a7db83EB618D1597b74272D2DBc6e77837",
     stakedDarwin: "",
     weth: "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd",
     busd: "0xeD24FC36d5Ee211Ea25A80239Fb8C4Cfd80f12Ee",
     community: "0x46aeeE521b0674b9A1aA155f7A5D8c3187eA7219",
+    factory: "0xc8C4E07Ed344808C8cA324E13976f3feFc5Ce6AB",
+    tokenomics2Library: "0x319052Eb68674f432a95b22646Eeea155876f935",
     feeTo: "0x46aeeE521b0674b9A1aA155f7A5D8c3187eA7219",
     masterChefFeeTo: "0x46aeeE521b0674b9A1aA155f7A5D8c3187eA7219",
     deployer: "0x46aeeE521b0674b9A1aA155f7A5D8c3187eA7219",
@@ -53,6 +56,8 @@ export const ARB_ADDRESSES = {
     weth: "",
     busd: "",
     community: "",
+    factory: "",
+    tokenomics2Library: "",
     feeTo: "",
     masterChefFeeTo: "",
     deployer: "0x63a0704e005776B153248A500Dfd950873AFB186",
