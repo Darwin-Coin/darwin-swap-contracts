@@ -12,8 +12,6 @@ interface IDarwinSwapLister {
         address feeReceiver; //? Where will the fees go
         bool valid; //? Only true if the token has been POSITIVELY validated by a Darwin team validator
         bool official; //? Only true if the token is either Darwin, WBNB, or a selected list of tokens like USDT, USDC, etc. If "official" is true, other tokens paired with this token will be able to execute tokenomics, if any
-        uint antiDumpTriggerPrice; //? [18 DECIMALS] If > 0, represents the price of this token against its 'tokenB' in a pair, calculated in BUSD,
-                                   //? below which a buyback->addLiquidityWithoutReceipt is triggered. If == 0, antiDump is not active for this token
         string purpose; //? Why are you sending the fees to the feeReceiver address? Is it a treasury? Will it be used for buybacks? Marketing?
     }
 
@@ -33,7 +31,6 @@ interface IDarwinSwapLister {
         uint tokenB2TaxOnBuy; //? The Toks 2.0 taxation applied to tokenB on buys (100%: 10000)
         uint refundOnSell; //? Percentage (summed, not subtracted from the other toks) of Tokenomics 2.0 that will be used to refund users of own-toks-1.0 on sells
         uint refundOnBuy; //? Percentage (summed, not subtracted from the other toks) of Tokenomics 2.0 that will be used to refund users of own-toks-1.0 on buys
-        //? [4 below REQUIRE antiDumpTriggerPrice to be > 0]
         uint tokenB1SellToADG; //? Percentage (summed, not subtracted from tokenB1TaxOnSell) of Tokenomics 1.0 applied to the other token that will be used, on sells, to refill the ADG
         uint tokenB1BuyToADG; //? Percentage (summed, not subtracted from tokenB1TaxOnBuy) of Tokenomics 1.0 applied to the other token that will be used, on buys, to refill the ADG
         uint tokenB2SellToADG; //? Percentage (summed, not subtracted from tokenB2TaxOnSell) of Tokenomics 2.0 applied to the other token that will be used, on sells, to refill the ADG

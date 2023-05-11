@@ -97,13 +97,13 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
                 uint rootKLast = Math.sqrt(_kLast);
                 if (rootK > rootKLast) {
                     {
-                        uint numerator = totalSupply * (rootK - rootKLast);
+                        uint numerator = totalSupply() * (rootK - rootKLast);
                         uint denominator = rootK + rootKLast;
                         uint liquidity = numerator / denominator;
                         if (liquidity > 0) _mint(feeTo, liquidity);
                     }
                     {
-                        uint numerator = totalSupply * (rootK - rootKLast);
+                        uint numerator = totalSupply() * (rootK - rootKLast);
                         uint denominator = rootK + rootKLast * 5;
                         uint liquidity = numerator / denominator;
                         if (liquidity > 0) _mint(address(IDarwinSwapFactory(factory).liquidityBundles()), liquidity);
@@ -124,12 +124,12 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         uint amount1 = balance1 - reserve1;
 
         bool feeOn = _mintFee(reserve0, reserve1);
-        uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
-        if (_totalSupply == 0) {
+        uint totSupply = totalSupply(); // gas savings, must be defined here since totalSupply() can update in _mintFee
+        if (totSupply == 0) {
             liquidity = Math.sqrt(amount0 * amount1) - MINIMUM_LIQUIDITY;
            _mint(address(0), MINIMUM_LIQUIDITY); // permanently lock the first MINIMUM_LIQUIDITY tokens
         } else {
-            liquidity = Math.min((amount0 * _totalSupply) / reserve0, (amount1 * _totalSupply) / reserve1);
+            liquidity = Math.min((amount0 * totSupply) / reserve0, (amount1 * totSupply) / reserve1);
         }
         require(liquidity > 0, "DarwinSwap: INSUFFICIENT_LIQUIDITY_MINTED");
         _mint(to, liquidity);
@@ -149,9 +149,9 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         uint liquidity = balanceOf[address(this)];
 
         bool feeOn = _mintFee(reserve0, reserve1);
-        uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
-        amount0 = liquidity * balance0 / _totalSupply; // using balances ensures pro-rata distribution
-        amount1 = liquidity * balance1 / _totalSupply; // using balances ensures pro-rata distribution
+        uint totSupply = totalSupply(); // gas savings, must be defined here since totalSupply() can update in _mintFee
+        amount0 = liquidity * balance0 / totSupply; // using balances ensures pro-rata distribution
+        amount1 = liquidity * balance1 / totSupply; // using balances ensures pro-rata distribution
         require(amount0 > 0 && amount1 > 0, "DarwinSwap: INSUFFICIENT_LIQUIDITY_BURNED");
         _burn(address(this), liquidity);
         _safeTransfer(_token0, to, amount0, address(0));
@@ -208,7 +208,7 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         _emitSwap(amount0In, amount1In, amount0Out, amount1Out, to);
     }
 
-    // TODO: THIS CURRENTLY AVOIDS STACK TOO DEEP, BUT MAYBE EVERYTHING CAN BE OPTIMIZED AND A BETTER SOLUTION CAN BE FOUND
+    // NOTE: This emits the Swap event. Separate from swap() to avoid stack too deep errors.
     function _emitSwap(uint amount0In, uint amount1In, uint amount0Out, uint amount1Out, address to) internal {
         emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
     }
@@ -234,5 +234,14 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
     // force reserves to match balances
     function sync() external lock {
         _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this)), _reserve0, _reserve1);
+    }
+
+    // Overrides totalSupply to include also the antiDumpGuard liquidity
+    function totalSupply() public view override returns (uint) {
+        uint _baseSupply = _totalSupply;
+        uint adgReserve0 = IERC20(token0).balanceOf(antiDumpGuard);
+        uint adgReserve1 = IERC20(token1).balanceOf(antiDumpGuard);
+        uint _adgLiq = Math.min((adgReserve0 * _totalSupply) / _reserve0, (adgReserve1 * _totalSupply) / _reserve1);
+        return _baseSupply + _adgLiq;
     }
 }

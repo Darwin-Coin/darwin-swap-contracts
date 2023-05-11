@@ -16,10 +16,16 @@ contract AntiDumpGuard is IAntiDumpGuard {
     IDarwinSwapPair public pair;
     IDarwinSwapRouter public router;
     IDarwinSwapLister public lister;
+    address public dev;
     address public token0;
     address public token1;
     // the stablecoin used as USD value (BUSD)
     address public USD;
+
+    modifier onlyTeamOrDev() {
+        require(msg.sender == dev || msg.sender == lister.tokenInfo(token0).owner || msg.sender == lister.tokenInfo(token1).owner, "AntiDumpGuard: CALLER_NOT_TOKEN_TEAM_OR_DEV");
+        _;
+    }
 
     constructor() {
         factory = IDarwinSwapFactory(msg.sender);
@@ -30,16 +36,17 @@ contract AntiDumpGuard is IAntiDumpGuard {
         pair = IDarwinSwapPair(_pair);
         router = IDarwinSwapRouter(factory.router());
         lister = IDarwinSwapLister(factory.lister());
+        dev = factory.dev();
         USD = factory.USD();
         token0 = pair.token0();
         token1 = pair.token1();
     }
 
-    function buyBackAndPair(address _sellToken) external {
+    function buyBackAndPair(address _sellToken) external onlyTeamOrDev {
         IDarwinSwapLister.TokenInfo memory tokenInfo = lister.tokenInfo(_sellToken);
 
         // Return if antidump is not a thing for this token
-        if (tokenInfo.antiDumpTriggerPrice == 0) {
+        if (tokenInfo.addedToks.tokenB1SellToADG + tokenInfo.addedToks.tokenB1BuyToADG + tokenInfo.addedToks.tokenB2SellToADG + tokenInfo.addedToks.tokenB2BuyToADG == 0) {
             return;
         }
 
@@ -48,30 +55,6 @@ contract AntiDumpGuard is IAntiDumpGuard {
         // Return if there is no buyToken balance in the antiDump
         if (IERC20(_buyToken).balanceOf(address(this)) == 0) {
             return;
-        }
-
-        // Gets price of sellToken against buyToken
-        (uint reserveSellToken, uint reserveBuyToken) = DarwinSwapLibrary.getReserves(address(factory), _sellToken, _buyToken);
-        uint _price = DarwinSwapLibrary.quote(1e18, reserveSellToken, reserveBuyToken);
-
-        // Ensures antiDumpTriggerPrice is calculated in _buyToken's
-        uint antiDumpTriggerPrice = tokenInfo.antiDumpTriggerPrice;
-        if (_buyToken != USD) {
-            (uint reserveUSD,) = DarwinSwapLibrary.getReserves(address(factory), USD, _buyToken);
-            uint _priceOfUSDInBuyToken = DarwinSwapLibrary.quote(1e18, reserveUSD, reserveBuyToken);
-            antiDumpTriggerPrice = (antiDumpTriggerPrice * _priceOfUSDInBuyToken) / 1e18;
-        }
-
-        // Return if current price is higher than antidump trigger price
-        if (_price >= antiDumpTriggerPrice) {
-            return;
-        }
-
-        // The amount of buyToken that we need to sell to reach antiDumpTriggerPrice for sellToken
-        uint sellAmountOfBuyToken = ((antiDumpTriggerPrice + _price) * (antiDumpTriggerPrice * reserveSellToken - reserveBuyToken)) / (3 * antiDumpTriggerPrice + _price);
-
-        if (IERC20(_buyToken).balanceOf(address(this)) < sellAmountOfBuyToken * 2) {
-            sellAmountOfBuyToken = IERC20(_buyToken).balanceOf(address(this)) / 2;
         }
 
         // Approve router and pair using of BUYTOKEN and SELLTOKEN
@@ -83,15 +66,14 @@ contract AntiDumpGuard is IAntiDumpGuard {
         }
 
         // SWAP
+        pair.swapWithoutToks(_buyToken, IERC20(_buyToken).balanceOf(address(this)) / 2);
         uint balanceSellToken = IERC20(_sellToken).balanceOf(address(this));
-        pair.swapWithoutToks(_buyToken, sellAmountOfBuyToken);
-        balanceSellToken = IERC20(_sellToken).balanceOf(address(this)) - balanceSellToken;
         uint balanceBuyToken = IERC20(_buyToken).balanceOf(address(this));
 
         // PAIR
-        router.addLiquidityWithoutReceipt(_sellToken, _buyToken, balanceSellToken, sellAmountOfBuyToken > balanceBuyToken ? balanceBuyToken : sellAmountOfBuyToken, block.timestamp + 600);
+        router.addLiquidityWithoutReceipt(_sellToken, _buyToken, balanceSellToken, balanceBuyToken, block.timestamp + 600);
 
-        emit BuyBackAndPair(_buyToken, _sellToken, sellAmountOfBuyToken, balanceSellToken);
+        emit BuyBackAndPair(_buyToken, _sellToken, balanceBuyToken, balanceSellToken);
     }
 
     receive() external payable {}

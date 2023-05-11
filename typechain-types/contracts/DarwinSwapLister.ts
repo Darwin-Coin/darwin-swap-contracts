@@ -96,7 +96,6 @@ export declare namespace IDarwinSwapLister {
     feeReceiver: PromiseOrValue<string>;
     valid: PromiseOrValue<boolean>;
     official: PromiseOrValue<boolean>;
-    antiDumpTriggerPrice: PromiseOrValue<BigNumberish>;
     purpose: PromiseOrValue<string>;
   };
 
@@ -109,7 +108,6 @@ export declare namespace IDarwinSwapLister {
     string,
     boolean,
     boolean,
-    BigNumber,
     string
   ] & {
     ownToks: IDarwinSwapLister.OwnTokenomicsInfoStructOutput;
@@ -120,7 +118,6 @@ export declare namespace IDarwinSwapLister {
     feeReceiver: string;
     valid: boolean;
     official: boolean;
-    antiDumpTriggerPrice: BigNumber;
     purpose: string;
   };
 
@@ -151,7 +148,7 @@ export interface DarwinSwapListerInterface extends utils.Interface {
     "maxTok1Tax()": FunctionFragment;
     "maxTok2Tax()": FunctionFragment;
     "proposals()": FunctionFragment;
-    "proposeToken(address,((uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint8,address,address,address,bool,bool,uint256,string))": FunctionFragment;
+    "proposeToken(address,((uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint8,address,address,address,bool,bool,string))": FunctionFragment;
     "setBanToken(address,bool)": FunctionFragment;
     "setBanUser(address,bool)": FunctionFragment;
     "setDev(address)": FunctionFragment;

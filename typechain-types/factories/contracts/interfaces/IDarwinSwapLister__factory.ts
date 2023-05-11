@@ -165,11 +165,6 @@ const _abi = [
             type: "bool",
           },
           {
-            internalType: "uint256",
-            name: "antiDumpTriggerPrice",
-            type: "uint256",
-          },
-          {
             internalType: "string",
             name: "purpose",
             type: "string",
@@ -401,11 +396,6 @@ const _abi = [
             internalType: "bool",
             name: "official",
             type: "bool",
-          },
-          {
-            internalType: "uint256",
-            name: "antiDumpTriggerPrice",
-            type: "uint256",
           },
           {
             internalType: "string",

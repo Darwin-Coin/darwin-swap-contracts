@@ -6,7 +6,7 @@ contract DarwinSwapERC20 is IDarwinSwapERC20 {
     string public constant name = "DarwinSwap Pair";
     string public constant symbol = "DARWIN-LP";
     uint8 public constant decimals = 18;
-    uint  public totalSupply;
+    uint  internal _totalSupply;
     mapping(address => uint) public balanceOf;
     mapping(address => mapping(address => uint)) public allowance;
 
@@ -32,14 +32,14 @@ contract DarwinSwapERC20 is IDarwinSwapERC20 {
     }
 
     function _mint(address to, uint value) internal {
-        totalSupply = totalSupply + value;
+        _totalSupply = _totalSupply + value;
         balanceOf[to] = balanceOf[to] + value;
         emit Transfer(address(0), to, value);
     }
 
     function _burn(address from, uint value) internal {
         balanceOf[from] = balanceOf[from] - value;
-        totalSupply = totalSupply - value;
+        _totalSupply = _totalSupply - value;
         emit Transfer(from, address(0), value);
     }
 
@@ -85,4 +85,6 @@ contract DarwinSwapERC20 is IDarwinSwapERC20 {
         require(recoveredAddress != address(0) && recoveredAddress == owner, "DarwinSwap: INVALID_SIGNATURE");
         _approve(owner, spender, value);
     }
+
+    function totalSupply() public view virtual returns (uint) {}
 }

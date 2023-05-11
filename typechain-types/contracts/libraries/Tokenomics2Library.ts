@@ -90,7 +90,6 @@ export declare namespace IDarwinSwapLister {
     feeReceiver: PromiseOrValue<string>;
     valid: PromiseOrValue<boolean>;
     official: PromiseOrValue<boolean>;
-    antiDumpTriggerPrice: PromiseOrValue<BigNumberish>;
     purpose: PromiseOrValue<string>;
   };
 
@@ -103,7 +102,6 @@ export declare namespace IDarwinSwapLister {
     string,
     boolean,
     boolean,
-    BigNumber,
     string
   ] & {
     ownToks: IDarwinSwapLister.OwnTokenomicsInfoStructOutput;
@@ -114,7 +112,6 @@ export declare namespace IDarwinSwapLister {
     feeReceiver: string;
     valid: boolean;
     official: boolean;
-    antiDumpTriggerPrice: BigNumber;
     purpose: string;
   };
 }
@@ -122,7 +119,7 @@ export declare namespace IDarwinSwapLister {
 export interface Tokenomics2LibraryInterface extends utils.Interface {
   functions: {
     "adjustTokenomics((uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256))": FunctionFragment;
-    "ensureTokenomics(((uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint8,address,address,address,bool,bool,uint256,string),uint256,uint256)": FunctionFragment;
+    "ensureTokenomics(((uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint8,address,address,address,bool,bool,string),uint256,uint256)": FunctionFragment;
     "handleADGRefill(address,address,address,uint256,uint256)": FunctionFragment;
   };
 

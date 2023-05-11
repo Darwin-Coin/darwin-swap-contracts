@@ -224,7 +224,6 @@ library Tokenomics2Library {
         uint tax2OnBuy =    toks.tokenA2TaxOnBuy +  toks.tokenB2TaxOnBuy +  toks.refundOnBuy +      toks.tokenB2BuyToADG;
 
         valid = tax1OnSell <= maxTok1Tax && tax1OnBuy <= maxTok1Tax && tax2OnSell <= maxTok2Tax && tax2OnBuy <= maxTok2Tax &&
-                (tokInfo.antiDumpTriggerPrice == 0 || (toks.tokenB1SellToADG + toks.tokenB1BuyToADG + toks.tokenB2SellToADG + toks.tokenB2BuyToADG) > 0) &&
                 (toks.refundOnSell <= ownToks.tokenTaxOnSell) && (toks.refundOnBuy <= ownToks.tokenTaxOnBuy);
     }
 

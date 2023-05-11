@@ -139,7 +139,6 @@ contract DarwinSwapLister is IDarwinSwapLister {
         _tokenInfo[darwin].official = true;
         _tokenInfo[darwin].owner = msg.sender;
         _tokenInfo[darwin].feeReceiver = darwinCommunity;
-        _tokenInfo[darwin].antiDumpTriggerPrice = 1e18; // 1 BUSD ($1)
         _tokenInfo[darwin].addedToks.tokenB2BuyToADG = 500;
 
         address pair = IDarwinSwapFactory(factory).getPair(darwin, weth);

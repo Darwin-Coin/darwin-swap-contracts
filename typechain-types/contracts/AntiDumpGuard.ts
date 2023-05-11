@@ -30,6 +30,7 @@ export interface AntiDumpGuardInterface extends utils.Interface {
   functions: {
     "USD()": FunctionFragment;
     "buyBackAndPair(address)": FunctionFragment;
+    "dev()": FunctionFragment;
     "factory()": FunctionFragment;
     "initialize(address)": FunctionFragment;
     "lister()": FunctionFragment;
@@ -43,6 +44,7 @@ export interface AntiDumpGuardInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "USD"
       | "buyBackAndPair"
+      | "dev"
       | "factory"
       | "initialize"
       | "lister"
@@ -57,6 +59,7 @@ export interface AntiDumpGuardInterface extends utils.Interface {
     functionFragment: "buyBackAndPair",
     values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(functionFragment: "dev", values?: undefined): string;
   encodeFunctionData(functionFragment: "factory", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "initialize",
@@ -73,6 +76,7 @@ export interface AntiDumpGuardInterface extends utils.Interface {
     functionFragment: "buyBackAndPair",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "dev", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "factory", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "lister", data: BytesLike): Result;
@@ -135,6 +139,8 @@ export interface AntiDumpGuard extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    dev(overrides?: CallOverrides): Promise<[string]>;
+
     factory(overrides?: CallOverrides): Promise<[string]>;
 
     initialize(
@@ -160,6 +166,8 @@ export interface AntiDumpGuard extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  dev(overrides?: CallOverrides): Promise<string>;
+
   factory(overrides?: CallOverrides): Promise<string>;
 
   initialize(
@@ -184,6 +192,8 @@ export interface AntiDumpGuard extends BaseContract {
       _sellToken: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    dev(overrides?: CallOverrides): Promise<string>;
 
     factory(overrides?: CallOverrides): Promise<string>;
 
@@ -226,6 +236,8 @@ export interface AntiDumpGuard extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    dev(overrides?: CallOverrides): Promise<BigNumber>;
+
     factory(overrides?: CallOverrides): Promise<BigNumber>;
 
     initialize(
@@ -251,6 +263,8 @@ export interface AntiDumpGuard extends BaseContract {
       _sellToken: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    dev(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     factory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

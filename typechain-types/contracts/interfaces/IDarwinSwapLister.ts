@@ -96,7 +96,6 @@ export declare namespace IDarwinSwapLister {
     feeReceiver: PromiseOrValue<string>;
     valid: PromiseOrValue<boolean>;
     official: PromiseOrValue<boolean>;
-    antiDumpTriggerPrice: PromiseOrValue<BigNumberish>;
     purpose: PromiseOrValue<string>;
   };
 
@@ -109,7 +108,6 @@ export declare namespace IDarwinSwapLister {
     string,
     boolean,
     boolean,
-    BigNumber,
     string
   ] & {
     ownToks: IDarwinSwapLister.OwnTokenomicsInfoStructOutput;
@@ -120,7 +118,6 @@ export declare namespace IDarwinSwapLister {
     feeReceiver: string;
     valid: boolean;
     official: boolean;
-    antiDumpTriggerPrice: BigNumber;
     purpose: string;
   };
 }
