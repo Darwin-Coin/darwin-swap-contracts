@@ -239,6 +239,9 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
     // Overrides totalSupply to include also the antiDumpGuard liquidity
     function totalSupply() public view override returns (uint) {
         uint _baseSupply = _totalSupply;
+        if (_reserve0 == 0 || _reserve1 == 0) {
+            return _baseSupply;
+        }
         uint adgReserve0 = IERC20(token0).balanceOf(antiDumpGuard);
         uint adgReserve1 = IERC20(token1).balanceOf(antiDumpGuard);
         uint _adgLiq = Math.min((adgReserve0 * _totalSupply) / _reserve0, (adgReserve1 * _totalSupply) / _reserve1);

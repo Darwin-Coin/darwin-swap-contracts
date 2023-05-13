@@ -1,13 +1,12 @@
 // DarwinSwap Factory test.
 
 import { expect } from "chai";
-import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import * as hardhat from "hardhat";
-import { ethers, upgrades } from "hardhat";
-import { DarwinSwapFactory, DarwinSwapLister, DarwinSwapPair, DarwinSwapRouter, DarwinStaking, Tokenomics2Library } from "../typechain-types";
-import { TestERC20 } from "../typechain-types/test";
+import { ethers } from "hardhat";
+import { DarwinSwapFactory, DarwinSwapLister, DarwinSwapPair, DarwinSwapRouter, Tokenomics2Library } from "../typechain-types";
+import { TestERC20 } from "../typechain-types/contracts/test/TestERC20";
 import { BigNumber } from "ethers";
-import { ADDRESSES } from "../scripts/constants";
 
 const ZERO = "0x0000000000000000000000000000000000000000";
 const ZEROT = "0x0000000000000000000000000000000000000003";
@@ -89,8 +88,6 @@ describe("Test Suite", function () {
     const token = await erc20Factory.deploy("Token", "TKN") as TestERC20;
     const token1 = await erc20Factory.deploy("Token1", "TKN1") as TestERC20;
     const busd = await erc20Factory.deploy("Binance USD", "BUSD") as TestERC20;
-    const stakingFactory = await ethers.getContractFactory("DarwinStaking");
-    const staking = await stakingFactory.deploy(token.address, token1.address) as DarwinStaking;
     const tokenomics2LibFactory = await ethers.getContractFactory("Tokenomics2Library");
     const library = await tokenomics2LibFactory.deploy() as Tokenomics2Library;
     const darwinRouterFactory = await ethers.getContractFactory("DarwinSwapRouter", {libraries: {Tokenomics2Library: library.address}});
@@ -103,7 +100,7 @@ describe("Test Suite", function () {
     const router = await darwinRouterFactory.deploy(factory.address, weth.address) as DarwinSwapRouter;
     await factory.setRouter(router.address);
     await factory.setFeeTo(owner.address);
-    return {owner, addr1, addr2, weth, token, token1, staking, library, lister, factory, router, busd, erc20Factory, pairFactory};
+    return {owner, addr1, addr2, weth, token, token1, library, lister, factory, router, busd, erc20Factory, pairFactory};
   }
 
 
@@ -114,7 +111,6 @@ describe("Test Suite", function () {
   async function pairFixture() {
     const { busd, lister, weth, token, router, owner, addr1, addr2, factory, pairFactory } = await loadFixture(deployFixture);
     await lister.proposeToken(token.address, fixtureProp);
-    await lister.validateToken(token.address, TokenStatus.LISTED, true);
     await lister.listOfficialToken(weth.address);
     await lister.listOfficialToken(busd.address);
     await token.approve(router.address, eth("10000000000"));
@@ -136,9 +132,7 @@ describe("Test Suite", function () {
   async function unofficialPairFixture() {
     const { lister, weth, token, router, owner, addr1, addr2, factory, pairFactory } = await loadFixture(deployFixture);
     await lister.proposeToken(token.address, fixtureProp);
-    await lister.validateToken(token.address, TokenStatus.LISTED, true);
     await lister.proposeToken(weth.address, proposal());
-    await lister.validateToken(weth.address, TokenStatus.LISTED, true);
     await token.approve(router.address, eth("10000000000"));
     await weth.approve(router.address, eth("10000000000"))
     await router.addLiquidity(token.address, weth.address, eth("1000"), eth("1000"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600);
@@ -241,7 +235,7 @@ describe("Test Suite", function () {
         const arrivedAmount = eth(SWAPAMOUNT).sub(eth(SWAPAMOUNT).mul(addedToks.tokenA1TaxOnSell).div(10000));
         const reserves = await pair.getReserves()
         const amountOut = await router.getAmountOut(arrivedAmount, reserves.reserve1, reserves.reserve0);
-        await expect(await router.swapExactTokensForTokensSupportingFeeOnTransferTokens(eth(SWAPAMOUNT), [token.address, weth.address], owner.address, Math.floor(Date.now() / 1000) + 600)).to.
+        await expect(await router.swapExactTokensForTokensSupportingFeeOnTransferTokens(eth(SWAPAMOUNT), 0, [token.address, weth.address], owner.address, Math.floor(Date.now() / 1000) + 600)).to.
           changeTokenBalances(token, [owner.address, pair.address], [eth("-" + SWAPAMOUNT), arrivedAmount]).
           changeTokenBalances(weth, [owner.address, pair.address], [amountOut, "-" + amountOut.toString()]);
       });
@@ -263,7 +257,7 @@ describe("Test Suite", function () {
         const arrivedAmount = eth(SWAPAMOUNT).sub(eth(SWAPAMOUNT).mul(addedToks.tokenA2TaxOnSell).div(10000));
         const reserves = await pair.getReserves()
         const amountOut = await router.getAmountOut(eth(SWAPAMOUNT), reserves.reserve1, reserves.reserve0);
-        await expect(await router.swapExactTokensForTokensSupportingFeeOnTransferTokens(eth(SWAPAMOUNT), [token.address, weth.address], owner.address, Math.floor(Date.now() / 1000) + 600)).to.
+        await expect(await router.swapExactTokensForTokensSupportingFeeOnTransferTokens(eth(SWAPAMOUNT), 0, [token.address, weth.address], owner.address, Math.floor(Date.now() / 1000) + 600)).to.
           changeTokenBalances(token, [owner.address, pair.address], [eth("-" + SWAPAMOUNT), arrivedAmount]).
           changeTokenBalances(weth, [owner.address, pair.address], [amountOut, "-" + amountOut.toString()]);
       });
@@ -281,14 +275,11 @@ describe("Test Suite", function () {
         await expect(lister.proposeToken(token1.address, prop)).to.be.revertedWith("DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
       });
 
-      it("When they set Tokenomics on a contract they must list where they want the tokens to go, and what the purpose of sending them there is", async function () {
+      it("When they set Tokenomics on a contract they must say what the purpose of taxing is", async function () {
         const { lister, token, token1 } = await loadFixture(deployFixture);
         let prop = proposal();
         prop.purpose = "";
         await expect(lister.proposeToken(token.address, prop)).to.be.revertedWith("DarwinSwap: EMPTY_PURPOSE");
-        prop.purpose = "not empty";
-        prop.feeReceiver = ZERO;
-        await expect(lister.proposeToken(token1.address, prop)).to.be.revertedWith("DarwinSwap: ZERO_ADDRESS");
       });
 
       it("Tokenomics only work when the 'other' token is 'official'", async function () {
@@ -296,7 +287,7 @@ describe("Test Suite", function () {
         fixtureProp = proposal();
         fixtureProp.addedToks.tokenA1TaxOnSell = 1000;
         const { token, weth, pair, router, owner } = await loadFixture(unofficialPairFixture);
-        await expect(await router.swapExactTokensForTokensSupportingFeeOnTransferTokens(eth(SWAPAMOUNT), [token.address, weth.address], owner.address, Math.floor(Date.now() / 1000) + 600)).to.
+        await expect(await router.swapExactTokensForTokensSupportingFeeOnTransferTokens(eth(SWAPAMOUNT), 0, [token.address, weth.address], owner.address, Math.floor(Date.now() / 1000) + 600)).to.
           changeTokenBalances(token, [owner.address, pair.address], [eth("-" + SWAPAMOUNT), eth(SWAPAMOUNT)]);
       });
     });
