@@ -227,7 +227,7 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
     // requires the initial amount to have already been sent to the first pair
     function _swapSupportingFeeOnTransferTokens(uint amountIn, address[] memory path, address _to) internal virtual {
         TransferHelper.safeTransferFrom(
-            path[0], msg.sender, DarwinSwapLibrary.pairFor(factory, path[0], path[1]), amountIn, path[path.length - 1], factory
+            path[0], (IERC20(WETH).balanceOf(address(this)) >= amountIn) ? address(this) : msg.sender, DarwinSwapLibrary.pairFor(factory, path[0], path[1]), amountIn, path[path.length - 1], factory
         );
         for (uint i; i < path.length - 1; i++) {
             (address input, address output) = (path[i], path[i + 1]);
@@ -285,7 +285,9 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         require(path[0] == WETH, "DarwinSwapRouter: INVALID_PATH");
         uint amountIn = msg.value;
         IWETH(WETH).deposit{value: amountIn}();
-        IWETH(WETH).transfer(msg.sender, amountIn);
+        if (IERC20(WETH).allowance(address(this), address(this)) < amountIn) {
+            IERC20(WETH).approve(address(this), amountIn);
+        }
         uint balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
         _swapSupportingFeeOnTransferTokens(amountIn, path, to);
         require(
