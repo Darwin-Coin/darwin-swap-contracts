@@ -134,21 +134,14 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
         IDarwinSwapPair pair = IDarwinSwapPair(_lpToken);
         uint liquidity = IERC20(address(pair)).balanceOf(address(this));
         if (liquidity > 0) {
-            address token0 = pair.token0();
-            address token1 = pair.token1();
-            (uint amount0, uint amount1) = darwinRouter.removeLiquidity(token0, token1, liquidity, 0, 0, address(this), block.timestamp + 600);
+            IERC20(address(pair)).approve(address(darwinRouter), liquidity);
+            address token = pair.token0() == WETH ? pair.token1() : pair.token0();
+            (, uint amountETH) = darwinRouter.removeLiquidityETH(token, liquidity, 0, 0, address(this), block.timestamp + 600);
 
-            if (token0 == WETH) {
-                address[] memory path = new address[](2);
-                path[0] = token0;
-                path[1] = token1;
-                darwinRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens(amount0, 0, path, address(this), block.timestamp + 600);
-            } else if (token1 == WETH) {
-                address[] memory path = new address[](2);
-                path[0] = token1;
-                path[1] = token0;
-                darwinRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens(amount1, 0, path, address(this), block.timestamp + 600);
-            }
+            address[] memory path = new address[](2);
+            path[0] = WETH;
+            path[1] = token;
+            darwinRouter.swapExactETHForTokensSupportingFeeOnTransferTokens{value: amountETH}(0, path, address(this), block.timestamp + 600);
         }
     }
 

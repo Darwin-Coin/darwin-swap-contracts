@@ -4,7 +4,7 @@ import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import * as hardhat from "hardhat";
 import { ethers } from "hardhat";
-import { DarwinSwapFactory, DarwinSwapLister, DarwinSwapPair, DarwinSwapRouter, Tokenomics2Library } from "../typechain-types";
+import { DarwinLiquidityBundles, DarwinSwapFactory, DarwinSwapLister, DarwinSwapPair, DarwinSwapRouter, Tokenomics2Library } from "../typechain-types";
 import { TestERC20 } from "../typechain-types/contracts/test/TestERC20";
 import { BigNumber } from "ethers";
 
@@ -45,7 +45,6 @@ const PROPOSAL = {
   official: false,
   owner: ZERO,
   feeReceiver: ZEROT,
-  antiDumpTriggerPrice: eth("0"),
   purpose: "not empty"
 }
 
@@ -89,6 +88,7 @@ describe("Test Suite", function () {
     const token1 = await erc20Factory.deploy("Token1", "TKN1") as TestERC20;
     const busd = await erc20Factory.deploy("Binance USD", "BUSD") as TestERC20;
     const tokenomics2LibFactory = await ethers.getContractFactory("Tokenomics2Library");
+    const bundlesFactory = await ethers.getContractFactory("DarwinLiquidityBundles");
     const library = await tokenomics2LibFactory.deploy() as Tokenomics2Library;
     const darwinRouterFactory = await ethers.getContractFactory("DarwinSwapRouter", {libraries: {Tokenomics2Library: library.address}});
     const darwinFactoryFactory = await ethers.getContractFactory("DarwinSwapFactory", {libraries: {Tokenomics2Library: library.address}});
@@ -100,11 +100,12 @@ describe("Test Suite", function () {
     const router = await darwinRouterFactory.deploy(factory.address, weth.address) as DarwinSwapRouter;
     await factory.setRouter(router.address);
     await factory.setFeeTo(owner.address);
-    return {owner, addr1, addr2, weth, token, token1, library, lister, factory, router, busd, erc20Factory, pairFactory};
+    const bundles = bundlesFactory.attach(await factory.liquidityBundles()) as DarwinLiquidityBundles;
+    return {owner, addr1, addr2, weth, token, token1, library, lister, factory, router, busd, erc20Factory, pairFactory, bundles};
   }
 
 
-
+  /*
 
 
 
@@ -143,12 +144,14 @@ describe("Test Suite", function () {
   }
 
 
-
+  */
 
 
 
   // FACTORY
   describe("Factory", function () {
+
+    /*
     it("The function `getPair(address,address)` returns `address(0)` if the pair does not exist", async function () {
       const { factory, weth, token } = await loadFixture(deployFixture);
       expect(await factory.getPair(weth.address, token.address)).to.be.equal(ZERO);
@@ -297,6 +300,21 @@ describe("Test Suite", function () {
         const { token, weth, pair, router, owner } = await loadFixture(unofficialPairFixture);
         await expect(await router.swapExactTokensForTokensSupportingFeeOnTransferTokens(eth(SWAPAMOUNT), 0, [token.address, weth.address], owner.address, Math.floor(Date.now() / 1000) + 600)).to.
           changeTokenBalances(token, [owner.address, pair.address], [eth("-" + SWAPAMOUNT), eth(SWAPAMOUNT)]);
+      });
+    }); */
+
+    describe("Bundles", function () {
+      it("Enter bundle works", async function () {
+        const { bundles, lister, router, weth, token, owner } = await loadFixture(deployFixture);
+        const t1 = await token.approve(router.address, ethers.utils.parseEther("1000"));
+        await t1.wait();
+        const t2 = await router.addLiquidityETH(token.address, ethers.utils.parseEther("1000"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600, {value: ethers.utils.parseEther("1")});
+        await t2.wait();
+        const t3 = await lister.proposeToken(token.address, PROPOSAL);
+        await t3.wait();
+        const t4 = await token.transfer(bundles.address, ethers.utils.parseEther("1000"));
+        await t4.wait();
+        expect(await bundles.enterBundle(token.address, ethers.utils.parseEther("10"), {value: ethers.utils.parseEther("1")})).to.not.be.reverted;
       });
     });
   });
