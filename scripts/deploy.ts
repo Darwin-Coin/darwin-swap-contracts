@@ -29,11 +29,6 @@ async function main() {
     });
   }
 
-  //* [INIT] DARWIN WITH MASTERCHEF
-  const setMasterChef = await DARWIN.setMasterChef(masterChef.address);
-  await setMasterChef.wait();
-  console.log(`🏁 MasterChef address set for Darwin`);
-
   //! [ATTACH] LOCKER
   const locker = lockerFactory.attach(await masterChef.locker()) as TokenLocker;
   await locker.deployed();
@@ -94,11 +89,6 @@ async function main() {
       constructorArguments: [lister.address, addr.busd]
     });
   }
-
-  //* [INIT] DARWIN WITH FACTORY
-  const dSetFactory = await DARWIN.setDarwinSwapFactory(factory.address);
-  await dSetFactory.wait();
-  console.log(`🏁 Factory address set for Darwin`);
 
   //* [INIT] LISTER
   const setFactory = await lister.setFactory(factory.address);

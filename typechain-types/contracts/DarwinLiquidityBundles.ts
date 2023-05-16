@@ -34,6 +34,7 @@ export interface DarwinLiquidityBundlesInterface extends utils.Interface {
     "WETH()": FunctionFragment;
     "darwinFactory()": FunctionFragment;
     "darwinRouter()": FunctionFragment;
+    "earned(address,address)": FunctionFragment;
     "enterBundle(address,uint256)": FunctionFragment;
     "exitBundle(address)": FunctionFragment;
     "initialize(address,address)": FunctionFragment;
@@ -51,6 +52,7 @@ export interface DarwinLiquidityBundlesInterface extends utils.Interface {
       | "WETH"
       | "darwinFactory"
       | "darwinRouter"
+      | "earned"
       | "enterBundle"
       | "exitBundle"
       | "initialize"
@@ -74,6 +76,10 @@ export interface DarwinLiquidityBundlesInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "darwinRouter",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "earned",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "enterBundle",
@@ -122,6 +128,7 @@ export interface DarwinLiquidityBundlesInterface extends utils.Interface {
     functionFragment: "darwinRouter",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "earned", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "enterBundle",
     data: BytesLike
@@ -226,6 +233,12 @@ export interface DarwinLiquidityBundles extends BaseContract {
 
     darwinRouter(overrides?: CallOverrides): Promise<[string]>;
 
+    earned(
+      _user: PromiseOrValue<string>,
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber] & { eth: BigNumber; token: BigNumber }>;
+
     enterBundle(
       _token: PromiseOrValue<string>,
       _desiredTokenAmount: PromiseOrValue<BigNumberish>,
@@ -274,7 +287,12 @@ export interface DarwinLiquidityBundles extends BaseContract {
       arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber] & { lpAmount: BigNumber; lockEnd: BigNumber }
+      [BigNumber, BigNumber, BigNumber, BigNumber] & {
+        lpAmount: BigNumber;
+        lockEnd: BigNumber;
+        bundledEth: BigNumber;
+        bundledToken: BigNumber;
+      }
     >;
   };
 
@@ -285,6 +303,12 @@ export interface DarwinLiquidityBundles extends BaseContract {
   darwinFactory(overrides?: CallOverrides): Promise<string>;
 
   darwinRouter(overrides?: CallOverrides): Promise<string>;
+
+  earned(
+    _user: PromiseOrValue<string>,
+    _token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<[BigNumber, BigNumber] & { eth: BigNumber; token: BigNumber }>;
 
   enterBundle(
     _token: PromiseOrValue<string>,
@@ -331,7 +355,12 @@ export interface DarwinLiquidityBundles extends BaseContract {
     arg1: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber] & { lpAmount: BigNumber; lockEnd: BigNumber }
+    [BigNumber, BigNumber, BigNumber, BigNumber] & {
+      lpAmount: BigNumber;
+      lockEnd: BigNumber;
+      bundledEth: BigNumber;
+      bundledToken: BigNumber;
+    }
   >;
 
   callStatic: {
@@ -342,6 +371,12 @@ export interface DarwinLiquidityBundles extends BaseContract {
     darwinFactory(overrides?: CallOverrides): Promise<string>;
 
     darwinRouter(overrides?: CallOverrides): Promise<string>;
+
+    earned(
+      _user: PromiseOrValue<string>,
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber] & { eth: BigNumber; token: BigNumber }>;
 
     enterBundle(
       _token: PromiseOrValue<string>,
@@ -389,7 +424,12 @@ export interface DarwinLiquidityBundles extends BaseContract {
       arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber] & { lpAmount: BigNumber; lockEnd: BigNumber }
+      [BigNumber, BigNumber, BigNumber, BigNumber] & {
+        lpAmount: BigNumber;
+        lockEnd: BigNumber;
+        bundledEth: BigNumber;
+        bundledToken: BigNumber;
+      }
     >;
   };
 
@@ -440,6 +480,12 @@ export interface DarwinLiquidityBundles extends BaseContract {
     darwinFactory(overrides?: CallOverrides): Promise<BigNumber>;
 
     darwinRouter(overrides?: CallOverrides): Promise<BigNumber>;
+
+    earned(
+      _user: PromiseOrValue<string>,
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     enterBundle(
       _token: PromiseOrValue<string>,
@@ -494,6 +540,12 @@ export interface DarwinLiquidityBundles extends BaseContract {
     darwinFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     darwinRouter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    earned(
+      _user: PromiseOrValue<string>,
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     enterBundle(
       _token: PromiseOrValue<string>,

@@ -72,9 +72,12 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
 
         uint256 ethValue = (_desiredTokenAmount * priceInWeth) / (10 ** IERC20(_token).decimals());
         require(msg.value >= ethValue, "DarwinLiquidityBundles: INSUFFICIENT_ETH");
+        if (ethValue == 0) {
+            ethValue = msg.value;
+        }
 
         IERC20(_token).approve(address(darwinRouter), _desiredTokenAmount);
-        (uint amountToken, uint amountETH, uint liquidity) = darwinRouter.addLiquidityETH(
+        (uint amountToken, uint amountETH, uint liquidity) = darwinRouter.addLiquidityETH{value: ethValue}(
             _token,
             _desiredTokenAmount,
             0,
@@ -85,6 +88,8 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
 
         userInfo[msg.sender][_token].lpAmount += liquidity;
         userInfo[msg.sender][_token].lockEnd = block.timestamp + LOCK_PERIOD;
+        userInfo[msg.sender][_token].bundledEth += amountETH;
+        userInfo[msg.sender][_token].bundledToken += amountToken;
 
         // refund dust ETH, if any
         if (msg.value > amountETH) {
@@ -117,6 +122,8 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
         );
 
         user.lpAmount = 0;
+        user.bundledEth = 0;
+        user.bundledToken = 0;
 
         emit ExitBundle(msg.sender, amountToken, amountETH, block.timestamp);
     }
@@ -143,6 +150,20 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
                 darwinRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens(amount1, 0, path, address(this), block.timestamp + 600);
             }
         }
+    }
+
+    function earned(address _user, address _token) external view returns(uint256 eth, uint256 token) {
+        User memory user = userInfo[_user][_token];
+        (uint reserve0, uint reserve1,) = IDarwinSwapPair(darwinFactory.getPair(_token, WETH)).getReserves();
+        uint reserveEth = IDarwinSwapPair(darwinFactory.getPair(_token, WETH)).token0() == darwinRouter.WETH() ? reserve0 : reserve1;
+        uint reserveToken = IDarwinSwapPair(darwinFactory.getPair(_token, WETH)).token0() == darwinRouter.WETH() ? reserve1 : reserve0;
+        reserveEth = reserveEth * user.lpAmount / IERC20(darwinFactory.getPair(_token, WETH)).totalSupply();
+        reserveToken = reserveToken * user.lpAmount / IERC20(darwinFactory.getPair(_token, WETH)).totalSupply();
+        if (reserveEth > user.bundledEth) {
+            eth = reserveEth - user.bundledEth;
+        }
+        // For token, keep in count also the amount initially paired with ETH (so the total reserve holded by the contract)
+        token = reserveToken;
     }
 
     receive() external payable {}

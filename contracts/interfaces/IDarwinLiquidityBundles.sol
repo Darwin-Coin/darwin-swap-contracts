@@ -7,6 +7,8 @@ interface IDarwinLiquidityBundles {
     struct User {
         uint256 lpAmount;
         uint256 lockEnd;
+        uint256 bundledEth;
+        uint256 bundledToken;
     }
 
     event EnterBundle(

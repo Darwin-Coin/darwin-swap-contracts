@@ -37,7 +37,7 @@ const config: HardhatUserConfig = {
             accounts: [String(process.env.MAINNET_PRIVATEKEY)]
         },
         bscTestnet: {
-            url: "https://endpoints.omniatech.io/v1/bsc/testnet/public",
+            url: "https://bsc-testnet.public.blastapi.io",
             chainId: 97,
             accounts: [String(process.env.TESTNET_PRIVATEKEY)]
         },
