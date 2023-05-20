@@ -3,6 +3,7 @@
 pragma solidity ^0.8.14;
 
 import "./interfaces/IDarwinSwapLister.sol";
+import "./interfaces/IDarwinSwapRouter.sol";
 import "./interfaces/IERC20.sol";
 import "../darwin-token-contracts/contracts/interface/IDarwin.sol";
 
@@ -68,6 +69,7 @@ contract DarwinSwapLister is IDarwinSwapLister {
             }
         }
 
+        address WETH = IDarwinSwapRouter(IDarwinSwapFactory(factory).router()).WETH();
         if (outcome == TokenStatus.BANNED) {
             isUserBannedFromListing[_tokenInfo[tokenToValidate].owner] = true;
 
@@ -77,7 +79,6 @@ contract DarwinSwapLister is IDarwinSwapLister {
             // Reset the requested add-on Tokenomics to blank
             TokenomicsInfo memory blankToks;
             _tokenInfo[tokenToValidate].addedToks = blankToks;
-
         } else { // outcome == TokenStatus.LISTED and token valid
             bool found;
             for (uint i = 0; i < _validTokens.length; i++) {
@@ -88,6 +89,10 @@ contract DarwinSwapLister is IDarwinSwapLister {
             }
             if (!found) {
                 _validTokens.push(tokenToValidate);
+            }
+            // Below is done cause bundles contracts fetch validTokens to show bundles, and it needs the tokens to be paired with ETH
+            if (IDarwinSwapFactory(factory).getPair(tokenToValidate, WETH) == address(0)) {
+                IDarwinSwapFactory(factory).createPair(tokenToValidate, WETH);
             }
             emit TokenValidated(tokenToValidate);
         }

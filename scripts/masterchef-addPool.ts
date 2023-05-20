@@ -9,8 +9,8 @@ async function main() {
   const [owner] = await hardhat.ethers.getSigners();
   console.log(`💻 Deployer: ${owner.address}`);
 
-  const MASTERCHEF = "0x4893285370e36c60e0621ed4e8c99251b42619FF"
-  const LP = "0x6de5CF5F5e1c1F4d34A4F75D9695A3C9b8E3c9f7"; // (CAKE-WBNB)
+  const MASTERCHEF = "0x096e53d9DDEfA826d16187102A5976b534B8204C"
+  const LP = "0x2eB2351308eB5f95aE163423F2C240aDc4FCC189"; // (CAKE-WBNB)
 
   // DECLARE FACTORIES 1
   const masterChefFactory = await ethers.getContractFactory("DarwinMasterChef");
@@ -21,7 +21,7 @@ async function main() {
   console.log(`🔨 Attached Darwin MasterChef at: ${masterChef.address}`);
 
   //* ADD POOL
-  const addPool = await masterChef.addPool(100, LP, 250, 150, 0, true);
+  const addPool = await masterChef.addPool(100, LP, 250, 150, 0, false);
   await addPool.wait();
   console.log(`🏁 Pool added`);
 
