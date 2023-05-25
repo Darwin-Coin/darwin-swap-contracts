@@ -34,13 +34,18 @@ export interface DarwinLiquidityBundlesInterface extends utils.Interface {
     "WETH()": FunctionFragment;
     "darwinFactory()": FunctionFragment;
     "darwinRouter()": FunctionFragment;
-    "earned(address,address)": FunctionFragment;
     "enterBundle(address,uint256)": FunctionFragment;
     "exitBundle(address)": FunctionFragment;
-    "initialize(address,address)": FunctionFragment;
+    "harvestAndRelock(address)": FunctionFragment;
+    "holdings(address,address)": FunctionFragment;
+    "initialize(address,address,address)": FunctionFragment;
+    "masterChef()": FunctionFragment;
     "owner()": FunctionFragment;
+    "pendingDarwin(address,address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "stakeBundleInMasterChef(address)": FunctionFragment;
     "tokenInfo(address)": FunctionFragment;
+    "totalLpAmount(address)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "update(address)": FunctionFragment;
     "userInfo(address,address)": FunctionFragment;
@@ -52,13 +57,18 @@ export interface DarwinLiquidityBundlesInterface extends utils.Interface {
       | "WETH"
       | "darwinFactory"
       | "darwinRouter"
-      | "earned"
       | "enterBundle"
       | "exitBundle"
+      | "harvestAndRelock"
+      | "holdings"
       | "initialize"
+      | "masterChef"
       | "owner"
+      | "pendingDarwin"
       | "renounceOwnership"
+      | "stakeBundleInMasterChef"
       | "tokenInfo"
+      | "totalLpAmount"
       | "transferOwnership"
       | "update"
       | "userInfo"
@@ -78,10 +88,6 @@ export interface DarwinLiquidityBundlesInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "earned",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "enterBundle",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
@@ -90,16 +96,44 @@ export interface DarwinLiquidityBundlesInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "initialize",
+    functionFragment: "harvestAndRelock",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "holdings",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "masterChef",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "pendingDarwin",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "stakeBundleInMasterChef",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "tokenInfo",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalLpAmount",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -128,19 +162,36 @@ export interface DarwinLiquidityBundlesInterface extends utils.Interface {
     functionFragment: "darwinRouter",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "earned", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "enterBundle",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "exitBundle", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "harvestAndRelock",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "holdings", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "masterChef", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "pendingDarwin",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "stakeBundleInMasterChef",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "tokenInfo", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "totalLpAmount",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
@@ -151,12 +202,16 @@ export interface DarwinLiquidityBundlesInterface extends utils.Interface {
   events: {
     "EnterBundle(address,uint256,uint256,uint256,uint256)": EventFragment;
     "ExitBundle(address,uint256,uint256,uint256)": EventFragment;
+    "HarvestAndRelock(address,uint256,uint256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "StakeInMasterchef(address,uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "EnterBundle"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ExitBundle"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "HarvestAndRelock"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "StakeInMasterchef"): EventFragment;
 }
 
 export interface EnterBundleEventObject {
@@ -186,6 +241,19 @@ export type ExitBundleEvent = TypedEvent<
 
 export type ExitBundleEventFilter = TypedEventFilter<ExitBundleEvent>;
 
+export interface HarvestAndRelockEventObject {
+  user: string;
+  amountDarwin: BigNumber;
+  timestamp: BigNumber;
+}
+export type HarvestAndRelockEvent = TypedEvent<
+  [string, BigNumber, BigNumber],
+  HarvestAndRelockEventObject
+>;
+
+export type HarvestAndRelockEventFilter =
+  TypedEventFilter<HarvestAndRelockEvent>;
+
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
   newOwner: string;
@@ -197,6 +265,19 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
+
+export interface StakeInMasterchefEventObject {
+  user: string;
+  liquidity: BigNumber;
+  timestamp: BigNumber;
+}
+export type StakeInMasterchefEvent = TypedEvent<
+  [string, BigNumber, BigNumber],
+  StakeInMasterchefEventObject
+>;
+
+export type StakeInMasterchefEventFilter =
+  TypedEventFilter<StakeInMasterchefEvent>;
 
 export interface DarwinLiquidityBundles extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -233,12 +314,6 @@ export interface DarwinLiquidityBundles extends BaseContract {
 
     darwinRouter(overrides?: CallOverrides): Promise<[string]>;
 
-    earned(
-      _user: PromiseOrValue<string>,
-      _token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { eth: BigNumber; token: BigNumber }>;
-
     enterBundle(
       _token: PromiseOrValue<string>,
       _desiredTokenAmount: PromiseOrValue<BigNumberish>,
@@ -250,15 +325,40 @@ export interface DarwinLiquidityBundles extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    harvestAndRelock(
+      _token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    holdings(
+      _user: PromiseOrValue<string>,
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber] & { eth: BigNumber; token: BigNumber }>;
+
     initialize(
       _darwinRouter: PromiseOrValue<string>,
+      _masterChef: PromiseOrValue<string>,
       _WETH: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    masterChef(overrides?: CallOverrides): Promise<[string]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    pendingDarwin(
+      _user: PromiseOrValue<string>,
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    stakeBundleInMasterChef(
+      _token: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -271,6 +371,11 @@ export interface DarwinLiquidityBundles extends BaseContract {
         priceInWeth: BigNumber;
       }
     >;
+
+    totalLpAmount(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
@@ -287,11 +392,12 @@ export interface DarwinLiquidityBundles extends BaseContract {
       arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber] & {
+      [BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
         lpAmount: BigNumber;
         lockEnd: BigNumber;
         bundledEth: BigNumber;
         bundledToken: BigNumber;
+        inMasterchef: boolean;
       }
     >;
   };
@@ -304,12 +410,6 @@ export interface DarwinLiquidityBundles extends BaseContract {
 
   darwinRouter(overrides?: CallOverrides): Promise<string>;
 
-  earned(
-    _user: PromiseOrValue<string>,
-    _token: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber] & { eth: BigNumber; token: BigNumber }>;
-
   enterBundle(
     _token: PromiseOrValue<string>,
     _desiredTokenAmount: PromiseOrValue<BigNumberish>,
@@ -321,15 +421,40 @@ export interface DarwinLiquidityBundles extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  harvestAndRelock(
+    _token: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  holdings(
+    _user: PromiseOrValue<string>,
+    _token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<[BigNumber, BigNumber] & { eth: BigNumber; token: BigNumber }>;
+
   initialize(
     _darwinRouter: PromiseOrValue<string>,
+    _masterChef: PromiseOrValue<string>,
     _WETH: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  masterChef(overrides?: CallOverrides): Promise<string>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
+  pendingDarwin(
+    _user: PromiseOrValue<string>,
+    _token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   renounceOwnership(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  stakeBundleInMasterChef(
+    _token: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -339,6 +464,11 @@ export interface DarwinLiquidityBundles extends BaseContract {
   ): Promise<
     [BigNumber, BigNumber] & { tokenAmount: BigNumber; priceInWeth: BigNumber }
   >;
+
+  totalLpAmount(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   transferOwnership(
     newOwner: PromiseOrValue<string>,
@@ -355,11 +485,12 @@ export interface DarwinLiquidityBundles extends BaseContract {
     arg1: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber, BigNumber, BigNumber] & {
+    [BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
       lpAmount: BigNumber;
       lockEnd: BigNumber;
       bundledEth: BigNumber;
       bundledToken: BigNumber;
+      inMasterchef: boolean;
     }
   >;
 
@@ -372,12 +503,6 @@ export interface DarwinLiquidityBundles extends BaseContract {
 
     darwinRouter(overrides?: CallOverrides): Promise<string>;
 
-    earned(
-      _user: PromiseOrValue<string>,
-      _token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber] & { eth: BigNumber; token: BigNumber }>;
-
     enterBundle(
       _token: PromiseOrValue<string>,
       _desiredTokenAmount: PromiseOrValue<BigNumberish>,
@@ -389,15 +514,40 @@ export interface DarwinLiquidityBundles extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    harvestAndRelock(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    holdings(
+      _user: PromiseOrValue<string>,
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber] & { eth: BigNumber; token: BigNumber }>;
+
     initialize(
       _darwinRouter: PromiseOrValue<string>,
+      _masterChef: PromiseOrValue<string>,
       _WETH: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
+    masterChef(overrides?: CallOverrides): Promise<string>;
+
     owner(overrides?: CallOverrides): Promise<string>;
 
+    pendingDarwin(
+      _user: PromiseOrValue<string>,
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    stakeBundleInMasterChef(
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     tokenInfo(
       _token: PromiseOrValue<string>,
@@ -408,6 +558,11 @@ export interface DarwinLiquidityBundles extends BaseContract {
         priceInWeth: BigNumber;
       }
     >;
+
+    totalLpAmount(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
@@ -424,11 +579,12 @@ export interface DarwinLiquidityBundles extends BaseContract {
       arg1: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber] & {
+      [BigNumber, BigNumber, BigNumber, BigNumber, boolean] & {
         lpAmount: BigNumber;
         lockEnd: BigNumber;
         bundledEth: BigNumber;
         bundledToken: BigNumber;
+        inMasterchef: boolean;
       }
     >;
   };
@@ -462,6 +618,17 @@ export interface DarwinLiquidityBundles extends BaseContract {
       timestamp?: null
     ): ExitBundleEventFilter;
 
+    "HarvestAndRelock(address,uint256,uint256)"(
+      user?: PromiseOrValue<string> | null,
+      amountDarwin?: null,
+      timestamp?: null
+    ): HarvestAndRelockEventFilter;
+    HarvestAndRelock(
+      user?: PromiseOrValue<string> | null,
+      amountDarwin?: null,
+      timestamp?: null
+    ): HarvestAndRelockEventFilter;
+
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
@@ -470,6 +637,17 @@ export interface DarwinLiquidityBundles extends BaseContract {
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
+
+    "StakeInMasterchef(address,uint256,uint256)"(
+      user?: PromiseOrValue<string> | null,
+      liquidity?: null,
+      timestamp?: null
+    ): StakeInMasterchefEventFilter;
+    StakeInMasterchef(
+      user?: PromiseOrValue<string> | null,
+      liquidity?: null,
+      timestamp?: null
+    ): StakeInMasterchefEventFilter;
   };
 
   estimateGas: {
@@ -480,12 +658,6 @@ export interface DarwinLiquidityBundles extends BaseContract {
     darwinFactory(overrides?: CallOverrides): Promise<BigNumber>;
 
     darwinRouter(overrides?: CallOverrides): Promise<BigNumber>;
-
-    earned(
-      _user: PromiseOrValue<string>,
-      _token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     enterBundle(
       _token: PromiseOrValue<string>,
@@ -498,20 +670,50 @@ export interface DarwinLiquidityBundles extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    harvestAndRelock(
+      _token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    holdings(
+      _user: PromiseOrValue<string>,
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     initialize(
       _darwinRouter: PromiseOrValue<string>,
+      _masterChef: PromiseOrValue<string>,
       _WETH: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    masterChef(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    pendingDarwin(
+      _user: PromiseOrValue<string>,
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    stakeBundleInMasterChef(
+      _token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     tokenInfo(
       _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    totalLpAmount(
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -541,12 +743,6 @@ export interface DarwinLiquidityBundles extends BaseContract {
 
     darwinRouter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    earned(
-      _user: PromiseOrValue<string>,
-      _token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     enterBundle(
       _token: PromiseOrValue<string>,
       _desiredTokenAmount: PromiseOrValue<BigNumberish>,
@@ -558,20 +754,50 @@ export interface DarwinLiquidityBundles extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    harvestAndRelock(
+      _token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    holdings(
+      _user: PromiseOrValue<string>,
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     initialize(
       _darwinRouter: PromiseOrValue<string>,
+      _masterChef: PromiseOrValue<string>,
       _WETH: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    masterChef(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    pendingDarwin(
+      _user: PromiseOrValue<string>,
+      _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    stakeBundleInMasterChef(
+      _token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     tokenInfo(
       _token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    totalLpAmount(
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

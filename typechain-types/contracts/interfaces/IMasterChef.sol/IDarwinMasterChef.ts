@@ -5,10 +5,19 @@ import type {
   BaseContract,
   BigNumber,
   BigNumberish,
+  BytesLike,
+  CallOverrides,
+  ContractTransaction,
+  Overrides,
+  PopulatedTransaction,
   Signer,
   utils,
 } from "ethers";
-import type { EventFragment } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -18,8 +27,137 @@ import type {
   PromiseOrValue,
 } from "../../../common";
 
+export declare namespace IDarwinMasterChef {
+  export type PoolInfoStruct = {
+    lpToken: PromiseOrValue<string>;
+    allocPoint: PromiseOrValue<BigNumberish>;
+    lastRewardTime: PromiseOrValue<BigNumberish>;
+    accDarwinPerShare: PromiseOrValue<BigNumberish>;
+    depositFeeBP: PromiseOrValue<BigNumberish>;
+    withdrawFeeBP: PromiseOrValue<BigNumberish>;
+    harvestInterval: PromiseOrValue<BigNumberish>;
+  };
+
+  export type PoolInfoStructOutput = [
+    string,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    number,
+    number,
+    BigNumber
+  ] & {
+    lpToken: string;
+    allocPoint: BigNumber;
+    lastRewardTime: BigNumber;
+    accDarwinPerShare: BigNumber;
+    depositFeeBP: number;
+    withdrawFeeBP: number;
+    harvestInterval: BigNumber;
+  };
+
+  export type UserInfoStruct = {
+    amount: PromiseOrValue<BigNumberish>;
+    rewardDebt: PromiseOrValue<BigNumberish>;
+    rewardLockedUp: PromiseOrValue<BigNumberish>;
+    nextHarvestUntil: PromiseOrValue<BigNumberish>;
+    lockedAmount: PromiseOrValue<BigNumberish>;
+    lockEnd: PromiseOrValue<BigNumberish>;
+  };
+
+  export type UserInfoStructOutput = [
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber
+  ] & {
+    amount: BigNumber;
+    rewardDebt: BigNumber;
+    rewardLockedUp: BigNumber;
+    nextHarvestUntil: BigNumber;
+    lockedAmount: BigNumber;
+    lockEnd: BigNumber;
+  };
+}
+
 export interface IDarwinMasterChefInterface extends utils.Interface {
-  functions: {};
+  functions: {
+    "darwin()": FunctionFragment;
+    "depositByLPToken(address,uint256,bool,uint256)": FunctionFragment;
+    "pendingDarwin(uint256,address)": FunctionFragment;
+    "poolExistence(address)": FunctionFragment;
+    "poolInfo()": FunctionFragment;
+    "poolLength()": FunctionFragment;
+    "userInfo(uint256,address)": FunctionFragment;
+    "withdrawByLPToken(address,uint256)": FunctionFragment;
+  };
+
+  getFunction(
+    nameOrSignatureOrTopic:
+      | "darwin"
+      | "depositByLPToken"
+      | "pendingDarwin"
+      | "poolExistence"
+      | "poolInfo"
+      | "poolLength"
+      | "userInfo"
+      | "withdrawByLPToken"
+  ): FunctionFragment;
+
+  encodeFunctionData(functionFragment: "darwin", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "depositByLPToken",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<boolean>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "pendingDarwin",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "poolExistence",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(functionFragment: "poolInfo", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "poolLength",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "userInfo",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawByLPToken",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
+
+  decodeFunctionResult(functionFragment: "darwin", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "depositByLPToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "pendingDarwin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "poolExistence",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "poolInfo", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "poolLength", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "userInfo", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawByLPToken",
+    data: BytesLike
+  ): Result;
 
   events: {
     "Deposit(address,uint256,uint256)": EventFragment;
@@ -150,9 +288,126 @@ export interface IDarwinMasterChef extends BaseContract {
   once: OnEvent<this>;
   removeListener: OnEvent<this>;
 
-  functions: {};
+  functions: {
+    darwin(overrides?: CallOverrides): Promise<[string]>;
 
-  callStatic: {};
+    depositByLPToken(
+      lpToken: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _lock: PromiseOrValue<boolean>,
+      _lockDuration: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    pendingDarwin(
+      _pid: PromiseOrValue<BigNumberish>,
+      _user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    poolExistence(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    poolInfo(
+      overrides?: CallOverrides
+    ): Promise<[IDarwinMasterChef.PoolInfoStructOutput[]]>;
+
+    poolLength(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    userInfo(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[IDarwinMasterChef.UserInfoStructOutput]>;
+
+    withdrawByLPToken(
+      lpToken: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+  };
+
+  darwin(overrides?: CallOverrides): Promise<string>;
+
+  depositByLPToken(
+    lpToken: PromiseOrValue<string>,
+    _amount: PromiseOrValue<BigNumberish>,
+    _lock: PromiseOrValue<boolean>,
+    _lockDuration: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  pendingDarwin(
+    _pid: PromiseOrValue<BigNumberish>,
+    _user: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  poolExistence(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  poolInfo(
+    overrides?: CallOverrides
+  ): Promise<IDarwinMasterChef.PoolInfoStructOutput[]>;
+
+  poolLength(overrides?: CallOverrides): Promise<BigNumber>;
+
+  userInfo(
+    arg0: PromiseOrValue<BigNumberish>,
+    arg1: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<IDarwinMasterChef.UserInfoStructOutput>;
+
+  withdrawByLPToken(
+    lpToken: PromiseOrValue<string>,
+    _amount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  callStatic: {
+    darwin(overrides?: CallOverrides): Promise<string>;
+
+    depositByLPToken(
+      lpToken: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _lock: PromiseOrValue<boolean>,
+      _lockDuration: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    pendingDarwin(
+      _pid: PromiseOrValue<BigNumberish>,
+      _user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    poolExistence(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    poolInfo(
+      overrides?: CallOverrides
+    ): Promise<IDarwinMasterChef.PoolInfoStructOutput[]>;
+
+    poolLength(overrides?: CallOverrides): Promise<BigNumber>;
+
+    userInfo(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<IDarwinMasterChef.UserInfoStructOutput>;
+
+    withdrawByLPToken(
+      lpToken: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+  };
 
   filters: {
     "Deposit(address,uint256,uint256)"(
@@ -227,7 +482,81 @@ export interface IDarwinMasterChef extends BaseContract {
     ): WithdrawEventFilter;
   };
 
-  estimateGas: {};
+  estimateGas: {
+    darwin(overrides?: CallOverrides): Promise<BigNumber>;
 
-  populateTransaction: {};
+    depositByLPToken(
+      lpToken: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _lock: PromiseOrValue<boolean>,
+      _lockDuration: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    pendingDarwin(
+      _pid: PromiseOrValue<BigNumberish>,
+      _user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    poolExistence(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    poolInfo(overrides?: CallOverrides): Promise<BigNumber>;
+
+    poolLength(overrides?: CallOverrides): Promise<BigNumber>;
+
+    userInfo(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    withdrawByLPToken(
+      lpToken: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+  };
+
+  populateTransaction: {
+    darwin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    depositByLPToken(
+      lpToken: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      _lock: PromiseOrValue<boolean>,
+      _lockDuration: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    pendingDarwin(
+      _pid: PromiseOrValue<BigNumberish>,
+      _user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    poolExistence(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    poolInfo(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    poolLength(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    userInfo(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    withdrawByLPToken(
+      lpToken: PromiseOrValue<string>,
+      _amount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+  };
 }

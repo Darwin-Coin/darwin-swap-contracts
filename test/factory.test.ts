@@ -1,10 +1,10 @@
 // DarwinSwap Factory test.
 
 import { expect } from "chai";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
 import * as hardhat from "hardhat";
 import { ethers } from "hardhat";
-import { DarwinLiquidityBundles, DarwinSwapFactory, DarwinSwapLister, DarwinSwapPair, DarwinSwapRouter, Tokenomics2Library } from "../typechain-types";
+import { DarwinLiquidityBundles, DarwinMasterChef, DarwinSwapFactory, DarwinSwapLister, DarwinSwapPair, DarwinSwapRouter, Tokenomics2Library } from "../typechain-types";
 import { TestERC20 } from "../typechain-types/contracts/test/TestERC20";
 import { BigNumber } from "ethers";
 
@@ -84,28 +84,30 @@ describe("Test Suite", function () {
     const [owner, addr1, addr2] = await hardhat.ethers.getSigners();
     const erc20Factory = await ethers.getContractFactory("TestERC20");
     const weth = await erc20Factory.deploy("Wrapped BNB", "WBNB") as TestERC20;
+    const darwin = await erc20Factory.deploy("Darwin", "DARWIN") as TestERC20;
     const token = await erc20Factory.deploy("Token", "TKN") as TestERC20;
     const token1 = await erc20Factory.deploy("Token1", "TKN1") as TestERC20;
     const busd = await erc20Factory.deploy("Binance USD", "BUSD") as TestERC20;
     const tokenomics2LibFactory = await ethers.getContractFactory("Tokenomics2Library");
     const bundlesFactory = await ethers.getContractFactory("DarwinLiquidityBundles");
+    const masterChefFactory = await ethers.getContractFactory("DarwinMasterChef");
+    const masterChef = await masterChefFactory.deploy(darwin.address, addr1.address, await time.latest()) as DarwinMasterChef;
+    await darwin.transferOwnership(masterChef.address);
     const library = await tokenomics2LibFactory.deploy() as Tokenomics2Library;
     const darwinRouterFactory = await ethers.getContractFactory("DarwinSwapRouter", {libraries: {Tokenomics2Library: library.address}});
     const darwinFactoryFactory = await ethers.getContractFactory("DarwinSwapFactory", {libraries: {Tokenomics2Library: library.address}});
     const darwinListerFactory = await ethers.getContractFactory("DarwinSwapLister", {libraries: {Tokenomics2Library: library.address}});
     const pairFactory = await ethers.getContractFactory("DarwinSwapPair", {libraries: {Tokenomics2Library: library.address}});
     const lister = await darwinListerFactory.deploy() as DarwinSwapLister;
-    const factory = await darwinFactoryFactory.deploy(lister.address, busd.address) as DarwinSwapFactory;
+    const factory = await darwinFactoryFactory.deploy(lister.address, masterChef.address, busd.address) as DarwinSwapFactory;
     await lister.setFactory(factory.address);
     const router = await darwinRouterFactory.deploy(factory.address, weth.address) as DarwinSwapRouter;
     await factory.setRouter(router.address);
     await factory.setFeeTo(owner.address);
     const bundles = bundlesFactory.attach(await factory.liquidityBundles()) as DarwinLiquidityBundles;
-    return {owner, addr1, addr2, weth, token, token1, library, lister, factory, router, busd, erc20Factory, pairFactory, bundles};
+    return {owner, addr1, addr2, weth, token, token1, library, lister, factory, router, masterChef, busd, erc20Factory, pairFactory, bundles};
   }
 
-
-  /*
 
 
 
@@ -144,14 +146,11 @@ describe("Test Suite", function () {
   }
 
 
-  */
-
 
 
   // FACTORY
   describe("Factory", function () {
 
-    /*
     it("The function `getPair(address,address)` returns `address(0)` if the pair does not exist", async function () {
       const { factory, weth, token } = await loadFixture(deployFixture);
       expect(await factory.getPair(weth.address, token.address)).to.be.equal(ZERO);
@@ -301,21 +300,21 @@ describe("Test Suite", function () {
         await expect(await router.swapExactTokensForTokensSupportingFeeOnTransferTokens(eth(SWAPAMOUNT), 0, [token.address, weth.address], owner.address, Math.floor(Date.now() / 1000) + 600)).to.
           changeTokenBalances(token, [owner.address, pair.address], [eth("-" + SWAPAMOUNT), eth(SWAPAMOUNT)]);
       });
-    }); */
+    });    
+  });
 
-    describe("Bundles", function () {
-      it("Enter bundle works", async function () {
-        const { bundles, lister, router, weth, token, owner } = await loadFixture(deployFixture);
-        const t1 = await token.approve(router.address, ethers.utils.parseEther("1000"));
-        await t1.wait();
-        const t2 = await router.addLiquidityETH(token.address, ethers.utils.parseEther("1000"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600, {value: ethers.utils.parseEther("1")});
-        await t2.wait();
-        const t3 = await lister.proposeToken(token.address, PROPOSAL);
-        await t3.wait();
-        const t4 = await token.transfer(bundles.address, ethers.utils.parseEther("1000"));
-        await t4.wait();
-        expect(await bundles.enterBundle(token.address, ethers.utils.parseEther("10"), {value: ethers.utils.parseEther("1")})).to.not.be.reverted;
-      });
+  describe("Bundles", function () {
+    it("Enter bundle works", async function () {
+      const { bundles, lister, router, weth, token, owner } = await loadFixture(deployFixture);
+      const t1 = await token.approve(router.address, ethers.utils.parseEther("1000"));
+      await t1.wait();
+      const t2 = await router.addLiquidityETH(token.address, ethers.utils.parseEther("1000"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600, {value: ethers.utils.parseEther("1")});
+      await t2.wait();
+      const t3 = await lister.proposeToken(token.address, PROPOSAL);
+      await t3.wait();
+      const t4 = await token.transfer(bundles.address, ethers.utils.parseEther("1000"));
+      await t4.wait();
+      expect(await bundles.enterBundle(token.address, ethers.utils.parseEther("10"), {value: ethers.utils.parseEther("1")})).to.not.be.reverted;
     });
   });
 });

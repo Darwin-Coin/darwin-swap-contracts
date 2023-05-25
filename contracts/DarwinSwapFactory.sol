@@ -6,6 +6,7 @@ import "./AntiDumpGuard.sol";
 
 import {IDarwinSwapRouter} from "./interfaces/IDarwinSwapRouter.sol";
 import {IDarwinSwapFactory, IDarwinLiquidityBundles} from "./interfaces/IDarwinSwapFactory.sol";
+import {IDarwinMasterChef} from "./interfaces/IMasterChef.sol";
 
 contract DarwinSwapFactory is IDarwinSwapFactory {
     address public dev;
@@ -15,6 +16,7 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
     IDarwinLiquidityBundles public liquidityBundles;
     // the stablecoin used as USD value (BUSD)
     address public USD;
+    IDarwinMasterChef public masterChef;
 
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;
@@ -25,10 +27,11 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
 
     bytes32 public constant INIT_CODE_HASH = keccak256(abi.encodePacked(type(DarwinSwapPair).creationCode));
 
-    constructor(address _lister, address _USD) {
+    constructor(address _lister, IDarwinMasterChef _masterChef, address _USD) {
         dev = msg.sender;
         lister = _lister;
         USD = _USD;
+        masterChef = _masterChef;
         // Create LiquidityBundles contract
         bytes memory bytecode = type(DarwinLiquidityBundles).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(address(this)));
@@ -85,6 +88,6 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
     function setRouter(address _router) external onlyDev {
         require(router == address(0), "DarwinSwapFactory: INVALID");
         router = _router;
-        IDarwinLiquidityBundles(liquidityBundles).initialize(_router, IDarwinSwapRouter(_router).WETH());
+        liquidityBundles.initialize(_router, masterChef, IDarwinSwapRouter(_router).WETH());
     }
 }

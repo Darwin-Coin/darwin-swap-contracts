@@ -27,6 +27,61 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
+export declare namespace IDarwinMasterChef {
+  export type PoolInfoStruct = {
+    lpToken: PromiseOrValue<string>;
+    allocPoint: PromiseOrValue<BigNumberish>;
+    lastRewardTime: PromiseOrValue<BigNumberish>;
+    accDarwinPerShare: PromiseOrValue<BigNumberish>;
+    depositFeeBP: PromiseOrValue<BigNumberish>;
+    withdrawFeeBP: PromiseOrValue<BigNumberish>;
+    harvestInterval: PromiseOrValue<BigNumberish>;
+  };
+
+  export type PoolInfoStructOutput = [
+    string,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    number,
+    number,
+    BigNumber
+  ] & {
+    lpToken: string;
+    allocPoint: BigNumber;
+    lastRewardTime: BigNumber;
+    accDarwinPerShare: BigNumber;
+    depositFeeBP: number;
+    withdrawFeeBP: number;
+    harvestInterval: BigNumber;
+  };
+
+  export type UserInfoStruct = {
+    amount: PromiseOrValue<BigNumberish>;
+    rewardDebt: PromiseOrValue<BigNumberish>;
+    rewardLockedUp: PromiseOrValue<BigNumberish>;
+    nextHarvestUntil: PromiseOrValue<BigNumberish>;
+    lockedAmount: PromiseOrValue<BigNumberish>;
+    lockEnd: PromiseOrValue<BigNumberish>;
+  };
+
+  export type UserInfoStructOutput = [
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber
+  ] & {
+    amount: BigNumber;
+    rewardDebt: BigNumber;
+    rewardLockedUp: BigNumber;
+    nextHarvestUntil: BigNumber;
+    lockedAmount: BigNumber;
+    lockEnd: BigNumber;
+  };
+}
+
 export interface DarwinMasterChefInterface extends utils.Interface {
   functions: {
     "MAX_DEPOSIT_FEE()": FunctionFragment;
@@ -49,7 +104,7 @@ export interface DarwinMasterChefInterface extends utils.Interface {
     "owner()": FunctionFragment;
     "pendingDarwin(uint256,address)": FunctionFragment;
     "poolExistence(address)": FunctionFragment;
-    "poolInfo(uint256)": FunctionFragment;
+    "poolInfo()": FunctionFragment;
     "poolLength()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "set(uint256,uint256,uint16,uint16,uint256,bool)": FunctionFragment;
@@ -190,10 +245,7 @@ export interface DarwinMasterChefInterface extends utils.Interface {
     functionFragment: "poolExistence",
     values: [PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "poolInfo",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+  encodeFunctionData(functionFragment: "poolInfo", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "poolLength",
     values?: undefined
@@ -580,19 +632,8 @@ export interface DarwinMasterChef extends BaseContract {
     ): Promise<[boolean]>;
 
     poolInfo(
-      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<
-      [string, BigNumber, BigNumber, BigNumber, number, number, BigNumber] & {
-        lpToken: string;
-        allocPoint: BigNumber;
-        lastRewardTime: BigNumber;
-        accDarwinPerShare: BigNumber;
-        depositFeeBP: number;
-        withdrawFeeBP: number;
-        harvestInterval: BigNumber;
-      }
-    >;
+    ): Promise<[IDarwinMasterChef.PoolInfoStructOutput[]]>;
 
     poolLength(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -642,19 +683,10 @@ export interface DarwinMasterChef extends BaseContract {
     ): Promise<ContractTransaction>;
 
     userInfo(
-      arg0: PromiseOrValue<BigNumberish>,
-      arg1: PromiseOrValue<string>,
+      _pid: PromiseOrValue<BigNumberish>,
+      _user: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        amount: BigNumber;
-        rewardDebt: BigNumber;
-        rewardLockedUp: BigNumber;
-        nextHarvestUntil: BigNumber;
-        lockedAmount: BigNumber;
-        lockEnd: BigNumber;
-      }
-    >;
+    ): Promise<[IDarwinMasterChef.UserInfoStructOutput]>;
 
     withdraw(
       _pid: PromiseOrValue<BigNumberish>,
@@ -754,19 +786,8 @@ export interface DarwinMasterChef extends BaseContract {
   ): Promise<boolean>;
 
   poolInfo(
-    arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
-  ): Promise<
-    [string, BigNumber, BigNumber, BigNumber, number, number, BigNumber] & {
-      lpToken: string;
-      allocPoint: BigNumber;
-      lastRewardTime: BigNumber;
-      accDarwinPerShare: BigNumber;
-      depositFeeBP: number;
-      withdrawFeeBP: number;
-      harvestInterval: BigNumber;
-    }
-  >;
+  ): Promise<IDarwinMasterChef.PoolInfoStructOutput[]>;
 
   poolLength(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -816,19 +837,10 @@ export interface DarwinMasterChef extends BaseContract {
   ): Promise<ContractTransaction>;
 
   userInfo(
-    arg0: PromiseOrValue<BigNumberish>,
-    arg1: PromiseOrValue<string>,
+    _pid: PromiseOrValue<BigNumberish>,
+    _user: PromiseOrValue<string>,
     overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-      amount: BigNumber;
-      rewardDebt: BigNumber;
-      rewardLockedUp: BigNumber;
-      nextHarvestUntil: BigNumber;
-      lockedAmount: BigNumber;
-      lockEnd: BigNumber;
-    }
-  >;
+  ): Promise<IDarwinMasterChef.UserInfoStructOutput>;
 
   withdraw(
     _pid: PromiseOrValue<BigNumberish>,
@@ -926,19 +938,8 @@ export interface DarwinMasterChef extends BaseContract {
     ): Promise<boolean>;
 
     poolInfo(
-      arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<
-      [string, BigNumber, BigNumber, BigNumber, number, number, BigNumber] & {
-        lpToken: string;
-        allocPoint: BigNumber;
-        lastRewardTime: BigNumber;
-        accDarwinPerShare: BigNumber;
-        depositFeeBP: number;
-        withdrawFeeBP: number;
-        harvestInterval: BigNumber;
-      }
-    >;
+    ): Promise<IDarwinMasterChef.PoolInfoStructOutput[]>;
 
     poolLength(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -986,19 +987,10 @@ export interface DarwinMasterChef extends BaseContract {
     ): Promise<void>;
 
     userInfo(
-      arg0: PromiseOrValue<BigNumberish>,
-      arg1: PromiseOrValue<string>,
+      _pid: PromiseOrValue<BigNumberish>,
+      _user: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber] & {
-        amount: BigNumber;
-        rewardDebt: BigNumber;
-        rewardLockedUp: BigNumber;
-        nextHarvestUntil: BigNumber;
-        lockedAmount: BigNumber;
-        lockEnd: BigNumber;
-      }
-    >;
+    ): Promise<IDarwinMasterChef.UserInfoStructOutput>;
 
     withdraw(
       _pid: PromiseOrValue<BigNumberish>,
@@ -1180,10 +1172,7 @@ export interface DarwinMasterChef extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    poolInfo(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    poolInfo(overrides?: CallOverrides): Promise<BigNumber>;
 
     poolLength(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1233,8 +1222,8 @@ export interface DarwinMasterChef extends BaseContract {
     ): Promise<BigNumber>;
 
     userInfo(
-      arg0: PromiseOrValue<BigNumberish>,
-      arg1: PromiseOrValue<string>,
+      _pid: PromiseOrValue<BigNumberish>,
+      _user: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1338,10 +1327,7 @@ export interface DarwinMasterChef extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    poolInfo(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    poolInfo(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     poolLength(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1393,8 +1379,8 @@ export interface DarwinMasterChef extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     userInfo(
-      arg0: PromiseOrValue<BigNumberish>,
-      arg1: PromiseOrValue<string>,
+      _pid: PromiseOrValue<BigNumberish>,
+      _user: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

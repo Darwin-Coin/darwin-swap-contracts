@@ -5,6 +5,7 @@ contract TestERC20 {
     string public name;
     string public symbol;
     uint8 public constant decimals = 18;
+    uint public constant MAX_SUPPLY = 1e30;
     uint public totalSupply;
     mapping(address => uint) public balanceOf;
     mapping(address => mapping(address => uint)) public allowance;
@@ -42,6 +43,12 @@ contract TestERC20 {
         emit Transfer(from, to, value);
     }
 
+    function mint(address to, uint value) external returns (bool) {
+        require (msg.sender == owner, "TestERC20: CALLER_NOT_OWNER");
+        _mint(to, value);
+        return true;
+    }
+
     function approve(address spender, uint value) external returns (bool) {
         _approve(msg.sender, spender, value);
         return true;
@@ -60,11 +67,21 @@ contract TestERC20 {
         return true;
     }
 
+    function transferOwnership(address to) external {
+        require (msg.sender == owner, "TestERC20: CALLER_NOT_OWNER");
+        owner = to;
+    }
+
     // WBNB FUNCTIONS
     receive() external payable {
         deposit();
     }
     function deposit() public payable {
         balanceOf[msg.sender] += msg.value;
+    }
+    function withdraw(uint256 amountETH) public {
+        balanceOf[msg.sender] -= amountETH;
+        (bool success, ) = payable(msg.sender).call{value: amountETH}("");
+        require (success, "TestERC20::withdraw: TRASNFER_ETH_ERROR");
     }
 }

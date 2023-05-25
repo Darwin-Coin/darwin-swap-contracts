@@ -43,9 +43,9 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
     uint256 public totalLockedUpRewards;
 
     // Info of each pool.
-    PoolInfo[] public poolInfo;
+    PoolInfo[] private _poolInfo;
     // Info of each user that stakes LP tokens.
-    mapping(uint256 => mapping(address => UserInfo)) public userInfo;
+    mapping(uint256 => mapping(address => UserInfo)) private _userInfo;
     // Total allocation points. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint;
     // The timestamp when DARWIN mining starts.
@@ -85,7 +85,7 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
 
     // View function to gather the number of pools.
     function poolLength() external view returns (uint256) {
-        return poolInfo.length;
+        return _poolInfo.length;
     }
 
     // Add a new lp to the pool. Can only be called by the owner.
@@ -103,7 +103,7 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
         uint256 lastRewardTime = block.timestamp > startTime ? block.timestamp : startTime;
         totalAllocPoint = totalAllocPoint + _allocPoint;
 
-        poolInfo.push(PoolInfo({
+        _poolInfo.push(PoolInfo({
             lpToken : _lpToken,
             allocPoint : _allocPoint,
             lastRewardTime: lastRewardTime,
@@ -124,9 +124,9 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
 
         startTime = _newStartTime;
 
-        uint256 length = poolInfo.length;
+        uint256 length = _poolInfo.length;
         for (uint256 pid = 0; pid < length; pid++) {
-            PoolInfo storage pool = poolInfo[pid];
+            PoolInfo storage pool = _poolInfo[pid];
             pool.lastRewardTime = startTime;
         }
 
@@ -143,11 +143,11 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
             massUpdatePools();
         }
 
-        totalAllocPoint = totalAllocPoint - poolInfo[_pid].allocPoint + _allocPoint;
-        poolInfo[_pid].allocPoint = _allocPoint;
-        poolInfo[_pid].depositFeeBP = _depositFeeBP;
-        poolInfo[_pid].withdrawFeeBP = _withdrawFeeBP;
-        poolInfo[_pid].harvestInterval = _harvestInterval;
+        totalAllocPoint = totalAllocPoint - _poolInfo[_pid].allocPoint + _allocPoint;
+        _poolInfo[_pid].allocPoint = _allocPoint;
+        _poolInfo[_pid].depositFeeBP = _depositFeeBP;
+        _poolInfo[_pid].withdrawFeeBP = _withdrawFeeBP;
+        _poolInfo[_pid].harvestInterval = _harvestInterval;
     }
 
     // Return reward multiplier over the given _from to _to timestamp.
@@ -157,8 +157,8 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
 
     // View function to see pending DARWINs on frontend.
     function pendingDarwin(uint256 _pid, address _user) external view returns (uint256) {
-        PoolInfo storage pool = poolInfo[_pid];
-        UserInfo storage user = userInfo[_pid][_user];
+        PoolInfo storage pool = _poolInfo[_pid];
+        UserInfo storage user = _userInfo[_pid][_user];
         uint256 accDarwinPerShare = pool.accDarwinPerShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.timestamp > pool.lastRewardTime && lpSupply != 0 && totalAllocPoint > 0) {
@@ -173,19 +173,19 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
 
     // View function to see if user can harvest Darwins's.
     function canHarvest(uint256 _pid, address _user) public view returns (bool) {
-        UserInfo storage user = userInfo[_pid][_user];
+        UserInfo storage user = _userInfo[_pid][_user];
         return block.timestamp >= user.nextHarvestUntil;
     }
 
     // View function to see if user harvest until time.
     function getHarvestUntil(uint256 _pid, address _user) external view returns (uint256) {
-        UserInfo storage user = userInfo[_pid][_user];
+        UserInfo storage user = _userInfo[_pid][_user];
         return user.nextHarvestUntil;
     }
 
     // Update reward variables of the given pool to be up-to-date.
     function updatePool(uint256 _pid) public {
-        PoolInfo storage pool = poolInfo[_pid];
+        PoolInfo storage pool = _poolInfo[_pid];
         if (block.timestamp <= pool.lastRewardTime) {
             return;
         }
@@ -214,7 +214,7 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
 
     // Update reward variables for all pools. Be careful of gas spending!
     function massUpdatePools() public {
-        uint256 length = poolInfo.length;
+        uint256 length = _poolInfo.length;
         for (uint256 pid = 0; pid < length; ++pid) {
             updatePool(pid);
         }
@@ -223,8 +223,8 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
     // Deposit LP tokens to MasterChef for DARWIN allocation.
     // Also usable (with _amount = 0) to increase the lock duration.
     function deposit(uint256 _pid, uint256 _amount, bool _lock, uint256 _lockDuration) public nonReentrant {
-        PoolInfo storage pool = poolInfo[_pid];
-        UserInfo storage user = userInfo[_pid][msg.sender];
+        PoolInfo storage pool = _poolInfo[_pid];
+        UserInfo storage user = _userInfo[_pid][msg.sender];
 
         updatePool(_pid);
         _payOrLockupPendingDarwin(_pid);
@@ -255,8 +255,8 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
 
     // Deposit LP tokens to MasterChef for DARWIN allocation. Not based on poolId but on the pool's LP token.
     function depositByLPToken(IERC20 lpToken, uint256 _amount, bool _lock, uint256 _lockDuration) external returns (bool) {
-        for (uint i = 0; i < poolInfo.length; i++) {
-            if (poolInfo[i].lpToken == lpToken) {
+        for (uint i = 0; i < _poolInfo.length; i++) {
+            if (_poolInfo[i].lpToken == lpToken) {
                 deposit(i, _amount, _lock, _lockDuration);
                 return true;
             }
@@ -266,8 +266,8 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
 
     // Withdraw LP tokens from MasterChef.
     function withdraw(uint256 _pid, uint256 _amount) public nonReentrant {
-        PoolInfo storage pool = poolInfo[_pid];
-        UserInfo storage user = userInfo[_pid][msg.sender];
+        PoolInfo storage pool = _poolInfo[_pid];
+        UserInfo storage user = _userInfo[_pid][msg.sender];
 
         require(user.amount >= _amount, "withdraw: not good");
 
@@ -304,8 +304,8 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
 
     // Withdraw LP tokens from MasterChef. Not based on poolId but on the pool's LP token.
     function withdrawByLPToken(IERC20 lpToken, uint256 _amount) external returns (bool) {
-        for (uint i = 0; i < poolInfo.length; i++) {
-            if (poolInfo[i].lpToken == lpToken) {
+        for (uint i = 0; i < _poolInfo.length; i++) {
+            if (_poolInfo[i].lpToken == lpToken) {
                 withdraw(i, _amount);
                 return true;
             }
@@ -314,15 +314,15 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
     }
 
     function _getPoolHarvestInterval(uint256 _pid) private view returns (uint256) {
-        PoolInfo storage pool = poolInfo[_pid];
+        PoolInfo storage pool = _poolInfo[_pid];
 
         return block.timestamp + pool.harvestInterval;
     }
 
     // Pay or lockup pending darwin.
     function _payOrLockupPendingDarwin(uint256 _pid) private {
-        PoolInfo storage pool = poolInfo[_pid];
-        UserInfo storage user = userInfo[_pid][msg.sender];
+        PoolInfo storage pool = _poolInfo[_pid];
+        UserInfo storage user = _userInfo[_pid][msg.sender];
 
         if (user.nextHarvestUntil == 0) {
             user.nextHarvestUntil = _getPoolHarvestInterval(_pid);
@@ -351,8 +351,8 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
 
     // Withdraw without caring about rewards. EMERGENCY ONLY.
     function emergencyWithdraw(uint256 _pid) external nonReentrant {
-        PoolInfo storage pool = poolInfo[_pid];
-        UserInfo storage user = userInfo[_pid][msg.sender];
+        PoolInfo storage pool = _poolInfo[_pid];
+        UserInfo storage user = _userInfo[_pid][msg.sender];
         require (user.amount > 0, "emergencyWithdraw: no amount to withdraw");
         uint256 withdrawFee = 0;
             if (pool.withdrawFeeBP > 0) {
@@ -392,5 +392,13 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
         massUpdatePools();
         darwinPerSecond = _darwinPerSecond;
         emit UpdateEmissionRate(msg.sender, _darwinPerSecond);
+    }
+
+    function poolInfo() external view returns(PoolInfo[] memory) {
+        return _poolInfo;
+    }
+
+    function userInfo(uint256 _pid, address _user) external view returns(UserInfo memory) {
+        return _userInfo[_pid][_user];
     }
 }

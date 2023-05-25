@@ -167,6 +167,239 @@ const _abi = [
     name: "Withdraw",
     type: "event",
   },
+  {
+    inputs: [],
+    name: "darwin",
+    outputs: [
+      {
+        internalType: "contract IERC20",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IERC20",
+        name: "lpToken",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "_lock",
+        type: "bool",
+      },
+      {
+        internalType: "uint256",
+        name: "_lockDuration",
+        type: "uint256",
+      },
+    ],
+    name: "depositByLPToken",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_pid",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "_user",
+        type: "address",
+      },
+    ],
+    name: "pendingDarwin",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IERC20",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "poolExistence",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "poolInfo",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "contract IERC20",
+            name: "lpToken",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "allocPoint",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "lastRewardTime",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "accDarwinPerShare",
+            type: "uint256",
+          },
+          {
+            internalType: "uint16",
+            name: "depositFeeBP",
+            type: "uint16",
+          },
+          {
+            internalType: "uint16",
+            name: "withdrawFeeBP",
+            type: "uint16",
+          },
+          {
+            internalType: "uint256",
+            name: "harvestInterval",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct IDarwinMasterChef.PoolInfo[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "poolLength",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "userInfo",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "rewardDebt",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "rewardLockedUp",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "nextHarvestUntil",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "lockedAmount",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "lockEnd",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct IDarwinMasterChef.UserInfo",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IERC20",
+        name: "lpToken",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "withdrawByLPToken",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
 ] as const;
 
 export class IDarwinMasterChef__factory {

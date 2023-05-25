@@ -28,7 +28,7 @@ import type {
 
 export interface IDarwinLiquidityBundlesInterface extends utils.Interface {
   functions: {
-    "initialize(address,address)": FunctionFragment;
+    "initialize(address,address,address)": FunctionFragment;
     "update(address)": FunctionFragment;
   };
 
@@ -38,7 +38,11 @@ export interface IDarwinLiquidityBundlesInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "update",
@@ -51,10 +55,14 @@ export interface IDarwinLiquidityBundlesInterface extends utils.Interface {
   events: {
     "EnterBundle(address,uint256,uint256,uint256,uint256)": EventFragment;
     "ExitBundle(address,uint256,uint256,uint256)": EventFragment;
+    "HarvestAndRelock(address,uint256,uint256)": EventFragment;
+    "StakeInMasterchef(address,uint256,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "EnterBundle"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ExitBundle"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "HarvestAndRelock"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "StakeInMasterchef"): EventFragment;
 }
 
 export interface EnterBundleEventObject {
@@ -83,6 +91,32 @@ export type ExitBundleEvent = TypedEvent<
 >;
 
 export type ExitBundleEventFilter = TypedEventFilter<ExitBundleEvent>;
+
+export interface HarvestAndRelockEventObject {
+  user: string;
+  amountDarwin: BigNumber;
+  timestamp: BigNumber;
+}
+export type HarvestAndRelockEvent = TypedEvent<
+  [string, BigNumber, BigNumber],
+  HarvestAndRelockEventObject
+>;
+
+export type HarvestAndRelockEventFilter =
+  TypedEventFilter<HarvestAndRelockEvent>;
+
+export interface StakeInMasterchefEventObject {
+  user: string;
+  liquidity: BigNumber;
+  timestamp: BigNumber;
+}
+export type StakeInMasterchefEvent = TypedEvent<
+  [string, BigNumber, BigNumber],
+  StakeInMasterchefEventObject
+>;
+
+export type StakeInMasterchefEventFilter =
+  TypedEventFilter<StakeInMasterchefEvent>;
 
 export interface IDarwinLiquidityBundles extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -113,6 +147,7 @@ export interface IDarwinLiquidityBundles extends BaseContract {
   functions: {
     initialize(
       _darwinRouter: PromiseOrValue<string>,
+      _masterChef: PromiseOrValue<string>,
       _WETH: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -125,6 +160,7 @@ export interface IDarwinLiquidityBundles extends BaseContract {
 
   initialize(
     _darwinRouter: PromiseOrValue<string>,
+    _masterChef: PromiseOrValue<string>,
     _WETH: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -137,6 +173,7 @@ export interface IDarwinLiquidityBundles extends BaseContract {
   callStatic: {
     initialize(
       _darwinRouter: PromiseOrValue<string>,
+      _masterChef: PromiseOrValue<string>,
       _WETH: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -175,11 +212,34 @@ export interface IDarwinLiquidityBundles extends BaseContract {
       amountETH?: null,
       timestamp?: null
     ): ExitBundleEventFilter;
+
+    "HarvestAndRelock(address,uint256,uint256)"(
+      user?: PromiseOrValue<string> | null,
+      amountDarwin?: null,
+      timestamp?: null
+    ): HarvestAndRelockEventFilter;
+    HarvestAndRelock(
+      user?: PromiseOrValue<string> | null,
+      amountDarwin?: null,
+      timestamp?: null
+    ): HarvestAndRelockEventFilter;
+
+    "StakeInMasterchef(address,uint256,uint256)"(
+      user?: PromiseOrValue<string> | null,
+      liquidity?: null,
+      timestamp?: null
+    ): StakeInMasterchefEventFilter;
+    StakeInMasterchef(
+      user?: PromiseOrValue<string> | null,
+      liquidity?: null,
+      timestamp?: null
+    ): StakeInMasterchefEventFilter;
   };
 
   estimateGas: {
     initialize(
       _darwinRouter: PromiseOrValue<string>,
+      _masterChef: PromiseOrValue<string>,
       _WETH: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -193,6 +253,7 @@ export interface IDarwinLiquidityBundles extends BaseContract {
   populateTransaction: {
     initialize(
       _darwinRouter: PromiseOrValue<string>,
+      _masterChef: PromiseOrValue<string>,
       _WETH: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

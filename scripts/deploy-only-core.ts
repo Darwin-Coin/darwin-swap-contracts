@@ -44,7 +44,7 @@ async function main() {
   }
 
   //! [DEPLOY] FACTORY
-  const factory = await darwinFactoryFactory.deploy(lister.address, addr.busd) as DarwinSwapFactory;
+  const factory = await darwinFactoryFactory.deploy(lister.address, masterChef,  addr.busd) as DarwinSwapFactory;
   await factory.deployed();
   console.log(`🔨 Deployed Darwin Factory at: ${factory.address}`);
 

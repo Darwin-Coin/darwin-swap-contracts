@@ -39,6 +39,7 @@ export interface DarwinSwapFactoryInterface extends utils.Interface {
     "getPair(address,address)": FunctionFragment;
     "liquidityBundles()": FunctionFragment;
     "lister()": FunctionFragment;
+    "masterChef()": FunctionFragment;
     "router()": FunctionFragment;
     "setDev(address)": FunctionFragment;
     "setFeeTo(address)": FunctionFragment;
@@ -58,6 +59,7 @@ export interface DarwinSwapFactoryInterface extends utils.Interface {
       | "getPair"
       | "liquidityBundles"
       | "lister"
+      | "masterChef"
       | "router"
       | "setDev"
       | "setFeeTo"
@@ -93,6 +95,10 @@ export interface DarwinSwapFactoryInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "lister", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "masterChef",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "router", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "setDev",
@@ -130,6 +136,7 @@ export interface DarwinSwapFactoryInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "lister", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "masterChef", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "router", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setDev", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setFeeTo", data: BytesLike): Result;
@@ -214,6 +221,8 @@ export interface DarwinSwapFactory extends BaseContract {
 
     lister(overrides?: CallOverrides): Promise<[string]>;
 
+    masterChef(overrides?: CallOverrides): Promise<[string]>;
+
     router(overrides?: CallOverrides): Promise<[string]>;
 
     setDev(
@@ -268,6 +277,8 @@ export interface DarwinSwapFactory extends BaseContract {
 
   lister(overrides?: CallOverrides): Promise<string>;
 
+  masterChef(overrides?: CallOverrides): Promise<string>;
+
   router(overrides?: CallOverrides): Promise<string>;
 
   setDev(
@@ -321,6 +332,8 @@ export interface DarwinSwapFactory extends BaseContract {
     liquidityBundles(overrides?: CallOverrides): Promise<string>;
 
     lister(overrides?: CallOverrides): Promise<string>;
+
+    masterChef(overrides?: CallOverrides): Promise<string>;
 
     router(overrides?: CallOverrides): Promise<string>;
 
@@ -392,6 +405,8 @@ export interface DarwinSwapFactory extends BaseContract {
 
     lister(overrides?: CallOverrides): Promise<BigNumber>;
 
+    masterChef(overrides?: CallOverrides): Promise<BigNumber>;
+
     router(overrides?: CallOverrides): Promise<BigNumber>;
 
     setDev(
@@ -446,6 +461,8 @@ export interface DarwinSwapFactory extends BaseContract {
     liquidityBundles(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     lister(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    masterChef(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     router(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

@@ -37,6 +37,15 @@ interface IDarwinMasterChef {
         uint256 harvestInterval;    // Harvest interval in seconds.
     }
 
+    function withdrawByLPToken(IERC20 lpToken, uint256 _amount) external returns (bool);
+    function depositByLPToken(IERC20 lpToken, uint256 _amount, bool _lock, uint256 _lockDuration) external returns (bool);
+    function pendingDarwin(uint256 _pid, address _user) external view returns (uint256);
+    function poolLength() external view returns (uint256);
+    function poolInfo() external view returns (PoolInfo[] memory);
+    function poolExistence(IERC20) external view returns (bool);
+    function userInfo(uint256, address) external view returns (UserInfo memory);
+    function darwin() external view returns (IERC20);
+
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);

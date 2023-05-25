@@ -91,7 +91,7 @@ contract DarwinSwapLister is IDarwinSwapLister {
                 _validTokens.push(tokenToValidate);
             }
             // Below is done cause bundles contracts fetch validTokens to show bundles, and it needs the tokens to be paired with ETH
-            if (IDarwinSwapFactory(factory).getPair(tokenToValidate, WETH) == address(0)) {
+            if (tokenToValidate != WETH && IDarwinSwapFactory(factory).getPair(tokenToValidate, WETH) == address(0)) {
                 IDarwinSwapFactory(factory).createPair(tokenToValidate, WETH);
             }
             emit TokenValidated(tokenToValidate);

@@ -3,12 +3,14 @@ pragma solidity ^0.8.4;
 // SPDX-License-Identifier: BSL-1.1
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IDarwin} from "../darwin-token-contracts/contracts/interface/IDarwin.sol";
 
 import {IDarwinSwapRouter} from "./interfaces/IDarwinSwapRouter.sol";
 import {IDarwinSwapPair} from "./interfaces/IDarwinSwapPair.sol";
 import {IDarwinSwapFactory} from "./interfaces/IDarwinSwapFactory.sol";
 import {IERC20} from "./interfaces/IERC20.sol";
 import {IDarwinLiquidityBundles} from "./interfaces/IDarwinLiquidityBundles.sol";
+import {IDarwinMasterChef} from "./interfaces/IMasterChef.sol";
 
 contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
 
@@ -17,6 +19,7 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
     //////////////////////////////////////////////////////////////*/
 
     IDarwinSwapFactory public darwinFactory;
+    IDarwinMasterChef public masterChef;
     IDarwinSwapRouter public darwinRouter;
     address public WETH;
     uint256 public constant LOCK_PERIOD = 365 days;
@@ -27,6 +30,8 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
 
     // User address -> LP Token address -> User info
     mapping(address => mapping(address => User)) public userInfo;
+    // Token address -> total amount of LP for this bundle
+    mapping(address => uint256) public totalLpAmount;
 
     /*///////////////////////////////////////////////////////////////
                                 Constructor
@@ -36,8 +41,9 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
         darwinFactory = IDarwinSwapFactory(msg.sender);
     }
 
-    function initialize(address _darwinRouter, address _WETH) external {
+    function initialize(address _darwinRouter, IDarwinMasterChef _masterChef, address _WETH) external {
         require(msg.sender == address(darwinFactory), "DarwinLiquidityBundles: INVALID");
+        masterChef = _masterChef;
         darwinRouter = IDarwinSwapRouter(_darwinRouter);
         WETH = _WETH;
     }
@@ -86,10 +92,13 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
             block.timestamp + 600
         );
 
-        userInfo[msg.sender][_token].lpAmount += liquidity;
-        userInfo[msg.sender][_token].lockEnd = block.timestamp + LOCK_PERIOD;
-        userInfo[msg.sender][_token].bundledEth += amountETH;
-        userInfo[msg.sender][_token].bundledToken += amountToken;
+        User storage user = userInfo[msg.sender][_token];
+
+        totalLpAmount[_token] += liquidity;
+        user.lpAmount += liquidity;
+        user.lockEnd = block.timestamp + LOCK_PERIOD;
+        user.bundledEth += amountETH;
+        user.bundledToken += amountToken;
 
         // refund dust ETH, if any
         if (msg.value > amountETH) {
@@ -97,11 +106,18 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
             require(success, "DarwinLiquidityBundles: ETH_TRANSFER_FAILED");
         }
 
+        address pair = darwinFactory.getPair(_token, WETH);
+        if (masterChef.poolExistence(IERC20(pair))) {
+            IERC20(pair).approve(address(masterChef), liquidity);
+            masterChef.depositByLPToken(IERC20(pair), liquidity, false, 0);
+            user.inMasterchef = true;
+        }
+
         emit EnterBundle(msg.sender, amountToken, amountETH, block.timestamp, block.timestamp + LOCK_PERIOD);
     }
 
     /// @notice Exit from a Bundle
-    /// @dev If the lock period of the interested user on the interested token has ended, withdraws the bundled LP
+    /// @dev If the lock period of the interested user on the interested token has ended, withdraws the bundled LP and burns eventual earned darwin (if the bundle was an inMasterchef one)
     /// @param _token The bundle token address
     function exitBundle(
         address _token
@@ -111,21 +127,72 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
         require(user.lockEnd <= block.timestamp, "DarwinLiquidityBundles: LOCK_NOT_ENDED");
         require(user.lpAmount > 0, "DarwinLiquidityBundles: NO_BUNDLED_LP");
 
-        IERC20(darwinFactory.getPair(_token, WETH)).approve(address(darwinRouter), user.lpAmount);
+        // If pool exists on masterchef and bundle is staked on it, withdraw from it
+        uint lpAmount;
+        address pair = darwinFactory.getPair(_token, WETH);
+        if (masterChef.poolExistence(IERC20(pair)) && user.inMasterchef) {
+            lpAmount = IERC20(pair).balanceOf(address(this));
+            uint pid;
+            IDarwinMasterChef.PoolInfo[] memory poolInfo = masterChef.poolInfo();
+            for (uint i = 0; i < poolInfo.length; i++) {
+                if (address(poolInfo[i].lpToken) == pair) {
+                    pid = i;
+                }
+            }
+            masterChef.withdrawByLPToken(IERC20(pair), masterChef.userInfo(pid, address(this)).amount);
+            lpAmount = IERC20(pair).balanceOf(address(this)) - lpAmount;
+            user.inMasterchef = false;
+            // Burn eventual earned darwin
+            if (masterChef.darwin().balanceOf(address(this)) > 0) {
+                IDarwin(address(masterChef.darwin())).burn(masterChef.darwin().balanceOf(address(this)));
+            }
+        }
+        if (lpAmount == 0) {
+            lpAmount = user.lpAmount;
+        }
+
+        IERC20(darwinFactory.getPair(_token, WETH)).approve(address(darwinRouter), lpAmount);
         (uint256 amountToken, uint256 amountETH) = darwinRouter.removeLiquidityETH(
             _token,
-            user.lpAmount,
+            lpAmount,
             0,
             0,
             address(msg.sender),
             block.timestamp + 600
         );
 
+        totalLpAmount[_token] -= user.lpAmount;
         user.lpAmount = 0;
         user.bundledEth = 0;
         user.bundledToken = 0;
 
         emit ExitBundle(msg.sender, amountToken, amountETH, block.timestamp);
+    }
+
+    /// @notice Harvest Darwin from an inMasterchef bundle, and re-lock the bundle for a year
+    /// @dev If the lock period of the interested user on the interested token has ended, withdraws the earned Darwin and locks the bundle in for 1 more year
+    /// @param _token The bundle token address
+    function harvestAndRelock(
+        address _token
+    ) external {
+        User storage user = userInfo[msg.sender][_token];
+
+        require(user.lockEnd <= block.timestamp, "DarwinLiquidityBundles: LOCK_NOT_ENDED");
+        require(user.lpAmount > 0 && user.inMasterchef, "DarwinLiquidityBundles: NO_BUNDLE_OR_NOT_IN_MASTERCHEF");
+
+        address pair = darwinFactory.getPair(_token, WETH);
+        masterChef.withdrawByLPToken(IERC20(pair), 0);
+
+        // Send eventual earned darwin to user
+        uint amountDarwin = masterChef.darwin().balanceOf(address(this));
+        if (amountDarwin > 0) {
+            masterChef.darwin().transfer(msg.sender, amountDarwin);
+        }
+
+        // Re-lock for 1 year
+        user.lockEnd = block.timestamp + LOCK_PERIOD;
+
+        emit HarvestAndRelock(msg.sender, amountDarwin, block.timestamp);
     }
 
     /// @notice Updates a LP token by destructuring it and eventually swapping
@@ -145,19 +212,54 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
         }
     }
 
-    function earned(address _user, address _token) external view returns(uint256 eth, uint256 token) {
+    // How much TOKEN and ETH is being holded in the bundle
+    function holdings(address _user, address _token) external view returns(uint256 eth, uint256 token) {
         User memory user = userInfo[_user][_token];
         (uint reserve0, uint reserve1,) = IDarwinSwapPair(darwinFactory.getPair(_token, WETH)).getReserves();
         uint reserveEth = IDarwinSwapPair(darwinFactory.getPair(_token, WETH)).token0() == darwinRouter.WETH() ? reserve0 : reserve1;
         uint reserveToken = IDarwinSwapPair(darwinFactory.getPair(_token, WETH)).token0() == darwinRouter.WETH() ? reserve1 : reserve0;
-        reserveEth = reserveEth * user.lpAmount / IERC20(darwinFactory.getPair(_token, WETH)).totalSupply();
-        reserveToken = reserveToken * user.lpAmount / IERC20(darwinFactory.getPair(_token, WETH)).totalSupply();
-        if (reserveEth > user.bundledEth) {
-            eth = reserveEth - user.bundledEth;
-        }
-        // For token, keep in count also the amount initially paired with ETH (so the total reserve holded by the contract)
+        reserveEth = (reserveEth * user.lpAmount) / IERC20(darwinFactory.getPair(_token, WETH)).totalSupply();
+        reserveToken = (reserveToken * user.lpAmount) / IERC20(darwinFactory.getPair(_token, WETH)).totalSupply();
+        eth = reserveEth;
         token = reserveToken;
     }
+
+    // (For bundles that have a respective masterchef farm) - How much pending darwin for this bundle
+    function pendingDarwin(address _user, address _token) external view returns(uint256) {
+        User memory user = userInfo[_user][_token];
+        if (user.inMasterchef) {
+            uint pid;
+            IDarwinMasterChef.PoolInfo[] memory poolInfo = masterChef.poolInfo();
+            for (uint i = 0; i < poolInfo.length; i++) {
+                if (address(poolInfo[i].lpToken) == darwinFactory.getPair(_token, WETH)) {
+                    pid = i;
+                }
+            }
+            if (totalLpAmount[_token] > 0) {
+                return (masterChef.pendingDarwin(pid, address(this)) * user.lpAmount) / totalLpAmount[_token];
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    }
+
+    // (For bundles that didn't have a respective masterchef farm at first but after bundling they have one) - Stake bundled LP in MasterChef to earn darwin
+    function stakeBundleInMasterChef(address _token) external {
+        User storage user = userInfo[msg.sender][_token];
+        require(user.lpAmount > 0 && !user.inMasterchef, "DarwinLiquidityBundles: NO_BUNDLE_OR_ALREADY_STAKED");
+        
+        address pair = darwinFactory.getPair(_token, WETH);
+        require (masterChef.poolExistence(IERC20(pair)), "DarwinLiquidityBundles: NO_SUCH_POOL_IN_MASTERCHEF");
+        
+        IERC20(pair).approve(address(masterChef), user.lpAmount);
+        masterChef.depositByLPToken(IERC20(pair), user.lpAmount, false, 0);
+        user.inMasterchef = true;
+
+        emit StakeInMasterchef(msg.sender, user.lpAmount, block.timestamp);
+    }
+
 
     receive() external payable {}
 }

@@ -201,6 +201,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "masterChef",
+    outputs: [
+      {
+        internalType: "contract IDarwinMasterChef",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "router",
     outputs: [
       {
