@@ -60,7 +60,11 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
         path[1] = WETH;
 
         // get pair price in WETH on DarwinSwap
-        priceInWeth = darwinRouter.getAmountsOut(10 ** IERC20(_token).decimals(), path)[1];
+        try darwinRouter.getAmountsOut(10 ** IERC20(_token).decimals(), path) returns (uint256[] memory prices) {
+            priceInWeth = prices[1];
+        } catch {
+            priceInWeth = 0;
+        }
     }
 
     /// @notice Enter a Bundle

@@ -1,6 +1,6 @@
 import * as hardhat from "hardhat";
 import { ethers } from "hardhat";
-import { DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, Tokenomics2Library } from "../typechain-types";
+import { DarwinLiquidityBundles, DarwinMasterChef, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, Tokenomics2Library } from "../typechain-types";
 import { addr, VERIFY } from "./constants";
 
 
@@ -8,9 +8,24 @@ async function main() {
   const [owner] = await hardhat.ethers.getSigners();
   console.log(`💻 Deployer: ${owner.address}`);
 
-  // DECLARE LIBRARY FACTORY
+  // DECLARE FACTORIES 1
+  const masterChefFactory = await ethers.getContractFactory("DarwinMasterChef");
   const tokenomics2LibFactory = await ethers.getContractFactory("Tokenomics2Library");
 
+  const DATE = Math.floor(Date.now() / 1000);
+
+  //! [DEPLOY] MASTERCHEF
+  const masterChef = await masterChefFactory.deploy(addr.darwin, owner.address, DATE) as DarwinMasterChef;
+  await masterChef.deployed();
+  console.log(`🔨 Deployed MasterChef at: ${masterChef.address}`);
+
+  if (VERIFY) {
+    //? [VERIFY] MASTERCHEF
+    await hardhat.run("verify:verify", {
+      address: masterChef.address,
+      constructorArguments: [addr.darwin, owner.address, DATE]
+    });
+  }
 
   //! [DEPLOY] TOKENOMICS2
   const library = await tokenomics2LibFactory.deploy() as Tokenomics2Library;
@@ -29,6 +44,7 @@ async function main() {
   const darwinRouterFactory = await ethers.getContractFactory("DarwinSwapRouter", {libraries: {Tokenomics2Library: library.address}});
   const darwinFactoryFactory = await ethers.getContractFactory("DarwinSwapFactory", {libraries: {Tokenomics2Library: library.address}});
   const darwinListerFactory = await ethers.getContractFactory("DarwinSwapLister", {libraries: {Tokenomics2Library: library.address}});
+  const darwinBundlesFactory = await ethers.getContractFactory("DarwinLiquidityBundles");
 
   //! [DEPLOY] LISTER
   const lister = await darwinListerFactory.deploy() as DarwinSwapLister;
@@ -44,7 +60,7 @@ async function main() {
   }
 
   //! [DEPLOY] FACTORY
-  const factory = await darwinFactoryFactory.deploy(lister.address, masterChef,  addr.busd) as DarwinSwapFactory;
+  const factory = await darwinFactoryFactory.deploy(lister.address, masterChef.address, addr.busd) as DarwinSwapFactory;
   await factory.deployed();
   console.log(`🔨 Deployed Darwin Factory at: ${factory.address}`);
 
@@ -53,6 +69,19 @@ async function main() {
     await hardhat.run("verify:verify", {
       address: factory.address,
       constructorArguments: [lister.address, addr.busd]
+    });
+  }
+
+  //! [ATTACH] BUNDLES
+  const bundles = darwinBundlesFactory.attach(await factory.liquidityBundles()) as DarwinLiquidityBundles;
+  await bundles.deployed();
+  console.log(`🔨 Deployed Darwin Bundles at: ${bundles.address}`);
+
+  if (VERIFY) {
+    //? [VERIFY] BUNDLES
+    await hardhat.run("verify:verify", {
+      address: bundles.address,
+      constructorArguments: []
     });
   }
 
