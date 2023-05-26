@@ -97,7 +97,9 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         liquidity = IDarwinSwapPair(pair).mint(to);
         // refund dust eth, if any
         if (msg.value > amountETH) TransferHelper.safeTransferETH(msg.sender, msg.value - amountETH);
-        IDarwinSwapFactory(factory).liquidityBundles().update(pair);
+        if (msg.sender != address(IDarwinSwapFactory(factory).liquidityBundles())) {
+            IDarwinSwapFactory(factory).liquidityBundles().update(pair);
+        }
     }
     function addLiquidityWithoutReceipt(
         address tokenA,

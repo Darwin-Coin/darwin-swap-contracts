@@ -316,5 +316,36 @@ describe("Test Suite", function () {
       await t4.wait();
       expect(await bundles.enterBundle(token.address, ethers.utils.parseEther("10"), {value: ethers.utils.parseEther("1")})).to.not.be.reverted;
     });
+
+    it("Enter bundle works with farm in masterchef", async function () {
+      const { bundles, lister, router, weth, token, owner, masterChef, factory } = await loadFixture(deployFixture);
+      const t1 = await token.approve(router.address, ethers.utils.parseEther("1000"));
+      await t1.wait();
+      const t2 = await router.addLiquidityETH(token.address, ethers.utils.parseEther("1000"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600, {value: ethers.utils.parseEther("1")});
+      await t2.wait();
+      const t3 = await lister.proposeToken(token.address, PROPOSAL);
+      await t3.wait();
+      const t4 = await token.transfer(bundles.address, ethers.utils.parseEther("1000"));
+      await t4.wait();
+      const t5 = await masterChef.addPool(100, await factory.getPair(token.address, weth.address), 150, 150, 0, false);
+      await t5.wait();
+      expect(await bundles.enterBundle(token.address, ethers.utils.parseEther("10"), {value: ethers.utils.parseEther("1")})).to.not.be.reverted;
+    });
+  });
+
+  describe("MasterChef", function () {
+    it("Deposit works", async function () {
+      const { router, weth, token, owner, masterChef, factory, pairFactory } = await loadFixture(deployFixture);
+      const t1 = await token.approve(router.address, ethers.utils.parseEther("1000"));
+      await t1.wait();
+      const t2 = await router.addLiquidityETH(token.address, ethers.utils.parseEther("1000"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600, {value: ethers.utils.parseEther("1")});
+      await t2.wait();
+      const pair = pairFactory.attach(await factory.getPair(token.address, weth.address));
+      const t3 = await masterChef.addPool(100, pair.address, 250, 150, 0, false);
+      await t3.wait();
+      const t4 = await pair.approve(masterChef.address, await pair.balanceOf(owner.address));
+      await t4.wait();
+      expect(await masterChef.depositByLPToken(pair.address, await pair.balanceOf(owner.address), false, 0)).to.not.be.reverted;
+    });
   });
 });
