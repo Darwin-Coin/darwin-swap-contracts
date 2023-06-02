@@ -172,13 +172,11 @@ export interface IDarwinSwapListerInterface extends utils.Interface {
 
   events: {
     "TokenBanned(address,address)": EventFragment;
-    "TokenProposed(address,tuple)": EventFragment;
-    "TokenValidated(address)": EventFragment;
+    "TokenListed(address,tuple)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "TokenBanned"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TokenProposed"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TokenValidated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TokenListed"): EventFragment;
 }
 
 export interface TokenBannedEventObject {
@@ -192,26 +190,16 @@ export type TokenBannedEvent = TypedEvent<
 
 export type TokenBannedEventFilter = TypedEventFilter<TokenBannedEvent>;
 
-export interface TokenProposedEventObject {
+export interface TokenListedEventObject {
   tokenAddress: string;
-  proposalInfo: IDarwinSwapLister.TokenInfoStructOutput;
+  listingInfo: IDarwinSwapLister.TokenInfoStructOutput;
 }
-export type TokenProposedEvent = TypedEvent<
+export type TokenListedEvent = TypedEvent<
   [string, IDarwinSwapLister.TokenInfoStructOutput],
-  TokenProposedEventObject
+  TokenListedEventObject
 >;
 
-export type TokenProposedEventFilter = TypedEventFilter<TokenProposedEvent>;
-
-export interface TokenValidatedEventObject {
-  tokenAddress: string;
-}
-export type TokenValidatedEvent = TypedEvent<
-  [string],
-  TokenValidatedEventObject
->;
-
-export type TokenValidatedEventFilter = TypedEventFilter<TokenValidatedEvent>;
+export type TokenListedEventFilter = TypedEventFilter<TokenListedEvent>;
 
 export interface IDarwinSwapLister extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -313,21 +301,14 @@ export interface IDarwinSwapLister extends BaseContract {
       ownerAddress?: PromiseOrValue<string> | null
     ): TokenBannedEventFilter;
 
-    "TokenProposed(address,tuple)"(
+    "TokenListed(address,tuple)"(
       tokenAddress?: PromiseOrValue<string> | null,
-      proposalInfo?: IDarwinSwapLister.TokenInfoStruct | null
-    ): TokenProposedEventFilter;
-    TokenProposed(
+      listingInfo?: IDarwinSwapLister.TokenInfoStruct | null
+    ): TokenListedEventFilter;
+    TokenListed(
       tokenAddress?: PromiseOrValue<string> | null,
-      proposalInfo?: IDarwinSwapLister.TokenInfoStruct | null
-    ): TokenProposedEventFilter;
-
-    "TokenValidated(address)"(
-      tokenAddress?: PromiseOrValue<string> | null
-    ): TokenValidatedEventFilter;
-    TokenValidated(
-      tokenAddress?: PromiseOrValue<string> | null
-    ): TokenValidatedEventFilter;
+      listingInfo?: IDarwinSwapLister.TokenInfoStruct | null
+    ): TokenListedEventFilter;
   };
 
   estimateGas: {

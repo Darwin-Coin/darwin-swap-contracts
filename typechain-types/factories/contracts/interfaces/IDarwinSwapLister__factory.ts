@@ -172,24 +172,11 @@ const _abi = [
         ],
         indexed: true,
         internalType: "struct IDarwinSwapLister.TokenInfo",
-        name: "proposalInfo",
+        name: "listingInfo",
         type: "tuple",
       },
     ],
-    name: "TokenProposed",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "tokenAddress",
-        type: "address",
-      },
-    ],
-    name: "TokenValidated",
+    name: "TokenListed",
     type: "event",
   },
   {

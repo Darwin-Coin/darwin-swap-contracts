@@ -39,7 +39,6 @@ interface IDarwinSwapLister {
 
     enum TokenStatus {
         UNLISTED, //? This token is not listed on DarwinSwap
-        PROPOSED, //? This token has been proposed for validation
         LISTED, //? This token has been listed on DarwinSwap
         BANNED //? This token and its owner are banned from listing on DarwinSwap (because it has been recognized as harmful during a verification)
     }
@@ -51,9 +50,8 @@ interface IDarwinSwapLister {
         uint decimals;
     }
 
-    event TokenProposed(address indexed tokenAddress, TokenInfo indexed proposalInfo);
+    event TokenListed(address indexed tokenAddress, TokenInfo indexed listingInfo);
     event TokenBanned(address indexed tokenAddress, address indexed ownerAddress);
-    event TokenValidated(address indexed tokenAddress);
 
     function maxTok1Tax() external view returns (uint);
     function maxTok2Tax() external view returns (uint);

@@ -1,6 +1,6 @@
 import * as hardhat from "hardhat";
 import { ethers } from "hardhat";
-import { DarwinLiquidityBundles, DarwinMasterChef, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, Tokenomics2Library } from "../typechain-types";
+import { DarwinLiquidityBundles, DarwinMasterChef, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
 import { addr, VERIFY } from "./constants";
 
 
@@ -10,6 +10,7 @@ async function main() {
 
   // DECLARE FACTORIES 1
   const masterChefFactory = await ethers.getContractFactory("DarwinMasterChef");
+  const lockerFactory = await ethers.getContractFactory("TokenLocker");
   const tokenomics2LibFactory = await ethers.getContractFactory("Tokenomics2Library");
 
   const DATE = Math.floor(Date.now() / 1000);
@@ -24,6 +25,19 @@ async function main() {
     await hardhat.run("verify:verify", {
       address: masterChef.address,
       constructorArguments: [addr.darwin, owner.address, DATE]
+    });
+  }
+
+  //! [ATTACH] LOCKER
+  const locker = lockerFactory.attach(await masterChef.locker()) as TokenLocker;
+  await locker.deployed();
+  console.log(`🔨 Deployed Locker at: ${locker.address}`);
+
+  if (VERIFY) {
+    //? [VERIFY] LOCKER
+    await hardhat.run("verify:verify", {
+      address: locker.address,
+      constructorArguments: []
     });
   }
 

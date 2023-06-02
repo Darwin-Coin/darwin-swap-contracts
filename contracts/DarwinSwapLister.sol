@@ -23,7 +23,6 @@ contract DarwinSwapLister is IDarwinSwapLister {
 
     // Frontend purposes
     address[] private _validTokens;
-    address[] private _proposedTokens;
 
     constructor() {
         dev = msg.sender;
@@ -50,87 +49,49 @@ contract DarwinSwapLister is IDarwinSwapLister {
         pair = IDarwinSwapFactory(factory).createPair(tokenA, tokenB);
     }
 
-    // Only callable by a Darwin team validator.
-    // If isTokenValid is true, lists tokenToValidate, with all the add-on features selected by the lister.
-    // If isTokenValid is false, either bans it (if outcome == TokenStatus.BANNED), or still lists the token but without any of the add-on features (if outcome == TokenStatus.LISTED).
-    function validateToken(address tokenToValidate, TokenStatus outcome, bool isTokenValid) public onlyValidators {
-        require(_tokenInfo[tokenToValidate].status == TokenStatus.PROPOSED, "DarwinSwap: TOKEN_NOT_PROPOSED");
-        require(outcome != TokenStatus.PROPOSED && outcome != TokenStatus.UNLISTED, "DarwinSwap: INVALID_VALIDATION");
-
-        _tokenInfo[tokenToValidate].valid = isTokenValid;
-        _tokenInfo[tokenToValidate].validator = msg.sender;
-        _tokenInfo[tokenToValidate].status = outcome;
-
-        for (uint i = 0; i < _proposedTokens.length; i++) {
-            if (_proposedTokens[i] == tokenToValidate) {
-                _proposedTokens[i] = _proposedTokens[_proposedTokens.length - 1];
-                _proposedTokens.pop();
-                break;
-            }
-        }
-
-        address WETH = IDarwinSwapRouter(IDarwinSwapFactory(factory).router()).WETH();
-        if (outcome == TokenStatus.BANNED) {
-            isUserBannedFromListing[_tokenInfo[tokenToValidate].owner] = true;
-
-            emit TokenBanned(tokenToValidate, _tokenInfo[tokenToValidate].owner);
-
-        } else if (!isTokenValid) { // outcome == TokenStatus.LISTED but token not valid
-            // Reset the requested add-on Tokenomics to blank
-            TokenomicsInfo memory blankToks;
-            _tokenInfo[tokenToValidate].addedToks = blankToks;
-        } else { // outcome == TokenStatus.LISTED and token valid
-            bool found;
-            for (uint i = 0; i < _validTokens.length; i++) {
-                if (_validTokens[i] == tokenToValidate) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                _validTokens.push(tokenToValidate);
-            }
-            // Below is done cause bundles contracts fetch validTokens to show bundles, and it needs the tokens to be paired with ETH
-            if (tokenToValidate != WETH && IDarwinSwapFactory(factory).getPair(tokenToValidate, WETH) == address(0)) {
-                IDarwinSwapFactory(factory).createPair(tokenToValidate, WETH);
-            }
-            emit TokenValidated(tokenToValidate);
-        }
-    }
-
     // Allows a token owner (or the Dev address, in case the token is owned by address(0) et similia) to ask for the validation and listing of his token. This way users are able to put add-ons Tokenomics (1.0 or 2.0) on their tokens. (only if they get validated)
     // Also allows to propose modifies to an already listed token.
-    function proposeToken(address tokenAddress, TokenInfo memory proposalInfo) external {
+    function listToken(address tokenAddress, TokenInfo memory listingInfo) external {
         require(tokenAddress != address(0), "DarwinSwap: ZERO_ADDRESS");
-        require(bytes(proposalInfo.purpose).length > 0, "DarwinSwap: EMPTY_PURPOSE");
-        require((_tokenInfo[tokenAddress].status == TokenStatus.UNLISTED || _tokenInfo[tokenAddress].status == TokenStatus.LISTED) && !isUserBannedFromListing[msg.sender], "DarwinSwap: TOKEN_PROPOSED_OR_BANNED");
+        require(bytes(listingInfo.purpose).length > 0, "DarwinSwap: EMPTY_PURPOSE");
+        require(_tokenInfo[tokenAddress].status != TokenStatus.BANNED && !isUserBannedFromListing[msg.sender], "DarwinSwap: TOKEN_OR_BANNED");
         address owner = _getTokenOwner(tokenAddress);
         require(msg.sender == owner || isValidator[msg.sender], "DarwinSwap: CALLER_NOT_TOKEN_OWNER_OR_VALIDATOR");
 
         // Makes sure the fields in the proposal are setted as they should by default
-        proposalInfo.owner = owner;
-        proposalInfo.status = TokenStatus.PROPOSED;
-        proposalInfo.validator = address(0);
-        proposalInfo.valid = false;
-        proposalInfo.official = false;
-        if (proposalInfo.feeReceiver == address(0)) {
-            proposalInfo.feeReceiver = msg.sender;
+        listingInfo.owner = owner;
+        listingInfo.status = TokenStatus.LISTED;
+        listingInfo.valid = true;
+        listingInfo.official = false;
+        if (listingInfo.feeReceiver == address(0)) {
+            listingInfo.feeReceiver = msg.sender;
         }
 
-        bool valid = Tokenomics2Library.ensureTokenomics(proposalInfo, maxTok1Tax, maxTok2Tax);
+        bool valid = Tokenomics2Library.ensureTokenomics(listingInfo, maxTok1Tax, maxTok2Tax);
         require(valid, "DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
 
-        proposalInfo.addedToks = Tokenomics2Library.adjustTokenomics(proposalInfo.addedToks);
+        listingInfo.addedToks = Tokenomics2Library.adjustTokenomics(listingInfo.addedToks);
 
-        _tokenInfo[tokenAddress] = proposalInfo;
+        _tokenInfo[tokenAddress] = listingInfo;
 
-        _proposedTokens.push(tokenAddress);
-
-        emit TokenProposed(tokenAddress, proposalInfo);
-
-        if (isValidator[msg.sender]) {
-            validateToken(tokenAddress, TokenStatus.LISTED, true);
+        bool found;
+        for (uint i = 0; i < _validTokens.length; i++) {
+            if (_validTokens[i] == tokenAddress) {
+                found = true;
+                break;
+            }
         }
+        if (!found) {
+            _validTokens.push(tokenAddress);
+        }
+
+        // Below is done cause bundles contracts fetch validTokens to show bundles, and it needs the tokens to be paired with ETH
+        address WETH = IDarwinSwapRouter(IDarwinSwapFactory(factory).router()).WETH();
+        if (tokenAddress != WETH && IDarwinSwapFactory(factory).getPair(tokenAddress, WETH) == address(0)) {
+            IDarwinSwapFactory(factory).createPair(tokenAddress, WETH);
+        }
+
+        emit TokenListed(tokenAddress, listingInfo);
     }
 
     // Lists DARWIN and pairs with WETH, with 5% tax on LP on buys
@@ -151,8 +112,6 @@ contract DarwinSwapLister is IDarwinSwapLister {
             pair = IDarwinSwapFactory(factory).createPair(darwin, weth);
         }
         IDarwin(darwin).registerDarwinSwapPair(pair);
-
-        emit TokenValidated(darwin);
     }
 
     // transfer ownership
@@ -189,6 +148,14 @@ contract DarwinSwapLister is IDarwinSwapLister {
     function setBanToken(address _token, bool _ban) external onlyValidators {
         if (_ban) {
             _tokenInfo[_token].status = TokenStatus.BANNED;
+            _tokenInfo[_token].valid = false;
+            for (uint i = 0; i < _validTokens.length; i++) {
+                if (_validTokens[i] == _token) {
+                    _validTokens[i] = _validTokens[_validTokens.length - 1];
+                    _validTokens.pop();
+                    break;
+                }
+            }
         } else {
             _tokenInfo[_token].status = TokenStatus.UNLISTED;
         }
@@ -227,14 +194,6 @@ contract DarwinSwapLister is IDarwinSwapLister {
                 return 0x0000000000000000000000000000000000000000;
             }
         }
-    }
-
-    function proposals() external view returns(address[] memory tokens, TokenInfo[] memory props) {
-        props = new TokenInfo[](_proposedTokens.length);
-        for (uint i = 0; i < _proposedTokens.length; i++) {
-            props[i] = _tokenInfo[_proposedTokens[i]];
-        }
-        return (_proposedTokens, props);
     }
 
     function validTokens() external view returns(Token[] memory) {

@@ -13,7 +13,6 @@ const ZEROT = "0x0000000000000000000000000000000000000003";
 
 enum TokenStatus {
   UNLISTED,
-  PROPOSED,
   LISTED,
   BANNED
 }
@@ -113,7 +112,7 @@ describe("Test Suite", function () {
 
   async function pairFixture() {
     const { busd, lister, weth, token, router, owner, addr1, addr2, factory, pairFactory } = await loadFixture(deployFixture);
-    await lister.proposeToken(token.address, fixtureProp);
+    await lister.listToken(token.address, fixtureProp);
     await lister.listOfficialToken(weth.address);
     await lister.listOfficialToken(busd.address);
     await token.approve(router.address, eth("10000000000"));
@@ -134,8 +133,8 @@ describe("Test Suite", function () {
 
   async function unofficialPairFixture() {
     const { lister, weth, token, router, owner, addr1, addr2, factory, pairFactory } = await loadFixture(deployFixture);
-    await lister.proposeToken(token.address, fixtureProp);
-    await lister.proposeToken(weth.address, proposal());
+    await lister.listToken(token.address, fixtureProp);
+    await lister.listToken(weth.address, proposal());
     await token.approve(router.address, eth("10000000000"));
     await weth.approve(router.address, eth("10000000000"))
     await router.addLiquidity(token.address, weth.address, eth("1000"), eth("1000"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600);
@@ -219,10 +218,10 @@ describe("Test Suite", function () {
       it("Tokenomics proposal can only be made either by the token owner or by the dev address", async function () {
         const { lister, addr1, addr2, erc20Factory } = await loadFixture(deployFixture);
         const token1 = await erc20Factory.connect(addr1).deploy("Test Token 1", "TTKN1") as TestERC20;
-        await expect(await lister.connect(addr1).proposeToken(token1.address, PROPOSAL)).to.not.be.reverted;
+        await expect(await lister.connect(addr1).listToken(token1.address, PROPOSAL)).to.not.be.reverted;
         const token2 = await erc20Factory.connect(addr1).deploy("Test Token 2", "TTKN2") as TestERC20;
-        await expect(lister.connect(addr2).proposeToken(token2.address, PROPOSAL)).to.be.reverted;
-        await expect(await lister.proposeToken(token2.address, PROPOSAL)).to.not.be.reverted;
+        await expect(lister.connect(addr2).listToken(token2.address, PROPOSAL)).to.be.reverted;
+        await expect(await lister.listToken(token2.address, PROPOSAL)).to.not.be.reverted;
       });
     });
 
@@ -232,9 +231,9 @@ describe("Test Suite", function () {
         const { lister, token, token1 } = await loadFixture(deployFixture);
         let prop = proposal();
         prop.addedToks.tokenA1TaxOnSell = 2000;
-        await expect(await lister.proposeToken(token.address, PROPOSAL)).to.not.be.reverted;
+        await expect(await lister.listToken(token.address, PROPOSAL)).to.not.be.reverted;
         prop.addedToks.tokenA1TaxOnSell = 2001;
-        await expect(lister.proposeToken(token1.address, PROPOSAL)).to.be.revertedWith("DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
+        await expect(lister.listToken(token1.address, PROPOSAL)).to.be.revertedWith("DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
       });
 
       it("Tokenomics 1.0 takes tokens from the user", async function () {
@@ -254,9 +253,9 @@ describe("Test Suite", function () {
         const { lister, token, token1 } = await loadFixture(deployFixture);
         let prop = proposal();
         prop.addedToks.tokenA2TaxOnSell = 1000;
-        await expect(await lister.proposeToken(token.address, prop)).to.not.be.reverted;
+        await expect(await lister.listToken(token.address, prop)).to.not.be.reverted;
         prop.addedToks.tokenA2TaxOnSell = 1001;
-        await expect(lister.proposeToken(token1.address, prop)).to.be.revertedWith("DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
+        await expect(lister.listToken(token1.address, prop)).to.be.revertedWith("DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
       });
 
       it("Tokenomics 2.0 takes tokens from the liquidity pool", async function () {
@@ -277,19 +276,19 @@ describe("Test Suite", function () {
         let prop = proposal();
         prop.addedToks.tokenA2TaxOnSell = 1000;
         prop.addedToks.tokenA1TaxOnSell = 2000;
-        await expect(await lister.proposeToken(token.address, prop)).to.not.be.reverted;
+        await expect(await lister.listToken(token.address, prop)).to.not.be.reverted;
         prop.addedToks.tokenA2TaxOnSell = 1001;
-        await expect(lister.proposeToken(token1.address, prop)).to.be.revertedWith("DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
+        await expect(lister.listToken(token1.address, prop)).to.be.revertedWith("DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
         prop.addedToks.tokenA2TaxOnSell = 1000;
         prop.addedToks.tokenA1TaxOnSell = 2001;
-        await expect(lister.proposeToken(token1.address, prop)).to.be.revertedWith("DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
+        await expect(lister.listToken(token1.address, prop)).to.be.revertedWith("DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
       });
 
       it("When they set Tokenomics on a contract they must say what the purpose of taxing is", async function () {
         const { lister, token, token1 } = await loadFixture(deployFixture);
         let prop = proposal();
         prop.purpose = "";
-        await expect(lister.proposeToken(token.address, prop)).to.be.revertedWith("DarwinSwap: EMPTY_PURPOSE");
+        await expect(lister.listToken(token.address, prop)).to.be.revertedWith("DarwinSwap: EMPTY_PURPOSE");
       });
 
       it("Tokenomics only work when the 'other' token is 'official'", async function () {
@@ -310,7 +309,7 @@ describe("Test Suite", function () {
       await t1.wait();
       const t2 = await router.addLiquidityETH(token.address, ethers.utils.parseEther("1000"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600, {value: ethers.utils.parseEther("1")});
       await t2.wait();
-      const t3 = await lister.proposeToken(token.address, PROPOSAL);
+      const t3 = await lister.listToken(token.address, PROPOSAL);
       await t3.wait();
       const t4 = await token.transfer(bundles.address, ethers.utils.parseEther("1000"));
       await t4.wait();
@@ -323,7 +322,7 @@ describe("Test Suite", function () {
       await t1.wait();
       const t2 = await router.addLiquidityETH(token.address, ethers.utils.parseEther("1000"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600, {value: ethers.utils.parseEther("1")});
       await t2.wait();
-      const t3 = await lister.proposeToken(token.address, PROPOSAL);
+      const t3 = await lister.listToken(token.address, PROPOSAL);
       await t3.wait();
       const t4 = await token.transfer(bundles.address, ethers.utils.parseEther("1000"));
       await t4.wait();
