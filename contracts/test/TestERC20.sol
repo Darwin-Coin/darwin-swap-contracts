@@ -13,11 +13,11 @@ contract TestERC20 {
     event Approval(address indexed owner, address indexed spender, uint value);
     event Transfer(address indexed from, address indexed to, uint value);
 
-    constructor(string memory _name, string memory _symbol) {
+    constructor(string memory _name, string memory _symbol, address _mintTo) {
         owner = msg.sender;
         name = _name;
         symbol = _symbol;
-        _mint(msg.sender, 1000000 * 1e18);
+        _mint(_mintTo, 1000000 * 1e18);
     }
 
     function _mint(address to, uint value) internal {
