@@ -4,13 +4,13 @@
     "test": "npx hardhat test",
     "check": "npx hardhat check",
     "clean": "npx hardhat clean",
-    "compile": "npx hardhat compile",
     "docgen": "npx hardhat docgen",
     "prettier": "./node_modules/.bin/prettier --write contracts/**/*.sol",
     "xdeploy": "npx hardhat xdeploy",
     "deploy": "npx hardhat run ./scripts/deploy.ts --network",
     "deploycore": "npx hardhat run ./scripts/deploy-only-core.ts --network",
     "update": "git submodule update --remote --merge && npx rimraf ./contracts/token-contracts && cd ./contracts && ln -s ../darwin-token-contracts/contracts token-contracts && cd ..",
+    "compile": "yarn update && npx hardhat compile",
     "refresh": "git submodule deinit -f ./darwin-token-contracts && npx rimraf .git/modules/darwin-token-contracts && git rm -rf ./darwin-token-contracts && git submodule add https://github.com/Darwin-Coin/darwin-token-contracts && git submodule update --remote --merge"
   },
   "husky": {
