@@ -1,7 +1,9 @@
 const TEST = true;
-export const VERIFY = false;
+export const VERIFY = !TEST;
   // TODO: SET MASTERCHEF START DATE
-export const MASTERCHEF_START = 1682599696;
+export const MASTERCHEF_START = Math.floor(Date.now() / 1000);
+
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export const BSC_ADDRESSES = {
     deployer: "0x63a0704e005776B153248A500Dfd950873AFB186",

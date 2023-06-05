@@ -1,7 +1,7 @@
 import * as hardhat from "hardhat";
 import { ethers } from "hardhat";
-import { DarwinMasterChef, DarwinSwapFactory, DarwinSwapLister, Tokenomics2Library } from "../typechain-types";
-import { addr } from "./constants";
+import { DarwinMasterChef, DarwinSwapFactory, DarwinSwapLister, Tokenomics2Library } from "../../typechain-types";
+import { addr } from "../constants";
 
 const ZERO = "0x0000000000000000000000000000000000000000";
 

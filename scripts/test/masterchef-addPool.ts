@@ -1,7 +1,7 @@
 import * as hardhat from "hardhat";
 import { ethers } from "hardhat";
-import { DarwinMasterChef, DarwinSwapFactory, Tokenomics2Library } from "../typechain-types";
-import { addr } from "./constants";
+import { DarwinMasterChef, DarwinSwapFactory, Tokenomics2Library } from "../../typechain-types";
+import { addr } from "../constants";
 
 async function main() {
   const [owner] = await hardhat.ethers.getSigners();

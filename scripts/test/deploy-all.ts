@@ -1,9 +1,9 @@
 import * as hardhat from "hardhat";
 import { ethers, upgrades } from "hardhat";
-import { DarwinLiquidityBundles, DarwinMasterChef, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
-import { DarwinBurner, DarwinCommunity, EvoturesNFT, LootboxTicket, DarwinStaking } from "../darwin-token-contracts/typechain-types";
-import { Darwin, DarwinVester5, DarwinVester7, StakedDarwin } from "../darwin-token-contracts/typechain-types/contracts";
-import { addr, MASTERCHEF_START, VERIFY } from "./constants";
+import { DarwinLiquidityBundles, DarwinMasterChef, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../../typechain-types";
+import { DarwinBurner, DarwinCommunity, EvoturesNFT, LootboxTicket, DarwinStaking } from "../../darwin-token-contracts/typechain-types";
+import { Darwin, DarwinVester5, DarwinVester7, StakedDarwin } from "../../darwin-token-contracts/typechain-types/contracts";
+import { addr, MASTERCHEF_START, VERIFY } from "../constants";
 import { BigNumber } from "ethers";
 
 async function main() {
