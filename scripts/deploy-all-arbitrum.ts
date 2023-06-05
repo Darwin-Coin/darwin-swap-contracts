@@ -1,10 +1,11 @@
 import * as hardhat from "hardhat";
 import { ethers, upgrades } from "hardhat";
 import { DarwinLiquidityBundles, DarwinMasterChef, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
-import { DarwinBurner, DarwinCommunity, EvoturesNFT, LootboxTicket, DarwinStaking, DarwinPrivateSale__factory, DarwinVester7__factory, DarwinVester5__factory, DarwinCommunity__factory, Darwin__factory, StakedDarwin__factory, DarwinBurner__factory, DarwinStaking__factory, EvoturesNFT__factory, LootboxTicket__factory, MultiplierNFT__factory } from "../darwin-token-contracts/typechain-types";
+import { DarwinBurner, DarwinCommunity, EvoturesNFT, LootboxTicket, DarwinStaking } from "../darwin-token-contracts/typechain-types";
 import { Darwin, DarwinPrivateSale, DarwinVester5, DarwinVester7, MultiplierNFT, StakedDarwin } from "../darwin-token-contracts/typechain-types/contracts";
 import { addr, BSC_ADDRESSES, MASTERCHEF_START, VERIFY, ZERO_ADDRESS } from "./constants";
 import { BigNumber } from "ethers";
+import { OldVester } from "../typechain-types/contracts/token-contracts";
 
 type UserInfo = {
   withdrawn: BigNumber,
@@ -21,7 +22,7 @@ async function main() {
   const buyersInfo: UserInfo[] = [];
   let privateSoldDarwin = BigNumber.from(0);
   const MOVE_FROM_BSC = false;
-  const darwinVester7Factory = DarwinVester7__factory.prototype;
+  const darwinVester7Factory = await ethers.getContractFactory("DarwinVester7");
   const privateSaleBuyers = BSC_ADDRESSES.privateSaleBuyers;
 
   const [owner] = await hardhat.ethers.getSigners();
@@ -44,9 +45,10 @@ async function main() {
     console.log(`⛓️ Chain: BSC`);
 
     // DECLARE BSC FACTORIES
-    const darwinPrivateSaleFactory = DarwinPrivateSale__factory.prototype;
+    const darwinPrivateSaleFactory = await ethers.getContractFactory("DarwinPrivateSale");
+    const oldVesterFactory = await ethers.getContractFactory("OldVester");
     const privateBSC = darwinPrivateSaleFactory.attach(BSC_ADDRESSES.privateSales[0]) as DarwinPrivateSale;
-    const vesterBSC = darwinVester7Factory.attach(BSC_ADDRESSES.vester) as DarwinVester7;
+    const vesterBSC = oldVesterFactory.attach(BSC_ADDRESSES.vester) as OldVester;
     privateSoldDarwin = (await privateBSC.status()).soldAmount;
 
     for (let i = 0; i < privateSaleBuyers.length; i++) {
@@ -83,15 +85,15 @@ async function main() {
 
 
   // DECLARE ARBITRUM FACTORIES
-  const darwinVester5Factory = DarwinVester5__factory.prototype;
-  const darwinCommunityFactory = DarwinCommunity__factory.prototype;
-  const darwinFactory = Darwin__factory.prototype;
-  const stakedDarwinFactory = StakedDarwin__factory.prototype;
-  const darwinBurnerFactory = DarwinBurner__factory.prototype;
-  const stakingFactory = DarwinStaking__factory.prototype;
+  const darwinVester5Factory = await ethers.getContractFactory("DarwinVester5");
+  const darwinCommunityFactory = await ethers.getContractFactory("DarwinCommunity");
+  const darwinFactory = await ethers.getContractFactory("Darwin");
+  const stakedDarwinFactory = await ethers.getContractFactory("StakedDarwin");
+  const darwinBurnerFactory = await ethers.getContractFactory("DarwinBurner");
+  const stakingFactory = await ethers.getContractFactory("DarwinStaking");
   const evoturesFactory = await ethers.getContractFactory("EvoturesNFT");
-  const ticketFactory = LootboxTicket__factory.prototype;
-  const multiplierFactory = MultiplierNFT__factory.prototype;
+  const ticketFactory = await ethers.getContractFactory("LootboxTicket");
+  const multiplierFactory = await ethers.getContractFactory("MultiplierNFT");
 
 
   //! [DEPLOY] EVOTURES

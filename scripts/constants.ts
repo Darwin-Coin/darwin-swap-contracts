@@ -23,9 +23,7 @@ export const BSC_ADDRESSES = {
     charity: "0xf74Fb0505f868961f8da7e423d5c8A1CC5c2C162",
     giveaway: "0x33149c1CB70262E29bF7adde4aA79F41a2fd0c39",
     bounties: "0xD8F251F13eaf05C7D080F917560eB884FEd4227b",
-    privateSaleBuyers: [
-        ""
-    ]
+    privateSaleBuyers: []
 }
 
 export const TESTNET_ADDRESSES = {
