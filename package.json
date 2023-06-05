@@ -1,7 +1,6 @@
 {
   "name": "hardhat-project",
   "scripts": {
-    "update": "git submodule update --remote --merge",
     "test": "npx hardhat test",
     "check": "npx hardhat check",
     "clean": "npx hardhat clean",
@@ -11,6 +10,7 @@
     "xdeploy": "npx hardhat xdeploy",
     "deploy": "npx hardhat run ./scripts/deploy.ts --network",
     "deploycore": "npx hardhat run ./scripts/deploy-only-core.ts --network",
+    "update": "git submodule update --remote --merge && npx rimraf ./contracts/token-contracts && cd ./contracts && ln -s ../darwin-token-contracts/contracts token-contracts && cd ..",
     "refresh": "git submodule deinit -f ./darwin-token-contracts && npx rimraf .git/modules/darwin-token-contracts && git rm -rf ./darwin-token-contracts && git submodule add https://github.com/Darwin-Coin/darwin-token-contracts && git submodule update --remote --merge"
   },
   "husky": {
@@ -66,6 +66,8 @@
     "xdeployer": "^1.1.16"
   },
   "dependencies": {
+    "@uniswap/v2-core": "^1.0.1",
+    "@uniswap/v2-periphery": "^1.1.0-beta.0",
     "copyfiles": "^2.4.1",
     "hardhat-change-network": "^0.0.7"
   }

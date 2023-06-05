@@ -11,3 +11,4 @@ yarn.lock
 cache
 artifacts
 remappings.txt
+contracts/token-contracts
