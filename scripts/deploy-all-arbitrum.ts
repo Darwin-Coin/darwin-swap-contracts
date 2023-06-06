@@ -82,6 +82,7 @@ async function main() {
 
 
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
 
   // DECLARE ARBITRUM FACTORIES
@@ -109,6 +110,7 @@ async function main() {
     });
   }
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
   //! [DEPLOY] MULTIPLIER
   const multiplier = await multiplierFactory.deploy() as MultiplierNFT;
@@ -123,6 +125,7 @@ async function main() {
     });
   }
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
   //! [ATTACH] TICKET
   const ticket = ticketFactory.attach(await multiplier.ticketsContract()) as LootboxTicket;
@@ -137,7 +140,6 @@ async function main() {
     });
   }
 
-
   //! [DEPLOY] VESTER5
   const vester5 = await darwinVester5Factory.deploy(addr.kieran) as DarwinVester5;
   await vester5.deployed();
@@ -151,6 +153,7 @@ async function main() {
     });
   }
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
   //! [DEPLOY] VESTER7
   const vester7 = await darwinVester7Factory.deploy(privateSaleBuyers, buyersInfo, [evotures.address, multiplier.address]) as DarwinVester7;
@@ -165,6 +168,7 @@ async function main() {
     });
   }
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
   //! [DEPLOY] COMMUNITY
   const community = await darwinCommunityFactory.deploy(addr.kieran) as DarwinCommunity;
@@ -179,6 +183,7 @@ async function main() {
     });
   }
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
   //! [DEPLOY] DARWIN PROTOCOL
   const darwin = await upgrades.deployProxy(
@@ -201,6 +206,8 @@ async function main() {
   ) as Darwin;
   await darwin.deployed();
   console.log(`🔨 Deployed Darwin Protocol at: ${darwin.address}`);
+
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
   //! [ATTACH] STAKED DARWIN
   const stakedDarwin = stakedDarwinFactory.attach(await darwin.stakedDarwin()) as StakedDarwin;
@@ -237,10 +244,14 @@ async function main() {
     });
   }
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
+
   //* [INIT] DARWIN WITH STAKING
   const setStaking = await darwin.setDarwinStaking(staking.address);
   await setStaking.wait();
   console.log(`🏁 Staking address set for Darwin and Staked Darwin`);
+
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
 
   //! [DEPLOY] DARWIN BURNER
@@ -255,6 +266,8 @@ async function main() {
       constructorArguments: [darwin.address]
     });
   }
+
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
 
 
@@ -309,21 +322,35 @@ async function main() {
   }
   console.log(`🏁 Private-Sale Buyers fulfilled (25%)`);
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
+
   //* [INIT] MULTIPLIER
-  await multiplier.init(darwin.address);
+  const mulInit = await multiplier.init(darwin.address);
+  await mulInit.wait();
   console.log(`🏁 Multiplier initialized`);
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
+
   //* [INIT] VESTER5
-  await vester5.init(darwin.address);
+  const ve5Init = await vester5.init(darwin.address);
+  await ve5Init.wait();
   console.log(`🏁 Private-Sale initialized`);
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
+
   //* [INIT] VESTER7
-  await vester7.init(darwin.address);
+  const ve7Init = await vester7.init(darwin.address);
+  await ve7Init.wait();
   console.log(`🏁 Presale initialized`);
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
+
   //* [INIT] COMMUNITY
-  await community.init(darwin.address, fundAddress, initialFundProposalStrings, restrictedProposalSignatures);
+  const comInit = await community.init(darwin.address, fundAddress, initialFundProposalStrings, restrictedProposalSignatures);
+  await comInit.wait();
   console.log(`🏁 Community initialized`);
+
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
   console.log("✅ DARWIN PROTOCOL ARBITRUM LAUNCH COMPLETED");
 
@@ -361,10 +388,14 @@ async function main() {
     });
   }
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
+
   //* [INIT] DARWIN WITH MASTERCHEF
   const setMasterChef = await darwin.setMasterChef(masterChef.address);
   await setMasterChef.wait();
   console.log(`🏁 MasterChef address set for Darwin`);
+
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
   //! [ATTACH] LOCKER
   const locker = lockerFactory.attach(await masterChef.locker()) as TokenLocker;
@@ -396,6 +427,8 @@ async function main() {
     });
   }
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
+
   // DECLARE FACTORIES 2
   const darwinRouterFactory = await ethers.getContractFactory("DarwinSwapRouter", {libraries: {Tokenomics2Library: library.address}});
   const darwinFactoryFactory = await ethers.getContractFactory("DarwinSwapFactory", {libraries: {Tokenomics2Library: library.address}});
@@ -414,6 +447,8 @@ async function main() {
     });
   }
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
+
   //! [DEPLOY] FACTORY
   const factory = await darwinFactoryFactory.deploy(lister.address, masterChef.address, addr.busd) as DarwinSwapFactory;
   await factory.deployed();
@@ -427,15 +462,21 @@ async function main() {
     });
   }
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
+
   //* [INIT] DARWIN WITH FACTORY
   const dSetFactory = await darwin.setDarwinSwapFactory(factory.address);
   await dSetFactory.wait();
   console.log(`🏁 Factory address set for Darwin`);
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
+
   //* [INIT] LISTER
   const setFactory = await lister.setFactory(factory.address);
   await setFactory.wait()
   console.log("🏁 Lister initialized");
+
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
   //! [ATTACH] BUNDLES
   const bundles = bundlesFactory.attach(await factory.liquidityBundles()) as DarwinLiquidityBundles;
@@ -463,12 +504,16 @@ async function main() {
     });
   }
 
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
+
   //* [INIT] FACTORY
   const setRouter = await factory.setRouter(router.address);
   await setRouter.wait();
   const setFeeTo = await factory.setFeeTo(addr.feeTo);
   await setFeeTo.wait();
   console.log("🏁 Factory initialized");
+
+  console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
   console.log("✅ SWAP CONTRACTS DEPLOYMENT COMPLETED");
 }

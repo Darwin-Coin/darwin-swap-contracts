@@ -42,7 +42,7 @@ const config: HardhatUserConfig = {
             accounts: [String(process.env.TESTNET_PRIVATEKEY)]
         },
         arbitrumGoerli: {
-            url: "https://endpoints.omniatech.io/v1/arbitrum/goerli/public",
+            url: "https://arbitrum-goerli.public.blastapi.io",
             chainId: 421613,
             accounts: [String(process.env.TESTNET_PRIVATEKEY)]
         },

@@ -43,11 +43,11 @@ export const TESTNET_ADDRESSES = {
         ""
     ],
     rewardsWallet: "0x3Cc90773ebB2714180b424815f390D937974109B",
-    wallet1: "",
+    wallet1: "0x5Baa5b0eCB4d81DEbb15be26cc967E01a4c6b3e0",
     kieran: "0xe4e672ED86b8f6782e889F125e977bcF54018232",
-    charity: "",
-    giveaway: "",
-    bounties: "",
+    charity: "0x4066a812D1940CeB6bcB6749acd7Abe0Ca20DF42",
+    giveaway: "0x552F0100ae3A78ADd3D0f47F7590815b9538F4ef",
+    bounties: "0x16c0EE2590d29E61De097515522dD672f6342FE3",
 };
 
 export const ARB_ADDRESSES = {
