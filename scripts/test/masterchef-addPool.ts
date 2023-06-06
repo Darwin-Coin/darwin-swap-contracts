@@ -15,8 +15,8 @@ async function main() {
   await library.deployed();
   console.log(`🔨 Attached Tokenomics 2.0 Library at: ${library.address}`);
 
-  const MASTERCHEF = "0x4D321674984d59B19ED61B58A9432906DA44AF96";
-  const FACTORY = "0x293E2549d06a1bFf28373e1861a59612189D941F";
+  const MASTERCHEF = "0x295d22413730Ed9b2db24E9Cc95b0996ACb4c5FA";
+  const FACTORY = "0xC1757d71A0B0b85047B7539f24C312F557dE3862";
 
   // DECLARE FACTORIES 1
   const masterChefFactory = await ethers.getContractFactory("DarwinMasterChef");
