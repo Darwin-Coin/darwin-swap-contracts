@@ -6,6 +6,7 @@ import { Darwin, DarwinPrivateSale, DarwinVester5, DarwinVester7, MultiplierNFT,
 import { addr, BSC_ADDRESSES, MASTERCHEF_START, VERIFY, ZERO_ADDRESS } from "./constants";
 import { BigNumber } from "ethers";
 import { OldVester } from "../typechain-types/contracts/token-contracts";
+import { BoosterNFT, IBoosterNFT } from "../darwin-token-contracts/typechain-types/contracts/BoosterNFT";
 
 type UserInfo = {
   withdrawn: BigNumber,
@@ -92,13 +93,51 @@ async function main() {
   const stakedDarwinFactory = await ethers.getContractFactory("StakedDarwin");
   const darwinBurnerFactory = await ethers.getContractFactory("DarwinBurner");
   const stakingFactory = await ethers.getContractFactory("DarwinStaking");
+  const boosterFactory = await ethers.getContractFactory("BoosterNFT");
   const evoturesFactory = await ethers.getContractFactory("EvoturesNFT");
   const ticketFactory = await ethers.getContractFactory("LootboxTicket");
   const multiplierFactory = await ethers.getContractFactory("MultiplierNFT");
 
+  const unminted: number[] = [];
+  const boosterUnminted: IBoosterNFT.KindStruct[] = [];
+  for (let i = 1; i < 361; i++) {
+    if (i < 121) {
+        unminted.push(i);
+    } else if (i < 241) {
+        unminted.push(i+880);
+    } else if (i != 301 && i != 360) {
+        unminted.push(i+1760);
+    }
+  }
+  for (let i = 3; i < 51; i++) {
+    if (i < 6) {
+      boosterUnminted.push({unminted: 10, no: i});
+    } else if (i < 10) {
+      boosterUnminted.push({unminted: 18, no: i});
+    } else if (i < 15) {
+      boosterUnminted.push({unminted: 30, no: i});
+    } else if (i < 21) {
+      boosterUnminted.push({unminted: 33, no: i});
+    } else {
+      boosterUnminted.push({unminted: 45, no: i});
+    }
+  }
+
+  //! [DEPLOY] BOOSTERS
+  const boosters = await boosterFactory.deploy(boosterUnminted) as BoosterNFT;
+  await boosters.deployed();
+  console.log(`🔨 Deployed Booster NFT at: ${boosters.address}`);
+
+  if (VERIFY) {
+    //? [VERIFY] BOOSTERS
+    await hardhat.run("verify:verify", {
+      address: boosters.address,
+      constructorArguments: [boosterUnminted]
+    });
+  }
 
   //! [DEPLOY] EVOTURES
-  const evotures = await evoturesFactory.deploy() as EvoturesNFT;
+  const evotures = await evoturesFactory.deploy(unminted, boosters.address) as EvoturesNFT;
   await evotures.deployed();
   console.log(`🔨 Deployed Evotures NFT at: ${evotures.address}`);
 
@@ -106,7 +145,7 @@ async function main() {
   if (VERIFY) {
     await hardhat.run("verify:verify", {
       address: evotures.address,
-      constructorArguments: []
+      constructorArguments: [unminted, boosters.address]
     });
   }
 

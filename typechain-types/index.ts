@@ -106,6 +106,8 @@ export type { DarwinMasterChef } from "./contracts/MasterChef.sol/DarwinMasterCh
 export { DarwinMasterChef__factory } from "./factories/contracts/MasterChef.sol/DarwinMasterChef__factory";
 export type { TestERC20 } from "./contracts/test/TestERC20";
 export { TestERC20__factory } from "./factories/contracts/test/TestERC20__factory";
+export type { BoosterNFT } from "./contracts/token-contracts/BoosterNFT";
+export { BoosterNFT__factory } from "./factories/contracts/token-contracts/BoosterNFT__factory";
 export type { Darwin } from "./contracts/token-contracts/Darwin";
 export { Darwin__factory } from "./factories/contracts/token-contracts/Darwin__factory";
 export type { DarwinBurner } from "./contracts/token-contracts/DarwinBurner.sol/DarwinBurner";
@@ -126,6 +128,8 @@ export type { DarwinVester7 } from "./contracts/token-contracts/DarwinVester7";
 export { DarwinVester7__factory } from "./factories/contracts/token-contracts/DarwinVester7__factory";
 export type { EvoturesNFT } from "./contracts/token-contracts/EvoturesNFT";
 export { EvoturesNFT__factory } from "./factories/contracts/token-contracts/EvoturesNFT__factory";
+export type { IBoosterNFT } from "./contracts/token-contracts/interface/IBoosterNFT";
+export { IBoosterNFT__factory } from "./factories/contracts/token-contracts/interface/IBoosterNFT__factory";
 export type { IDarwinCommunity } from "./contracts/token-contracts/interface/IDarwinCommunity";
 export { IDarwinCommunity__factory } from "./factories/contracts/token-contracts/interface/IDarwinCommunity__factory";
 export type { IDarwinPresale } from "./contracts/token-contracts/interface/IDarwinPresale";
@@ -134,6 +138,8 @@ export type { IDarwinStaking } from "./contracts/token-contracts/interface/IDarw
 export { IDarwinStaking__factory } from "./factories/contracts/token-contracts/interface/IDarwinStaking__factory";
 export type { IDarwinVester } from "./contracts/token-contracts/interface/IDarwinVester";
 export { IDarwinVester__factory } from "./factories/contracts/token-contracts/interface/IDarwinVester__factory";
+export type { IEvoturesNFT } from "./contracts/token-contracts/interface/IEvoturesNFT";
+export { IEvoturesNFT__factory } from "./factories/contracts/token-contracts/interface/IEvoturesNFT__factory";
 export type { ILootboxTicket } from "./contracts/token-contracts/interface/ILootboxTicket";
 export { ILootboxTicket__factory } from "./factories/contracts/token-contracts/interface/ILootboxTicket__factory";
 export type { IMultiplierNFT } from "./contracts/token-contracts/interface/IMultiplierNFT";
