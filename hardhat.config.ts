@@ -46,6 +46,16 @@ const config: HardhatUserConfig = {
             chainId: 421613,
             accounts: [String(process.env.TESTNET_PRIVATEKEY)]
         },
+        bitgert: {
+            url: "https://rpc.icecreamswap.com",
+            chainId: 32520,
+            accounts: [String(process.env.MAINNET_PRIVATEKEY)]
+        },
+        bitgertTestnet: {
+            url: "https://testnet-rpc.brisescan.com",
+            chainId: 64668,
+            accounts: [String(process.env.MAINNET_PRIVATEKEY)]
+        },
 
         hardhat: {
             loggingEnabled: false,
