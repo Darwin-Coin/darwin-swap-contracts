@@ -8,6 +8,7 @@ import type {
   BytesLike,
   CallOverrides,
   ContractTransaction,
+  Overrides,
   PayableOverrides,
   PopulatedTransaction,
   Signer,
@@ -26,18 +27,33 @@ import type {
 export interface IEvoturesNFTInterface extends utils.Interface {
   functions: {
     "BOOSTER_PRICE()": FunctionFragment;
+    "chainlinkMint(uint256[],uint8,uint8,address)": FunctionFragment;
     "dev()": FunctionFragment;
     "mint(uint8,uint8)": FunctionFragment;
     "multipliers(uint16)": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "BOOSTER_PRICE" | "dev" | "mint" | "multipliers"
+    nameOrSignatureOrTopic:
+      | "BOOSTER_PRICE"
+      | "chainlinkMint"
+      | "dev"
+      | "mint"
+      | "multipliers"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "BOOSTER_PRICE",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "chainlinkMint",
+    values: [
+      PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(functionFragment: "dev", values?: undefined): string;
   encodeFunctionData(
@@ -51,6 +67,10 @@ export interface IEvoturesNFTInterface extends utils.Interface {
 
   decodeFunctionResult(
     functionFragment: "BOOSTER_PRICE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "chainlinkMint",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "dev", data: BytesLike): Result;
@@ -92,6 +112,14 @@ export interface IEvoturesNFT extends BaseContract {
   functions: {
     BOOSTER_PRICE(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    chainlinkMint(
+      _randomWords: PromiseOrValue<BigNumberish>[],
+      _evotures: PromiseOrValue<BigNumberish>,
+      boosters_: PromiseOrValue<BigNumberish>,
+      _minter: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     dev(overrides?: CallOverrides): Promise<[string]>;
 
     mint(
@@ -108,6 +136,14 @@ export interface IEvoturesNFT extends BaseContract {
 
   BOOSTER_PRICE(overrides?: CallOverrides): Promise<BigNumber>;
 
+  chainlinkMint(
+    _randomWords: PromiseOrValue<BigNumberish>[],
+    _evotures: PromiseOrValue<BigNumberish>,
+    boosters_: PromiseOrValue<BigNumberish>,
+    _minter: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   dev(overrides?: CallOverrides): Promise<string>;
 
   mint(
@@ -123,6 +159,14 @@ export interface IEvoturesNFT extends BaseContract {
 
   callStatic: {
     BOOSTER_PRICE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    chainlinkMint(
+      _randomWords: PromiseOrValue<BigNumberish>[],
+      _evotures: PromiseOrValue<BigNumberish>,
+      boosters_: PromiseOrValue<BigNumberish>,
+      _minter: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     dev(overrides?: CallOverrides): Promise<string>;
 
@@ -143,6 +187,14 @@ export interface IEvoturesNFT extends BaseContract {
   estimateGas: {
     BOOSTER_PRICE(overrides?: CallOverrides): Promise<BigNumber>;
 
+    chainlinkMint(
+      _randomWords: PromiseOrValue<BigNumberish>[],
+      _evotures: PromiseOrValue<BigNumberish>,
+      boosters_: PromiseOrValue<BigNumberish>,
+      _minter: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     dev(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
@@ -159,6 +211,14 @@ export interface IEvoturesNFT extends BaseContract {
 
   populateTransaction: {
     BOOSTER_PRICE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    chainlinkMint(
+      _randomWords: PromiseOrValue<BigNumberish>[],
+      _evotures: PromiseOrValue<BigNumberish>,
+      boosters_: PromiseOrValue<BigNumberish>,
+      _minter: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     dev(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
