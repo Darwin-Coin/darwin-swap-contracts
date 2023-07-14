@@ -45,16 +45,16 @@ async function main() {
   const [owner] = await hardhat.ethers.getSigners();
   console.log(`💻 Deployer: ${owner.address}`);
 
-  const HOW_MANY = 10;
-  const WETH = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd"
-  const LISTER = "0xAEdcD0B581DcAA6F2d5BC0a53ce6548751d8d0E2";
-  const TO = "0x6d2E09bECCeED18FBd21F22d0A9D7967BCe208ef";
+  const HOW_MANY = 5;
+  const WETH = "0xB25406f5135eB6274c648B9B69A9218284904cFb"
+  const LISTER = "0xBcB50160947767852493491062AbA4b3a716f0c9";
+  const TO = "0x63a0704e005776B153248A500Dfd950873AFB186";
 
   // DECLARE LIBRARY FACTORY
   const tokenomics2LibFactory = await ethers.getContractFactory("Tokenomics2Library");
 
   //! [ATTACH] TOKENOMICS2
-  const library = tokenomics2LibFactory.attach(addr.tokenomics2Library) as Tokenomics2Library;
+  const library = tokenomics2LibFactory.attach("0xE13B894f0b079c2F0B071AEaD77926E26108C1F8") as Tokenomics2Library;
   await library.deployed();
   console.log(`🔨 Attached Tokenomics 2.0 Library at: ${library.address}`);
 

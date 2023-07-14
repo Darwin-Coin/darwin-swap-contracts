@@ -8,7 +8,7 @@ async function main() {
 
   // DECLARE DARWIN FACTORY
   const darwinFactory = await ethers.getContractFactory("Darwin");
-  const DARWIN = "0x616D9d4a8191f147b354A59558b6aa529498F1BA";
+  const DARWIN = "0xB25406f5135eB6274c648B9B69A9218284904cFb";
 
   //! [ATTACH] DARWIN
   const darwin = darwinFactory.attach(DARWIN) as Darwin;

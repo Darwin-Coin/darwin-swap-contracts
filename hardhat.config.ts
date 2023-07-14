@@ -56,6 +56,16 @@ const config: HardhatUserConfig = {
             chainId: 64668,
             accounts: [String(process.env.MAINNET_PRIVATEKEY)]
         },
+        tritonNautilus: {
+            url: "https://triton.api.nautchain.xyz",
+            chainId: 91002,
+            accounts: [String(process.env.TESTNET_PRIVATEKEY)]
+        },
+        proteusNautilus: {
+            url: "https://api.proteus.nautchain.xyz/solana",
+            chainId: 88002,
+            accounts: [String(process.env.MAINNET_PRIVATEKEY)]
+        },
 
         hardhat: {
             loggingEnabled: false,
