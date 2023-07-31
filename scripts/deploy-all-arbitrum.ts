@@ -373,51 +373,6 @@ async function main() {
   console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
 
-
-
-  //! [CONST] FUND ADDRESSES
-  const fundAddress: string[] = [
-    addr.wallet1,
-    addr.wallet1,
-    addr.wallet1,
-    addr.charity,
-    addr.giveaway,
-    addr.giveaway,
-    addr.bounties,
-    burner.address,
-    addr.rewardsWallet,
-    community.address
-  ];
-
-  //! [CONST] FUND PROPOSALS
-  const initialFundProposalStrings: string[] = [
-    "Marketing",
-    "Product development",
-    "Operations",
-    "Charity",
-    "Egg hunt",
-    "Giveaways",
-    "Bounties",
-    "Burn",
-    "Reflections",
-    "Save to Next Week"
-  ];
-
-  //! [CONST] RESTRICTED SIGNATURES
-  const restrictedProposalSignatures: string[] = [
-    "upgradeTo(address)",
-    "upgradeToAndCall(address,bytes)",
-    "setMinter(address,bool)",
-    "setMaintenance(address,bool)",
-    "setSecurity(address,bool)",
-    "setUpgrader(address,bool)",
-    "setReceiveRewards(address,bool)",
-    "communityPause()"
-  ];
-
-
-
-
   //* [SEND] 25% TO BSC PRIVATESALE BUYERS (ON ARBITRUM)
   for (let i = 0; i < privateSaleBuyers.length; i++) {
     const tx = await darwin.transfer(privateSaleBuyers[i], buyersInfo[i].vested.div(3));
@@ -445,13 +400,6 @@ async function main() {
   const ve7Init = await vester7.init(darwin.address);
   await ve7Init.wait();
   console.log(`🏁 Presale initialized`);
-
-  console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
-
-  //* [INIT] COMMUNITY
-  const comInit = await community.init(darwin.address, fundAddress, initialFundProposalStrings, restrictedProposalSignatures);
-  await comInit.wait();
-  console.log(`🏁 Community initialized`);
 
   console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
@@ -608,6 +556,59 @@ async function main() {
   }
 
   console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
+
+  //! [CONST] FUND ADDRESSES
+  const fundAddress: string[] = [
+    addr.wallet1,
+    addr.wallet1,
+    addr.wallet1,
+    addr.charity,
+    addr.giveaway,
+    addr.giveaway,
+    addr.bounties,
+    burner.address,
+    addr.rewardsWallet,
+    community.address,
+    bundles.address,
+    ticket.address,
+    addr.treasury
+  ];
+
+  //! [CONST] FUND PROPOSALS
+  const initialFundProposalStrings: string[] = [
+    "Marketing",
+    "Product development",
+    "Operations",
+    "Charity",
+    "Egg hunt",
+    "Giveaways",
+    "Bounties",
+    "Burn",
+    "Reflections",
+    "Save to Next Week",
+    "Liquidity Bundles",
+    "Loot Box",
+    "Treasury"
+  ];
+
+  //! [CONST] RESTRICTED SIGNATURES
+  const restrictedProposalSignatures: string[] = [
+    "upgradeTo(address)",
+    "upgradeToAndCall(address,bytes)",
+    "setMinter(address,bool)",
+    "setMaintenance(address,bool)",
+    "setSecurity(address,bool)",
+    "setUpgrader(address,bool)",
+    "setReceiveRewards(address,bool)",
+    "communityPause()"
+  ];
+
+  //* [INIT] COMMUNITY
+  const comInit = await community.init(darwin.address, fundAddress, initialFundProposalStrings, restrictedProposalSignatures);
+  await comInit.wait();
+  console.log(`🏁 Community initialized`);
+
+  console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
   //* [INIT] FACTORY
   const setRouter = await factory.setRouter(router.address);
