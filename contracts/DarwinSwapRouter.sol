@@ -22,6 +22,7 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
     constructor(address _factory, address _WETH) {
         factory = _factory;
         WETH = _WETH;
+        IERC20(WETH).approve(address(this), type(uint).max);
     }
 
     receive() external payable {
@@ -287,9 +288,6 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         require(path[0] == WETH, "DarwinSwapRouter: INVALID_PATH");
         uint amountIn = msg.value;
         IWETH(WETH).deposit{value: amountIn}();
-        if (IERC20(WETH).allowance(address(this), address(this)) < amountIn) {
-            IERC20(WETH).approve(address(this), amountIn);
-        }
         uint balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
         _swapSupportingFeeOnTransferTokens(amountIn, path, to);
         require(

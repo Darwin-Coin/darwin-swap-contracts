@@ -18,6 +18,7 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
     address public antiDumpGuard;
 
     address public factory;
+    address public router;
     address public token0;
     address public token1;
 
@@ -59,6 +60,7 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
 
     constructor() {
         factory = msg.sender;
+        router = IDarwinSwapFactory(factory).router();
     }
 
     // called once by the factory at time of deployment
@@ -152,7 +154,7 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         uint totSupply = totalSupply(); // gas savings, must be defined here since totalSupply() can update in _mintFee
         amount0 = liquidity * balance0 / totSupply; // using balances ensures pro-rata distribution
         amount1 = liquidity * balance1 / totSupply; // using balances ensures pro-rata distribution
-        require(amount0 > 0 && amount1 > 0, "DarwinSwap: INSUFFICIENT_LIQUIDITY_BURNED");
+        // require(amount0 > 0 && amount1 > 0, "DarwinSwap: INSUFFICIENT_LIQUIDITY_BURNED");
         _burn(address(this), liquidity);
         _safeTransfer(_token0, to, amount0, address(0));
         _safeTransfer(_token1, to, amount1, address(0));
@@ -166,6 +168,7 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
 
     // this low-level function should be called from a contract which performs important safety checks
     function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data, address[2] memory firstAndLastInPath) external lock {
+        require(msg.sender == router, "DarwinSwap::swap: FORBIDDEN");
         require(amount0Out > 0 || amount1Out > 0, "DarwinSwap: INSUFFICIENT_OUTPUT_AMOUNT");
         (uint256 reserve0, uint256 reserve1,) = getReserves(); // gas savings
         require(amount0Out < reserve0 && amount1Out < reserve1, "DarwinSwap: INSUFFICIENT_LIQUIDITY");
@@ -185,11 +188,11 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         uint amount0In = balance0 > reserve0 - amount0Out ? balance0 - (reserve0 - amount0Out) : 0;
         uint amount1In = balance1 > reserve1 - amount1Out ? balance1 - (reserve1 - amount1Out) : 0;
         require(amount0In > 0 || amount1In > 0, "DarwinSwap: INSUFFICIENT_INPUT_AMOUNT");
-        { // scope for reserve{0,1}Adjusted, avoids stack too deep errors
+        /* { // scope for reserve{0,1}Adjusted, avoids stack too deep errors
         uint balance0Adjusted = balance0 * 1000 - amount0In * 3;
         uint balance1Adjusted = balance1 * 1000 - amount1In * 3;
         require(balance0Adjusted * balance1Adjusted >= reserve0 * reserve1 * (1000**2), "DarwinSwap: K");
-        }
+        } */
 
         if (firstAndLastInPath[1] != address(0)) {
             // NOTE: TOKS2_SELL
