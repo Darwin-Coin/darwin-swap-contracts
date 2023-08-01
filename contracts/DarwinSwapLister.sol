@@ -21,9 +21,6 @@ contract DarwinSwapLister is IDarwinSwapLister {
     mapping(address => bool) public isValidator;
     mapping(address => bool) public isUserBannedFromListing;
 
-    // Frontend purposes
-    address[] private _validTokens;
-
     constructor() {
         dev = msg.sender;
         isValidator[msg.sender] = true;
@@ -73,23 +70,6 @@ contract DarwinSwapLister is IDarwinSwapLister {
         listingInfo.addedToks = Tokenomics2Library.adjustTokenomics(listingInfo.addedToks);
 
         _tokenInfo[tokenAddress] = listingInfo;
-
-        bool found;
-        for (uint i = 0; i < _validTokens.length; i++) {
-            if (_validTokens[i] == tokenAddress) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            _validTokens.push(tokenAddress);
-        }
-
-        // Below is done cause bundles contracts fetch validTokens to show bundles, and it needs the tokens to be paired with ETH
-        address WETH = IDarwinSwapRouter(IDarwinSwapFactory(factory).router()).WETH();
-        if (tokenAddress != WETH && IDarwinSwapFactory(factory).getPair(tokenAddress, WETH) == address(0)) {
-            IDarwinSwapFactory(factory).createPair(tokenAddress, WETH);
-        }
 
         emit TokenListed(tokenAddress, listingInfo);
     }
@@ -149,13 +129,6 @@ contract DarwinSwapLister is IDarwinSwapLister {
         if (_ban) {
             _tokenInfo[_token].status = TokenStatus.BANNED;
             _tokenInfo[_token].valid = false;
-            for (uint i = 0; i < _validTokens.length; i++) {
-                if (_validTokens[i] == _token) {
-                    _validTokens[i] = _validTokens[_validTokens.length - 1];
-                    _validTokens.pop();
-                    break;
-                }
-            }
         } else {
             _tokenInfo[_token].status = TokenStatus.UNLISTED;
         }
@@ -167,16 +140,6 @@ contract DarwinSwapLister is IDarwinSwapLister {
         _tokenInfo[_token].validator = msg.sender;
         _tokenInfo[_token].valid = true;
         _tokenInfo[_token].official = true;
-        bool found;
-        for (uint i = 0; i < _validTokens.length; i++) {
-            if (_validTokens[i] == _token) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            _validTokens.push(_token);
-        }
     }
 
     function setFactory(address _factory) external onlyDev {
@@ -194,16 +157,5 @@ contract DarwinSwapLister is IDarwinSwapLister {
                 return 0x0000000000000000000000000000000000000000;
             }
         }
-    }
-
-    function validTokens() external view returns(Token[] memory) {
-        Token[] memory tokens = new Token[](_validTokens.length);
-        for (uint i = 0; i < _validTokens.length; i++) {
-            tokens[i].name = IERC20(_validTokens[i]).name();
-            tokens[i].symbol = IERC20(_validTokens[i]).symbol();
-            tokens[i].addr = _validTokens[i];
-            tokens[i].decimals = IERC20(_validTokens[i]).decimals();
-        }
-        return tokens;
     }
 }

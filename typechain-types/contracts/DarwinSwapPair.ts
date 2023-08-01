@@ -48,6 +48,7 @@ export interface DarwinSwapPairInterface extends utils.Interface {
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
     "price0CumulativeLast()": FunctionFragment;
     "price1CumulativeLast()": FunctionFragment;
+    "router()": FunctionFragment;
     "skim(address)": FunctionFragment;
     "swap(uint256,uint256,address,bytes,address[2])": FunctionFragment;
     "swapWithoutToks(address,uint256)": FunctionFragment;
@@ -81,6 +82,7 @@ export interface DarwinSwapPairInterface extends utils.Interface {
       | "permit"
       | "price0CumulativeLast"
       | "price1CumulativeLast"
+      | "router"
       | "skim"
       | "swap"
       | "swapWithoutToks"
@@ -169,6 +171,7 @@ export interface DarwinSwapPairInterface extends utils.Interface {
     functionFragment: "price1CumulativeLast",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "router", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "skim",
     values: [PromiseOrValue<string>]
@@ -248,6 +251,7 @@ export interface DarwinSwapPairInterface extends utils.Interface {
     functionFragment: "price1CumulativeLast",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "router", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "skim", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "swap", data: BytesLike): Result;
   decodeFunctionResult(
@@ -464,6 +468,8 @@ export interface DarwinSwapPair extends BaseContract {
 
     price1CumulativeLast(overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    router(overrides?: CallOverrides): Promise<[string]>;
+
     skim(
       to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -589,6 +595,8 @@ export interface DarwinSwapPair extends BaseContract {
   price0CumulativeLast(overrides?: CallOverrides): Promise<BigNumber>;
 
   price1CumulativeLast(overrides?: CallOverrides): Promise<BigNumber>;
+
+  router(overrides?: CallOverrides): Promise<string>;
 
   skim(
     to: PromiseOrValue<string>,
@@ -717,6 +725,8 @@ export interface DarwinSwapPair extends BaseContract {
     price0CumulativeLast(overrides?: CallOverrides): Promise<BigNumber>;
 
     price1CumulativeLast(overrides?: CallOverrides): Promise<BigNumber>;
+
+    router(overrides?: CallOverrides): Promise<string>;
 
     skim(to: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
 
@@ -900,6 +910,8 @@ export interface DarwinSwapPair extends BaseContract {
 
     price1CumulativeLast(overrides?: CallOverrides): Promise<BigNumber>;
 
+    router(overrides?: CallOverrides): Promise<BigNumber>;
+
     skim(
       to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1022,6 +1034,8 @@ export interface DarwinSwapPair extends BaseContract {
     price1CumulativeLast(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    router(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     skim(
       to: PromiseOrValue<string>,

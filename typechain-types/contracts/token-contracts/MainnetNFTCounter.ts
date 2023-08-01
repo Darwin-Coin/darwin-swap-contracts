@@ -22,24 +22,26 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "../../../common";
+} from "../../common";
 
-export interface IEvoturesNFTInterface extends utils.Interface {
+export interface MainnetNFTCounterInterface extends utils.Interface {
   functions: {
     "BOOSTER_PRICE()": FunctionFragment;
-    "chainlinkMint(uint256[],uint8,uint8,address)": FunctionFragment;
+    "EVOTURES_PRICE()": FunctionFragment;
+    "buy(uint8,uint8)": FunctionFragment;
     "dev()": FunctionFragment;
-    "mint(uint8,uint8,address)": FunctionFragment;
-    "multipliers(uint16)": FunctionFragment;
+    "userInfo(address)": FunctionFragment;
+    "withdrawETH()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "BOOSTER_PRICE"
-      | "chainlinkMint"
+      | "EVOTURES_PRICE"
+      | "buy"
       | "dev"
-      | "mint"
-      | "multipliers"
+      | "userInfo"
+      | "withdrawETH"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -47,26 +49,21 @@ export interface IEvoturesNFTInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "chainlinkMint",
-    values: [
-      PromiseOrValue<BigNumberish>[],
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
+    functionFragment: "EVOTURES_PRICE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "buy",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "dev", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "mint",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
+    functionFragment: "userInfo",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "multipliers",
-    values: [PromiseOrValue<BigNumberish>]
+    functionFragment: "withdrawETH",
+    values?: undefined
   ): string;
 
   decodeFunctionResult(
@@ -74,25 +71,26 @@ export interface IEvoturesNFTInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "chainlinkMint",
+    functionFragment: "EVOTURES_PRICE",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "buy", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "dev", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "userInfo", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "multipliers",
+    functionFragment: "withdrawETH",
     data: BytesLike
   ): Result;
 
   events: {};
 }
 
-export interface IEvoturesNFT extends BaseContract {
+export interface MainnetNFTCounter extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: IEvoturesNFTInterface;
+  interface: MainnetNFTCounterInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -116,77 +114,66 @@ export interface IEvoturesNFT extends BaseContract {
   functions: {
     BOOSTER_PRICE(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    chainlinkMint(
-      _randomWords: PromiseOrValue<BigNumberish>[],
+    EVOTURES_PRICE(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    buy(
       _evotures: PromiseOrValue<BigNumberish>,
-      boosters_: PromiseOrValue<BigNumberish>,
-      _minter: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _boosters: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     dev(overrides?: CallOverrides): Promise<[string]>;
 
-    mint(
-      _evotures: PromiseOrValue<BigNumberish>,
-      _boosters: PromiseOrValue<BigNumberish>,
-      to: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    multipliers(
-      id: PromiseOrValue<BigNumberish>,
+    userInfo(
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<[number] & { mult: number }>;
+    ): Promise<[number, number] & { boosters: number; evotures: number }>;
+
+    withdrawETH(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   BOOSTER_PRICE(overrides?: CallOverrides): Promise<BigNumber>;
 
-  chainlinkMint(
-    _randomWords: PromiseOrValue<BigNumberish>[],
+  EVOTURES_PRICE(overrides?: CallOverrides): Promise<BigNumber>;
+
+  buy(
     _evotures: PromiseOrValue<BigNumberish>,
-    boosters_: PromiseOrValue<BigNumberish>,
-    _minter: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    _boosters: PromiseOrValue<BigNumberish>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   dev(overrides?: CallOverrides): Promise<string>;
 
-  mint(
-    _evotures: PromiseOrValue<BigNumberish>,
-    _boosters: PromiseOrValue<BigNumberish>,
-    to: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  multipliers(
-    id: PromiseOrValue<BigNumberish>,
+  userInfo(
+    arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
-  ): Promise<number>;
+  ): Promise<[number, number] & { boosters: number; evotures: number }>;
+
+  withdrawETH(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   callStatic: {
     BOOSTER_PRICE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    chainlinkMint(
-      _randomWords: PromiseOrValue<BigNumberish>[],
+    EVOTURES_PRICE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    buy(
       _evotures: PromiseOrValue<BigNumberish>,
-      boosters_: PromiseOrValue<BigNumberish>,
-      _minter: PromiseOrValue<string>,
+      _boosters: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     dev(overrides?: CallOverrides): Promise<string>;
 
-    mint(
-      _evotures: PromiseOrValue<BigNumberish>,
-      _boosters: PromiseOrValue<BigNumberish>,
-      to: PromiseOrValue<string>,
+    userInfo(
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<[number, number] & { boosters: number; evotures: number }>;
 
-    multipliers(
-      id: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<number>;
+    withdrawETH(overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {};
@@ -194,52 +181,46 @@ export interface IEvoturesNFT extends BaseContract {
   estimateGas: {
     BOOSTER_PRICE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    chainlinkMint(
-      _randomWords: PromiseOrValue<BigNumberish>[],
+    EVOTURES_PRICE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    buy(
       _evotures: PromiseOrValue<BigNumberish>,
-      boosters_: PromiseOrValue<BigNumberish>,
-      _minter: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _boosters: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     dev(overrides?: CallOverrides): Promise<BigNumber>;
 
-    mint(
-      _evotures: PromiseOrValue<BigNumberish>,
-      _boosters: PromiseOrValue<BigNumberish>,
-      to: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    userInfo(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    multipliers(
-      id: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+    withdrawETH(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     BOOSTER_PRICE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    chainlinkMint(
-      _randomWords: PromiseOrValue<BigNumberish>[],
+    EVOTURES_PRICE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    buy(
       _evotures: PromiseOrValue<BigNumberish>,
-      boosters_: PromiseOrValue<BigNumberish>,
-      _minter: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _boosters: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     dev(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    mint(
-      _evotures: PromiseOrValue<BigNumberish>,
-      _boosters: PromiseOrValue<BigNumberish>,
-      to: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    userInfo(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    multipliers(
-      id: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+    withdrawETH(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

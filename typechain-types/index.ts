@@ -152,6 +152,8 @@ export type { IStakedDarwin } from "./contracts/token-contracts/interface/IStake
 export { IStakedDarwin__factory } from "./factories/contracts/token-contracts/interface/IStakedDarwin__factory";
 export type { LootboxTicket } from "./contracts/token-contracts/LootboxTicket";
 export { LootboxTicket__factory } from "./factories/contracts/token-contracts/LootboxTicket__factory";
+export type { MainnetNFTCounter } from "./contracts/token-contracts/MainnetNFTCounter";
+export { MainnetNFTCounter__factory } from "./factories/contracts/token-contracts/MainnetNFTCounter__factory";
 export type { MultiplierNFT } from "./contracts/token-contracts/MultiplierNFT";
 export { MultiplierNFT__factory } from "./factories/contracts/token-contracts/MultiplierNFT__factory";
 export type { OldVester } from "./contracts/token-contracts/OldVester";

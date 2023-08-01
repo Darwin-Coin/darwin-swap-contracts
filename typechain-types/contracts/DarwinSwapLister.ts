@@ -120,20 +120,6 @@ export declare namespace IDarwinSwapLister {
     official: boolean;
     purpose: string;
   };
-
-  export type TokenStruct = {
-    name: PromiseOrValue<string>;
-    symbol: PromiseOrValue<string>;
-    addr: PromiseOrValue<string>;
-    decimals: PromiseOrValue<BigNumberish>;
-  };
-
-  export type TokenStructOutput = [string, string, string, BigNumber] & {
-    name: string;
-    symbol: string;
-    addr: string;
-    decimals: BigNumber;
-  };
 }
 
 export interface DarwinSwapListerInterface extends utils.Interface {
@@ -156,7 +142,6 @@ export interface DarwinSwapListerInterface extends utils.Interface {
     "setMaxTok2Tax(uint256)": FunctionFragment;
     "setValidator(address,bool)": FunctionFragment;
     "tokenInfo(address)": FunctionFragment;
-    "validTokens()": FunctionFragment;
   };
 
   getFunction(
@@ -179,7 +164,6 @@ export interface DarwinSwapListerInterface extends utils.Interface {
       | "setMaxTok2Tax"
       | "setValidator"
       | "tokenInfo"
-      | "validTokens"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -252,10 +236,6 @@ export interface DarwinSwapListerInterface extends utils.Interface {
     functionFragment: "tokenInfo",
     values: [PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "validTokens",
-    values?: undefined
-  ): string;
 
   decodeFunctionResult(functionFragment: "createPair", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "dev", data: BytesLike): Result;
@@ -299,10 +279,6 @@ export interface DarwinSwapListerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "tokenInfo", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "validTokens",
-    data: BytesLike
-  ): Result;
 
   events: {
     "TokenBanned(address,address)": EventFragment;
@@ -446,10 +422,6 @@ export interface DarwinSwapLister extends BaseContract {
       _token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[IDarwinSwapLister.TokenInfoStructOutput]>;
-
-    validTokens(
-      overrides?: CallOverrides
-    ): Promise<[IDarwinSwapLister.TokenStructOutput[]]>;
   };
 
   createPair(
@@ -537,10 +509,6 @@ export interface DarwinSwapLister extends BaseContract {
     overrides?: CallOverrides
   ): Promise<IDarwinSwapLister.TokenInfoStructOutput>;
 
-  validTokens(
-    overrides?: CallOverrides
-  ): Promise<IDarwinSwapLister.TokenStructOutput[]>;
-
   callStatic: {
     createPair(
       tokenA: PromiseOrValue<string>,
@@ -626,10 +594,6 @@ export interface DarwinSwapLister extends BaseContract {
       _token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<IDarwinSwapLister.TokenInfoStructOutput>;
-
-    validTokens(
-      overrides?: CallOverrides
-    ): Promise<IDarwinSwapLister.TokenStructOutput[]>;
   };
 
   filters: {
@@ -737,8 +701,6 @@ export interface DarwinSwapLister extends BaseContract {
       _token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    validTokens(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -826,7 +788,5 @@ export interface DarwinSwapLister extends BaseContract {
       _token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    validTokens(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }
