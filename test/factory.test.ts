@@ -82,11 +82,11 @@ describe("Test Suite", function () {
   async function deployFixture() {
     const [owner, addr1, addr2] = await hardhat.ethers.getSigners();
     const erc20Factory = await ethers.getContractFactory("TestERC20");
-    const weth = await erc20Factory.deploy("Wrapped BNB", "WBNB") as TestERC20;
-    const darwin = await erc20Factory.deploy("Darwin", "DARWIN") as TestERC20;
-    const token = await erc20Factory.deploy("Token", "TKN") as TestERC20;
-    const token1 = await erc20Factory.deploy("Token1", "TKN1") as TestERC20;
-    const busd = await erc20Factory.deploy("Binance USD", "BUSD") as TestERC20;
+    const weth = await erc20Factory.deploy("Wrapped BNB", "WBNB", owner.address) as TestERC20;
+    const darwin = await erc20Factory.deploy("Darwin", "DARWIN", owner.address) as TestERC20;
+    const token = await erc20Factory.deploy("Token", "TKN", owner.address) as TestERC20;
+    const token1 = await erc20Factory.deploy("Token1", "TKN1", owner.address) as TestERC20;
+    const busd = await erc20Factory.deploy("Binance USD", "BUSD", owner.address) as TestERC20;
     const tokenomics2LibFactory = await ethers.getContractFactory("Tokenomics2Library");
     const bundlesFactory = await ethers.getContractFactory("DarwinLiquidityBundles");
     const masterChefFactory = await ethers.getContractFactory("DarwinMasterChef");
@@ -177,15 +177,15 @@ describe("Test Suite", function () {
   describe("Router", function () {
     it("AddLiquidityETH works", async function () {
       const { erc20Factory, router, owner } = await loadFixture(deployFixture);
-      const token = await erc20Factory.deploy("Test Token 2", "TTKN2") as TestERC20;
+      const token = await erc20Factory.deploy("Test Token 2", "TTKN2", owner.address) as TestERC20;
       await token.approve(router.address, ethers.utils.parseEther("1"));
       await expect(await router.addLiquidityETH(token.address, ethers.utils.parseEther("1"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600, {value: ethers.utils.parseEther("1")})).to.not.be.reverted;
     });
 
     it("AddLiquidity works", async function () {
       const { erc20Factory, router, owner } = await loadFixture(deployFixture);
-      const token = await erc20Factory.deploy("Test Token 2", "TTKN2") as TestERC20;
-      const token2 = await erc20Factory.deploy("Test Token 2", "TTKN2") as TestERC20;
+      const token = await erc20Factory.deploy("Test Token 2", "TTKN2", owner.address) as TestERC20;
+      const token2 = await erc20Factory.deploy("Test Token 2", "TTKN2", owner.address) as TestERC20;
       await token.approve(router.address, ethers.utils.parseEther("1"));
       await token2.approve(router.address, ethers.utils.parseEther("1"));
       await expect(await router.addLiquidity(token.address, token2.address, ethers.utils.parseEther("1"), ethers.utils.parseEther("1"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600)).to.not.be.reverted;
@@ -193,7 +193,7 @@ describe("Test Suite", function () {
 
     it("SwapETHForToken works without approving anything", async function () {
       const { erc20Factory, router, owner } = await loadFixture(deployFixture);
-      const token = await erc20Factory.deploy("Test Token 2", "TTKN2") as TestERC20;
+      const token = await erc20Factory.deploy("Test Token 2", "TTKN2", owner.address) as TestERC20;
       await token.approve(router.address, ethers.utils.parseEther("1"));
       await router.addLiquidityETH(token.address, ethers.utils.parseEther("1"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600, {value: ethers.utils.parseEther("1")});
       await expect(await router.swapExactETHForTokensSupportingFeeOnTransferTokens(ethers.utils.parseEther("0.01"), [router.WETH(), token.address], owner.address, Math.floor(Date.now() / 1000) + 600, {value: ethers.utils.parseEther("1")})).to.not.be.reverted;
@@ -217,9 +217,9 @@ describe("Test Suite", function () {
 
       it("Tokenomics proposal can only be made either by the token owner or by the dev address", async function () {
         const { lister, addr1, addr2, erc20Factory } = await loadFixture(deployFixture);
-        const token1 = await erc20Factory.connect(addr1).deploy("Test Token 1", "TTKN1") as TestERC20;
+        const token1 = await erc20Factory.connect(addr1).deploy("Test Token 1", "TTKN1", addr1.address) as TestERC20;
         await expect(await lister.connect(addr1).listToken(token1.address, PROPOSAL)).to.not.be.reverted;
-        const token2 = await erc20Factory.connect(addr1).deploy("Test Token 2", "TTKN2") as TestERC20;
+        const token2 = await erc20Factory.connect(addr1).deploy("Test Token 2", "TTKN2", addr1.address) as TestERC20;
         await expect(lister.connect(addr2).listToken(token2.address, PROPOSAL)).to.be.reverted;
         await expect(await lister.listToken(token2.address, PROPOSAL)).to.not.be.reverted;
       });
