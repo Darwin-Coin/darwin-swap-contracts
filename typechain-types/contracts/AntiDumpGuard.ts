@@ -28,11 +28,10 @@ import type {
 
 export interface AntiDumpGuardInterface extends utils.Interface {
   functions: {
-    "USD()": FunctionFragment;
     "buyBackAndPair(address)": FunctionFragment;
     "dev()": FunctionFragment;
     "factory()": FunctionFragment;
-    "initialize(address)": FunctionFragment;
+    "initialize(address,address,address)": FunctionFragment;
     "lister()": FunctionFragment;
     "pair()": FunctionFragment;
     "router()": FunctionFragment;
@@ -42,7 +41,6 @@ export interface AntiDumpGuardInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "USD"
       | "buyBackAndPair"
       | "dev"
       | "factory"
@@ -54,7 +52,6 @@ export interface AntiDumpGuardInterface extends utils.Interface {
       | "token1"
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "USD", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "buyBackAndPair",
     values: [PromiseOrValue<string>]
@@ -63,7 +60,11 @@ export interface AntiDumpGuardInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "factory", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [PromiseOrValue<string>]
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(functionFragment: "lister", values?: undefined): string;
   encodeFunctionData(functionFragment: "pair", values?: undefined): string;
@@ -71,7 +72,6 @@ export interface AntiDumpGuardInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "token0", values?: undefined): string;
   encodeFunctionData(functionFragment: "token1", values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "USD", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "buyBackAndPair",
     data: BytesLike
@@ -132,8 +132,6 @@ export interface AntiDumpGuard extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    USD(overrides?: CallOverrides): Promise<[string]>;
-
     buyBackAndPair(
       _sellToken: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -145,6 +143,8 @@ export interface AntiDumpGuard extends BaseContract {
 
     initialize(
       _pair: PromiseOrValue<string>,
+      _token0: PromiseOrValue<string>,
+      _token1: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -159,8 +159,6 @@ export interface AntiDumpGuard extends BaseContract {
     token1(overrides?: CallOverrides): Promise<[string]>;
   };
 
-  USD(overrides?: CallOverrides): Promise<string>;
-
   buyBackAndPair(
     _sellToken: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -172,6 +170,8 @@ export interface AntiDumpGuard extends BaseContract {
 
   initialize(
     _pair: PromiseOrValue<string>,
+    _token0: PromiseOrValue<string>,
+    _token1: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -186,8 +186,6 @@ export interface AntiDumpGuard extends BaseContract {
   token1(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    USD(overrides?: CallOverrides): Promise<string>;
-
     buyBackAndPair(
       _sellToken: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -199,6 +197,8 @@ export interface AntiDumpGuard extends BaseContract {
 
     initialize(
       _pair: PromiseOrValue<string>,
+      _token0: PromiseOrValue<string>,
+      _token1: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -229,8 +229,6 @@ export interface AntiDumpGuard extends BaseContract {
   };
 
   estimateGas: {
-    USD(overrides?: CallOverrides): Promise<BigNumber>;
-
     buyBackAndPair(
       _sellToken: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -242,6 +240,8 @@ export interface AntiDumpGuard extends BaseContract {
 
     initialize(
       _pair: PromiseOrValue<string>,
+      _token0: PromiseOrValue<string>,
+      _token1: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -257,8 +257,6 @@ export interface AntiDumpGuard extends BaseContract {
   };
 
   populateTransaction: {
-    USD(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     buyBackAndPair(
       _sellToken: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -270,6 +268,8 @@ export interface AntiDumpGuard extends BaseContract {
 
     initialize(
       _pair: PromiseOrValue<string>,
+      _token0: PromiseOrValue<string>,
+      _token1: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

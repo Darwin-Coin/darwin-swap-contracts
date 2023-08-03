@@ -78,14 +78,13 @@ contract DarwinSwapLister is IDarwinSwapLister {
     function listDarwinWithWETH(address darwin, address weth, address darwinCommunity) external onlyDev {
         // DARWIN validate
         _tokenInfo[darwin].addedToks.tokenA2TaxOnBuy = 250;
-        _tokenInfo[darwin].addedToks.tokenB2TaxOnBuy = 250;
         _tokenInfo[darwin].status = TokenStatus.LISTED;
         _tokenInfo[darwin].validator = msg.sender;
         _tokenInfo[darwin].valid = true;
         _tokenInfo[darwin].official = true;
         _tokenInfo[darwin].owner = msg.sender;
         _tokenInfo[darwin].feeReceiver = darwinCommunity;
-        _tokenInfo[darwin].addedToks.tokenB2BuyToADG = 500;
+        _tokenInfo[darwin].addedToks.tokenB1SellToADG = 250;
 
         address pair = IDarwinSwapFactory(factory).getPair(darwin, weth);
         if (pair == address(0)) {

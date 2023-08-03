@@ -15,13 +15,13 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "address",
+        internalType: "contract IERC20",
         name: "tokenSold",
         type: "address",
       },
       {
         indexed: false,
-        internalType: "address",
+        internalType: "contract IERC20",
         name: "tokenBought",
         type: "address",
       },
@@ -44,8 +44,8 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_token",
+        internalType: "contract IERC20",
+        name: "_buyToken",
         type: "address",
       },
     ],
@@ -59,6 +59,16 @@ const _abi = [
       {
         internalType: "address",
         name: "_pair",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "token0",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "token1",
         type: "address",
       },
     ],

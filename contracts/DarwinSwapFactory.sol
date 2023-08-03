@@ -65,7 +65,7 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
             _antiDumpGuard := create2(0, add(bytecode2, 32), mload(bytecode2), salt)
         }
-        IAntiDumpGuard(_antiDumpGuard).initialize(pair);
+        IAntiDumpGuard(_antiDumpGuard).initialize(pair, token0, token1);
         IDarwinSwapPair(pair).initialize(token0, token1, _antiDumpGuard);
         getPair[token0][token1] = pair;
         getPair[token1][token0] = pair; // populate mapping in the reverse direction

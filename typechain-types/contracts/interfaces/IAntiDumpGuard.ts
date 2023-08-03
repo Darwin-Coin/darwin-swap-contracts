@@ -29,7 +29,7 @@ import type {
 export interface IAntiDumpGuardInterface extends utils.Interface {
   functions: {
     "buyBackAndPair(address)": FunctionFragment;
-    "initialize(address)": FunctionFragment;
+    "initialize(address,address,address)": FunctionFragment;
   };
 
   getFunction(
@@ -42,7 +42,11 @@ export interface IAntiDumpGuardInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [PromiseOrValue<string>]
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
   ): string;
 
   decodeFunctionResult(
@@ -99,34 +103,40 @@ export interface IAntiDumpGuard extends BaseContract {
 
   functions: {
     buyBackAndPair(
-      _token: PromiseOrValue<string>,
+      _buyToken: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     initialize(
       _pair: PromiseOrValue<string>,
+      token0: PromiseOrValue<string>,
+      token1: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   buyBackAndPair(
-    _token: PromiseOrValue<string>,
+    _buyToken: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   initialize(
     _pair: PromiseOrValue<string>,
+    token0: PromiseOrValue<string>,
+    token1: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     buyBackAndPair(
-      _token: PromiseOrValue<string>,
+      _buyToken: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     initialize(
       _pair: PromiseOrValue<string>,
+      token0: PromiseOrValue<string>,
+      token1: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -148,24 +158,28 @@ export interface IAntiDumpGuard extends BaseContract {
 
   estimateGas: {
     buyBackAndPair(
-      _token: PromiseOrValue<string>,
+      _buyToken: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     initialize(
       _pair: PromiseOrValue<string>,
+      token0: PromiseOrValue<string>,
+      token1: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     buyBackAndPair(
-      _token: PromiseOrValue<string>,
+      _buyToken: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     initialize(
       _pair: PromiseOrValue<string>,
+      token0: PromiseOrValue<string>,
+      token1: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

