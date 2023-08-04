@@ -563,7 +563,7 @@ async function main() {
     addr.wallet1,
     addr.wallet1,
     addr.charity,
-    addr.giveaway,
+    addr.eggHunt,
     addr.giveaway,
     addr.bounties,
     burner.address,
