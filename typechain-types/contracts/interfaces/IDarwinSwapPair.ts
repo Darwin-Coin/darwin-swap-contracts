@@ -30,12 +30,12 @@ import type {
 export interface IDarwinSwapPairInterface extends utils.Interface {
   functions: {
     "MINIMUM_LIQUIDITY()": FunctionFragment;
-    "antiDumpGuard()": FunctionFragment;
     "burn(address)": FunctionFragment;
     "factory()": FunctionFragment;
     "getReserves()": FunctionFragment;
     "initialize(address,address,address)": FunctionFragment;
     "kLast()": FunctionFragment;
+    "liquidityInjector()": FunctionFragment;
     "mint(address)": FunctionFragment;
     "price0CumulativeLast()": FunctionFragment;
     "price1CumulativeLast()": FunctionFragment;
@@ -50,12 +50,12 @@ export interface IDarwinSwapPairInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "MINIMUM_LIQUIDITY"
-      | "antiDumpGuard"
       | "burn"
       | "factory"
       | "getReserves"
       | "initialize"
       | "kLast"
+      | "liquidityInjector"
       | "mint"
       | "price0CumulativeLast"
       | "price1CumulativeLast"
@@ -69,10 +69,6 @@ export interface IDarwinSwapPairInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "MINIMUM_LIQUIDITY",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "antiDumpGuard",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -93,6 +89,10 @@ export interface IDarwinSwapPairInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(functionFragment: "kLast", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "liquidityInjector",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "mint",
     values: [PromiseOrValue<string>]
@@ -131,10 +131,6 @@ export interface IDarwinSwapPairInterface extends utils.Interface {
     functionFragment: "MINIMUM_LIQUIDITY",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "antiDumpGuard",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "factory", data: BytesLike): Result;
   decodeFunctionResult(
@@ -143,6 +139,10 @@ export interface IDarwinSwapPairInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "kLast", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "liquidityInjector",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "price0CumulativeLast",
@@ -252,8 +252,6 @@ export interface IDarwinSwapPair extends BaseContract {
   functions: {
     MINIMUM_LIQUIDITY(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    antiDumpGuard(overrides?: CallOverrides): Promise<[string]>;
-
     burn(
       to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -279,6 +277,8 @@ export interface IDarwinSwapPair extends BaseContract {
     ): Promise<ContractTransaction>;
 
     kLast(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    liquidityInjector(overrides?: CallOverrides): Promise<[string]>;
 
     mint(
       to: PromiseOrValue<string>,
@@ -320,8 +320,6 @@ export interface IDarwinSwapPair extends BaseContract {
 
   MINIMUM_LIQUIDITY(overrides?: CallOverrides): Promise<BigNumber>;
 
-  antiDumpGuard(overrides?: CallOverrides): Promise<string>;
-
   burn(
     to: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -347,6 +345,8 @@ export interface IDarwinSwapPair extends BaseContract {
   ): Promise<ContractTransaction>;
 
   kLast(overrides?: CallOverrides): Promise<BigNumber>;
+
+  liquidityInjector(overrides?: CallOverrides): Promise<string>;
 
   mint(
     to: PromiseOrValue<string>,
@@ -388,8 +388,6 @@ export interface IDarwinSwapPair extends BaseContract {
   callStatic: {
     MINIMUM_LIQUIDITY(overrides?: CallOverrides): Promise<BigNumber>;
 
-    antiDumpGuard(overrides?: CallOverrides): Promise<string>;
-
     burn(
       to: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -417,6 +415,8 @@ export interface IDarwinSwapPair extends BaseContract {
     ): Promise<void>;
 
     kLast(overrides?: CallOverrides): Promise<BigNumber>;
+
+    liquidityInjector(overrides?: CallOverrides): Promise<string>;
 
     mint(
       to: PromiseOrValue<string>,
@@ -500,8 +500,6 @@ export interface IDarwinSwapPair extends BaseContract {
   estimateGas: {
     MINIMUM_LIQUIDITY(overrides?: CallOverrides): Promise<BigNumber>;
 
-    antiDumpGuard(overrides?: CallOverrides): Promise<BigNumber>;
-
     burn(
       to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -519,6 +517,8 @@ export interface IDarwinSwapPair extends BaseContract {
     ): Promise<BigNumber>;
 
     kLast(overrides?: CallOverrides): Promise<BigNumber>;
+
+    liquidityInjector(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
       to: PromiseOrValue<string>,
@@ -561,8 +561,6 @@ export interface IDarwinSwapPair extends BaseContract {
   populateTransaction: {
     MINIMUM_LIQUIDITY(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    antiDumpGuard(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     burn(
       to: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -580,6 +578,8 @@ export interface IDarwinSwapPair extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     kLast(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    liquidityInjector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mint(
       to: PromiseOrValue<string>,

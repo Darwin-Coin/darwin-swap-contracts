@@ -111,22 +111,22 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "tokenB1SellToADG",
+                name: "tokenB1SellToLI",
                 type: "uint256",
               },
               {
                 internalType: "uint256",
-                name: "tokenB1BuyToADG",
+                name: "tokenB1BuyToLI",
                 type: "uint256",
               },
               {
                 internalType: "uint256",
-                name: "tokenB2SellToADG",
+                name: "tokenB2SellToLI",
                 type: "uint256",
               },
               {
                 internalType: "uint256",
-                name: "tokenB2BuyToADG",
+                name: "tokenB2BuyToLI",
                 type: "uint256",
               },
             ],
@@ -331,22 +331,22 @@ const _abi = [
               },
               {
                 internalType: "uint256",
-                name: "tokenB1SellToADG",
+                name: "tokenB1SellToLI",
                 type: "uint256",
               },
               {
                 internalType: "uint256",
-                name: "tokenB1BuyToADG",
+                name: "tokenB1BuyToLI",
                 type: "uint256",
               },
               {
                 internalType: "uint256",
-                name: "tokenB2SellToADG",
+                name: "tokenB2SellToLI",
                 type: "uint256",
               },
               {
                 internalType: "uint256",
-                name: "tokenB2BuyToADG",
+                name: "tokenB2BuyToLI",
                 type: "uint256",
               },
             ],

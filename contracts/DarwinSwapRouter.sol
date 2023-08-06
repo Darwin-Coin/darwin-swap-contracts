@@ -3,7 +3,7 @@ pragma solidity ^0.8.14;
 import "./interfaces/IDarwinSwapRouter.sol";
 import "./interfaces/IDarwinSwapFactory.sol";
 import "./interfaces/IDarwinSwapERC20.sol";
-import "./interfaces/IAntiDumpGuard.sol";
+import "./interfaces/ILiquidityInjector.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/IWETH.sol";
 

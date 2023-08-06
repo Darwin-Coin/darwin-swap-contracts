@@ -49,10 +49,10 @@ export declare namespace IDarwinSwapLister {
     tokenB2TaxOnBuy: PromiseOrValue<BigNumberish>;
     refundOnSell: PromiseOrValue<BigNumberish>;
     refundOnBuy: PromiseOrValue<BigNumberish>;
-    tokenB1SellToADG: PromiseOrValue<BigNumberish>;
-    tokenB1BuyToADG: PromiseOrValue<BigNumberish>;
-    tokenB2SellToADG: PromiseOrValue<BigNumberish>;
-    tokenB2BuyToADG: PromiseOrValue<BigNumberish>;
+    tokenB1SellToLI: PromiseOrValue<BigNumberish>;
+    tokenB1BuyToLI: PromiseOrValue<BigNumberish>;
+    tokenB2SellToLI: PromiseOrValue<BigNumberish>;
+    tokenB2BuyToLI: PromiseOrValue<BigNumberish>;
   };
 
   export type TokenomicsInfoStructOutput = [
@@ -81,10 +81,10 @@ export declare namespace IDarwinSwapLister {
     tokenB2TaxOnBuy: BigNumber;
     refundOnSell: BigNumber;
     refundOnBuy: BigNumber;
-    tokenB1SellToADG: BigNumber;
-    tokenB1BuyToADG: BigNumber;
-    tokenB2SellToADG: BigNumber;
-    tokenB2BuyToADG: BigNumber;
+    tokenB1SellToLI: BigNumber;
+    tokenB1BuyToLI: BigNumber;
+    tokenB2SellToLI: BigNumber;
+    tokenB2BuyToLI: BigNumber;
   };
 
   export type TokenInfoStruct = {

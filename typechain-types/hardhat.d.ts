@@ -121,10 +121,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IUniswapV2Router02__factory>;
     getContractFactory(
-      name: "AntiDumpGuard",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AntiDumpGuard__factory>;
-    getContractFactory(
       name: "DarwinLiquidityBundles",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DarwinLiquidityBundles__factory>;
@@ -148,10 +144,6 @@ declare module "hardhat/types/runtime" {
       name: "DarwinSwapRouter",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DarwinSwapRouter__factory>;
-    getContractFactory(
-      name: "IAntiDumpGuard",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IAntiDumpGuard__factory>;
     getContractFactory(
       name: "IDarwinLiquidityBundles",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -185,6 +177,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20__factory>;
     getContractFactory(
+      name: "ILiquidityInjector",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ILiquidityInjector__factory>;
+    getContractFactory(
       name: "IDarwinMasterChef",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IDarwinMasterChef__factory>;
@@ -200,6 +196,10 @@ declare module "hardhat/types/runtime" {
       name: "Tokenomics2Library",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Tokenomics2Library__factory>;
+    getContractFactory(
+      name: "LiquidityInjector",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.LiquidityInjector__factory>;
     getContractFactory(
       name: "DarwinMasterChef",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -497,11 +497,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IUniswapV2Router02>;
     getContractAt(
-      name: "AntiDumpGuard",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.AntiDumpGuard>;
-    getContractAt(
       name: "DarwinLiquidityBundles",
       address: string,
       signer?: ethers.Signer
@@ -531,11 +526,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.DarwinSwapRouter>;
-    getContractAt(
-      name: "IAntiDumpGuard",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IAntiDumpGuard>;
     getContractAt(
       name: "IDarwinLiquidityBundles",
       address: string,
@@ -577,6 +567,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20>;
     getContractAt(
+      name: "ILiquidityInjector",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ILiquidityInjector>;
+    getContractAt(
       name: "IDarwinMasterChef",
       address: string,
       signer?: ethers.Signer
@@ -596,6 +591,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Tokenomics2Library>;
+    getContractAt(
+      name: "LiquidityInjector",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.LiquidityInjector>;
     getContractAt(
       name: "DarwinMasterChef",
       address: string,

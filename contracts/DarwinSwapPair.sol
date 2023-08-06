@@ -15,7 +15,7 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
     uint public constant MINIMUM_LIQUIDITY = 10**3;
     bytes4 private constant _SELECTOR = bytes4(keccak256(bytes("transfer(address,uint256)")));
 
-    address public antiDumpGuard;
+    address public liquidityInjector;
 
     address public factory;
     address public router;
@@ -38,8 +38,8 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         _unlocked = 1;
     }
 
-    modifier onlyAntiDumpGuard() {
-        require(msg.sender == antiDumpGuard, "DarwinSwapPair: CALLER_NOT_ANTIDUMP");
+    modifier onlyLiquidityInjector() {
+        require(msg.sender == liquidityInjector, "DarwinSwapPair: CALLER_NOT_ANTIDUMP");
         _;
     }
 
@@ -64,11 +64,11 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
     }
 
     // called once by the factory at time of deployment
-    function initialize(address _token0, address _token1, address _antiDumpGuard) external {
+    function initialize(address _token0, address _token1, address _liquidityInjector) external {
         require(msg.sender == factory, "DarwinSwap: FORBIDDEN"); // sufficient check
         token0 = _token0;
         token1 = _token1;
-        antiDumpGuard = _antiDumpGuard;
+        liquidityInjector = _liquidityInjector;
     }
 
     // update reserves and, on the first call per block, price accumulators
@@ -216,8 +216,8 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
     }
 
-    // Allows antidump guard to call this simpler swap function to spend less gas
-    function swapWithoutToks(address tokenIn, uint amountIn) external lock onlyAntiDumpGuard {
+    // Allows liqInj guard to call this simpler swap function to spend less gas
+    function swapWithoutToks(address tokenIn, uint amountIn) external lock onlyLiquidityInjector {
         (uint reserveIn, uint reserveOut, address tokenOut) = token0 == tokenIn ? (_reserve0, _reserve1, token1) : (_reserve1, _reserve0, token0);
         uint amountOut = DarwinSwapLibrary.getAmountOut(amountIn, reserveIn, reserveOut);
         IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
@@ -239,15 +239,15 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
         _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this)), _reserve0, _reserve1);
     }
 
-    // Overrides totalSupply to include also the antiDumpGuard liquidity
+    // Overrides totalSupply to include also the liquidityInjector liquidity
     function totalSupply() public view override returns (uint) {
         uint _baseSupply = _totalSupply;
         if (_reserve0 == 0 || _reserve1 == 0) {
             return _baseSupply;
         }
-        uint adgReserve0 = IERC20(token0).balanceOf(antiDumpGuard);
-        uint adgReserve1 = IERC20(token1).balanceOf(antiDumpGuard);
-        uint _adgLiq = Math.min((adgReserve0 * _totalSupply) / _reserve0, (adgReserve1 * _totalSupply) / _reserve1);
-        return _baseSupply + _adgLiq;
+        uint liqInjReserve0 = IERC20(token0).balanceOf(liquidityInjector);
+        uint liqInjReserve1 = IERC20(token1).balanceOf(liquidityInjector);
+        uint _liqInjLiq = Math.min((liqInjReserve0 * _totalSupply) / _reserve0, (liqInjReserve1 * _totalSupply) / _reserve1);
+        return _baseSupply + _liqInjLiq;
     }
 }

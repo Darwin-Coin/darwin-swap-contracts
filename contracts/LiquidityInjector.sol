@@ -6,10 +6,10 @@ import {IDarwinSwapPair} from "./interfaces/IDarwinSwapPair.sol";
 import {IDarwinSwapFactory} from "./interfaces/IDarwinSwapFactory.sol";
 import {IDarwinSwapLister} from "./interfaces/IDarwinSwapLister.sol";
 import {IDarwinSwapRouter} from "./interfaces/IDarwinSwapRouter.sol";
-import {IAntiDumpGuard} from "./interfaces/IAntiDumpGuard.sol";
+import {ILiquidityInjector} from "./interfaces/ILiquidityInjector.sol";
 import {IERC20} from "./interfaces/IERC20.sol";
 
-contract AntiDumpGuard is IAntiDumpGuard {
+contract LiquidityInjector is ILiquidityInjector {
     IDarwinSwapFactory public immutable factory;
     IDarwinSwapPair public pair;
     IDarwinSwapRouter public router;
@@ -19,7 +19,7 @@ contract AntiDumpGuard is IAntiDumpGuard {
     IERC20 public token1;
 
     modifier onlyTeamOrDev() {
-        require(msg.sender == dev || msg.sender == lister.tokenInfo(address(token0)).owner || msg.sender == lister.tokenInfo(address(token1)).owner, "AntiDumpGuard: CALLER_NOT_TOKEN_TEAM_OR_DEV");
+        require(msg.sender == dev || msg.sender == lister.tokenInfo(address(token0)).owner || msg.sender == lister.tokenInfo(address(token1)).owner, "LiquidityInjector: CALLER_NOT_TOKEN_TEAM_OR_DEV");
         _;
     }
 
@@ -28,7 +28,7 @@ contract AntiDumpGuard is IAntiDumpGuard {
     }
 
     function initialize(address _pair, address _token0, address _token1) external {
-        require(msg.sender == address(factory), "AntiDumpGuard: CALLER_NOT_FACTORY");
+        require(msg.sender == address(factory), "LiquidityInjector: CALLER_NOT_FACTORY");
         pair = IDarwinSwapPair(_pair);
         router = IDarwinSwapRouter(factory.router());
         lister = IDarwinSwapLister(factory.lister());
@@ -44,7 +44,7 @@ contract AntiDumpGuard is IAntiDumpGuard {
     function buyBackAndPair(IERC20 _sellToken) public onlyTeamOrDev {
         IERC20 _buyToken = address(_sellToken) == address(token1) ? token0 : token1;
 
-        // Return if there is no buyToken balance in the antiDump
+        // Return if there is no buyToken balance in the liqInj
         if (_buyToken.balanceOf(address(this)) == 0) {
             if (_sellToken.balanceOf(address(this)) > 0) {
                 buyBackAndPair(_buyToken);
@@ -54,8 +54,8 @@ contract AntiDumpGuard is IAntiDumpGuard {
         
         IDarwinSwapLister.TokenInfo memory tokenInfo = lister.tokenInfo(address(_sellToken));
 
-        // Return if antidump is not a thing for this token
-        if (tokenInfo.addedToks.tokenB1SellToADG + tokenInfo.addedToks.tokenB1BuyToADG + tokenInfo.addedToks.tokenB2SellToADG + tokenInfo.addedToks.tokenB2BuyToADG == 0) {
+        // Return if liqInj is not a thing for this token
+        if (tokenInfo.addedToks.tokenB1SellToLI + tokenInfo.addedToks.tokenB1BuyToLI + tokenInfo.addedToks.tokenB2SellToLI + tokenInfo.addedToks.tokenB2BuyToLI == 0) {
             return;
         }
 

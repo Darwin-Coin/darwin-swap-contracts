@@ -14,7 +14,7 @@ interface IDarwinSwapPair {
     event Sync(uint256 reserve0, uint256 reserve1);
 
     function MINIMUM_LIQUIDITY() external pure returns (uint);
-    function antiDumpGuard() external view returns (address);
+    function liquidityInjector() external view returns (address);
     function factory() external view returns (address);
     function token0() external view returns (address);
     function token1() external view returns (address);

@@ -33,7 +33,6 @@ export interface DarwinSwapPairInterface extends utils.Interface {
     "MINIMUM_LIQUIDITY()": FunctionFragment;
     "PERMIT_TYPEHASH()": FunctionFragment;
     "allowance(address,address)": FunctionFragment;
-    "antiDumpGuard()": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "burn(address)": FunctionFragment;
@@ -42,6 +41,7 @@ export interface DarwinSwapPairInterface extends utils.Interface {
     "getReserves()": FunctionFragment;
     "initialize(address,address,address)": FunctionFragment;
     "kLast()": FunctionFragment;
+    "liquidityInjector()": FunctionFragment;
     "mint(address)": FunctionFragment;
     "name()": FunctionFragment;
     "nonces(address)": FunctionFragment;
@@ -67,7 +67,6 @@ export interface DarwinSwapPairInterface extends utils.Interface {
       | "MINIMUM_LIQUIDITY"
       | "PERMIT_TYPEHASH"
       | "allowance"
-      | "antiDumpGuard"
       | "approve"
       | "balanceOf"
       | "burn"
@@ -76,6 +75,7 @@ export interface DarwinSwapPairInterface extends utils.Interface {
       | "getReserves"
       | "initialize"
       | "kLast"
+      | "liquidityInjector"
       | "mint"
       | "name"
       | "nonces"
@@ -112,10 +112,6 @@ export interface DarwinSwapPairInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "antiDumpGuard",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "approve",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
@@ -142,6 +138,10 @@ export interface DarwinSwapPairInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(functionFragment: "kLast", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "liquidityInjector",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "mint",
     values: [PromiseOrValue<string>]
@@ -224,10 +224,6 @@ export interface DarwinSwapPairInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "antiDumpGuard",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
@@ -239,6 +235,10 @@ export interface DarwinSwapPairInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "kLast", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "liquidityInjector",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
@@ -400,8 +400,6 @@ export interface DarwinSwapPair extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    antiDumpGuard(overrides?: CallOverrides): Promise<[string]>;
-
     approve(
       spender: PromiseOrValue<string>,
       value: PromiseOrValue<BigNumberish>,
@@ -435,11 +433,13 @@ export interface DarwinSwapPair extends BaseContract {
     initialize(
       _token0: PromiseOrValue<string>,
       _token1: PromiseOrValue<string>,
-      _antiDumpGuard: PromiseOrValue<string>,
+      _liquidityInjector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     kLast(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    liquidityInjector(overrides?: CallOverrides): Promise<[string]>;
 
     mint(
       to: PromiseOrValue<string>,
@@ -528,8 +528,6 @@ export interface DarwinSwapPair extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  antiDumpGuard(overrides?: CallOverrides): Promise<string>;
-
   approve(
     spender: PromiseOrValue<string>,
     value: PromiseOrValue<BigNumberish>,
@@ -563,11 +561,13 @@ export interface DarwinSwapPair extends BaseContract {
   initialize(
     _token0: PromiseOrValue<string>,
     _token1: PromiseOrValue<string>,
-    _antiDumpGuard: PromiseOrValue<string>,
+    _liquidityInjector: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   kLast(overrides?: CallOverrides): Promise<BigNumber>;
+
+  liquidityInjector(overrides?: CallOverrides): Promise<string>;
 
   mint(
     to: PromiseOrValue<string>,
@@ -656,8 +656,6 @@ export interface DarwinSwapPair extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    antiDumpGuard(overrides?: CallOverrides): Promise<string>;
-
     approve(
       spender: PromiseOrValue<string>,
       value: PromiseOrValue<BigNumberish>,
@@ -693,11 +691,13 @@ export interface DarwinSwapPair extends BaseContract {
     initialize(
       _token0: PromiseOrValue<string>,
       _token1: PromiseOrValue<string>,
-      _antiDumpGuard: PromiseOrValue<string>,
+      _liquidityInjector: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     kLast(overrides?: CallOverrides): Promise<BigNumber>;
+
+    liquidityInjector(overrides?: CallOverrides): Promise<string>;
 
     mint(
       to: PromiseOrValue<string>,
@@ -850,8 +850,6 @@ export interface DarwinSwapPair extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    antiDumpGuard(overrides?: CallOverrides): Promise<BigNumber>;
-
     approve(
       spender: PromiseOrValue<string>,
       value: PromiseOrValue<BigNumberish>,
@@ -877,11 +875,13 @@ export interface DarwinSwapPair extends BaseContract {
     initialize(
       _token0: PromiseOrValue<string>,
       _token1: PromiseOrValue<string>,
-      _antiDumpGuard: PromiseOrValue<string>,
+      _liquidityInjector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     kLast(overrides?: CallOverrides): Promise<BigNumber>;
+
+    liquidityInjector(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
       to: PromiseOrValue<string>,
@@ -971,8 +971,6 @@ export interface DarwinSwapPair extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    antiDumpGuard(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     approve(
       spender: PromiseOrValue<string>,
       value: PromiseOrValue<BigNumberish>,
@@ -998,11 +996,13 @@ export interface DarwinSwapPair extends BaseContract {
     initialize(
       _token0: PromiseOrValue<string>,
       _token1: PromiseOrValue<string>,
-      _antiDumpGuard: PromiseOrValue<string>,
+      _liquidityInjector: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     kLast(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    liquidityInjector(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mint(
       to: PromiseOrValue<string>,

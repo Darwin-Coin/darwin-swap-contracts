@@ -24,8 +24,8 @@ contract DarwinSwapLister is IDarwinSwapLister {
     constructor() {
         dev = msg.sender;
         isValidator[msg.sender] = true;
-        maxTok1Tax = 2000; // Max add-on Tokenomics 1.0 percentage of taxation. (20.00%)
-        maxTok2Tax = 1000; // Max add-on Tokenomics 2.0 percentage of taxation. (10.00%)
+        maxTok1Tax = 1000; // Max add-on Tokenomics 1.0 percentage of taxation. (20.00%)
+        maxTok2Tax = 500; // Max add-on Tokenomics 2.0 percentage of taxation. (10.00%)
     }
 
     modifier onlyDev() {
@@ -77,14 +77,14 @@ contract DarwinSwapLister is IDarwinSwapLister {
     // Lists DARWIN and pairs with WETH, with 5% tax on LP on buys
     function listDarwinWithWETH(address darwin, address weth, address darwinCommunity) external onlyDev {
         // DARWIN validate
-        _tokenInfo[darwin].addedToks.tokenA2TaxOnBuy = 250;
+        _tokenInfo[darwin].addedToks.tokenA2TaxOnBuy = 200;
         _tokenInfo[darwin].status = TokenStatus.LISTED;
         _tokenInfo[darwin].validator = msg.sender;
         _tokenInfo[darwin].valid = true;
         _tokenInfo[darwin].official = true;
         _tokenInfo[darwin].owner = msg.sender;
         _tokenInfo[darwin].feeReceiver = darwinCommunity;
-        _tokenInfo[darwin].addedToks.tokenB1SellToADG = 250;
+        _tokenInfo[darwin].addedToks.tokenB1SellToLI = 200;
 
         address pair = IDarwinSwapFactory(factory).getPair(darwin, weth);
         if (pair == address(0)) {

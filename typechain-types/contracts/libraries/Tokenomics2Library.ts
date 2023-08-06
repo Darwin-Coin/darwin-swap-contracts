@@ -33,10 +33,10 @@ export declare namespace IDarwinSwapLister {
     tokenB2TaxOnBuy: PromiseOrValue<BigNumberish>;
     refundOnSell: PromiseOrValue<BigNumberish>;
     refundOnBuy: PromiseOrValue<BigNumberish>;
-    tokenB1SellToADG: PromiseOrValue<BigNumberish>;
-    tokenB1BuyToADG: PromiseOrValue<BigNumberish>;
-    tokenB2SellToADG: PromiseOrValue<BigNumberish>;
-    tokenB2BuyToADG: PromiseOrValue<BigNumberish>;
+    tokenB1SellToLI: PromiseOrValue<BigNumberish>;
+    tokenB1BuyToLI: PromiseOrValue<BigNumberish>;
+    tokenB2SellToLI: PromiseOrValue<BigNumberish>;
+    tokenB2BuyToLI: PromiseOrValue<BigNumberish>;
   };
 
   export type TokenomicsInfoStructOutput = [
@@ -65,10 +65,10 @@ export declare namespace IDarwinSwapLister {
     tokenB2TaxOnBuy: BigNumber;
     refundOnSell: BigNumber;
     refundOnBuy: BigNumber;
-    tokenB1SellToADG: BigNumber;
-    tokenB1BuyToADG: BigNumber;
-    tokenB2SellToADG: BigNumber;
-    tokenB2BuyToADG: BigNumber;
+    tokenB1SellToLI: BigNumber;
+    tokenB1BuyToLI: BigNumber;
+    tokenB2SellToLI: BigNumber;
+    tokenB2BuyToLI: BigNumber;
   };
 
   export type OwnTokenomicsInfoStruct = {
@@ -120,14 +120,14 @@ export interface Tokenomics2LibraryInterface extends utils.Interface {
   functions: {
     "adjustTokenomics((uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256))": FunctionFragment;
     "ensureTokenomics(((uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint8,address,address,address,bool,bool,string),uint256,uint256)": FunctionFragment;
-    "handleADGRefill(address,address,address,uint256,uint256)": FunctionFragment;
+    "handleLIRefill(address,address,address,uint256,uint256)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "adjustTokenomics"
       | "ensureTokenomics"
-      | "handleADGRefill"
+      | "handleLIRefill"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -143,7 +143,7 @@ export interface Tokenomics2LibraryInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "handleADGRefill",
+    functionFragment: "handleLIRefill",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
@@ -162,7 +162,7 @@ export interface Tokenomics2LibraryInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "handleADGRefill",
+    functionFragment: "handleLIRefill",
     data: BytesLike
   ): Result;
 
@@ -212,12 +212,12 @@ export interface Tokenomics2Library extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean] & { valid: boolean }>;
 
-    handleADGRefill(
+    handleLIRefill(
       antiDumpToken: PromiseOrValue<string>,
       otherToken: PromiseOrValue<string>,
       factory: PromiseOrValue<string>,
       value: PromiseOrValue<BigNumberish>,
-      otherTokenB2OtherToADG: PromiseOrValue<BigNumberish>,
+      otherTokenB2OtherToLI: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { refill: BigNumber }>;
   };
@@ -234,12 +234,12 @@ export interface Tokenomics2Library extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  handleADGRefill(
+  handleLIRefill(
     antiDumpToken: PromiseOrValue<string>,
     otherToken: PromiseOrValue<string>,
     factory: PromiseOrValue<string>,
     value: PromiseOrValue<BigNumberish>,
-    otherTokenB2OtherToADG: PromiseOrValue<BigNumberish>,
+    otherTokenB2OtherToLI: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -256,12 +256,12 @@ export interface Tokenomics2Library extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    handleADGRefill(
+    handleLIRefill(
       antiDumpToken: PromiseOrValue<string>,
       otherToken: PromiseOrValue<string>,
       factory: PromiseOrValue<string>,
       value: PromiseOrValue<BigNumberish>,
-      otherTokenB2OtherToADG: PromiseOrValue<BigNumberish>,
+      otherTokenB2OtherToLI: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -281,12 +281,12 @@ export interface Tokenomics2Library extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    handleADGRefill(
+    handleLIRefill(
       antiDumpToken: PromiseOrValue<string>,
       otherToken: PromiseOrValue<string>,
       factory: PromiseOrValue<string>,
       value: PromiseOrValue<BigNumberish>,
-      otherTokenB2OtherToADG: PromiseOrValue<BigNumberish>,
+      otherTokenB2OtherToLI: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -304,12 +304,12 @@ export interface Tokenomics2Library extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    handleADGRefill(
+    handleLIRefill(
       antiDumpToken: PromiseOrValue<string>,
       otherToken: PromiseOrValue<string>,
       factory: PromiseOrValue<string>,
       value: PromiseOrValue<BigNumberish>,
-      otherTokenB2OtherToADG: PromiseOrValue<BigNumberish>,
+      otherTokenB2OtherToLI: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

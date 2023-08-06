@@ -36,13 +36,13 @@ library Tokenomics2Library {
         }
 
         if (buyTokenInfo.valid && sellTokenInfo.official) {
-            // If BUYTOKEN's antiDump is active, send the tokenomics1.0 buy tax value applied to SELLTOKEN to the pair's antidump guard
-            //? ANTIDUMP ONLY WORKS ON [2]PATH SWAPS
+            // If BUYTOKEN's liqInj is active, send the tokenomics1.0 buy tax value applied to SELLTOKEN to the pair's liqInj guard
+            //? liqInj ONLY WORKS ON [2]PATH SWAPS
             address pair = IDarwinSwapFactory(factory).getPair(sellToken, buyToken);
-            if (buyTokenInfo.addedToks.tokenB1BuyToADG > 0 && pair != address(0)) {
-                uint refill = handleADGRefill(sellToken, buyToken, factory, value, buyTokenInfo.addedToks.tokenB1BuyToADG);
-                address antiDump = IDarwinSwapPair(pair).antiDumpGuard();
-                (bool success, bytes memory data) = sellToken.call(abi.encodeWithSelector(_TRANSFERFROM, from, antiDump, refill));
+            if (buyTokenInfo.addedToks.tokenB1BuyToLI > 0 && pair != address(0)) {
+                uint refill = handleLIRefill(sellToken, buyToken, factory, value, buyTokenInfo.addedToks.tokenB1BuyToLI);
+                address liqInj = IDarwinSwapPair(pair).liquidityInjector();
+                (bool success, bytes memory data) = sellToken.call(abi.encodeWithSelector(_TRANSFERFROM, from, liqInj, refill));
                 require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: ANTIDUMP_FAILED_BUY_B1");
             }
 
@@ -82,13 +82,13 @@ library Tokenomics2Library {
         }
 
         if (sellTokenInfo.valid && buyTokenInfo.official) {
-            // If SELLTOKEN's antiDump is active, send the tokenomics1.0 sell tax value applied to BUYTOKEN to the pair's antidump guard
-            //? ANTIDUMP ONLY WORKS ON [2]PATH SWAPS
+            // If SELLTOKEN's liqInj is active, send the tokenomics1.0 sell tax value applied to BUYTOKEN to the pair's liqInj guard
+            //? liqInj ONLY WORKS ON [2]PATH SWAPS
             address pair = IDarwinSwapFactory(factory).getPair(sellToken, buyToken);
-            if (sellTokenInfo.addedToks.tokenB1SellToADG > 0 && pair != address(0)) {
-                uint refill = handleADGRefill(buyToken, sellToken, factory, value, sellTokenInfo.addedToks.tokenB1SellToADG);
-                address antiDump = IDarwinSwapPair(pair).antiDumpGuard();
-                (bool success, bytes memory data) = buyToken.call(abi.encodeWithSelector(_TRANSFER, antiDump, refill));
+            if (sellTokenInfo.addedToks.tokenB1SellToLI > 0 && pair != address(0)) {
+                uint refill = handleLIRefill(buyToken, sellToken, factory, value, sellTokenInfo.addedToks.tokenB1SellToLI);
+                address liqInj = IDarwinSwapPair(pair).liquidityInjector();
+                (bool success, bytes memory data) = buyToken.call(abi.encodeWithSelector(_TRANSFER, liqInj, refill));
                 require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: ANTIDUMP_FAILED_SELL_B1");
             }
 
@@ -126,13 +126,13 @@ library Tokenomics2Library {
                 require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: REFUND_FAILED_SELL_A2");
             }
 
-            // If SELLTOKEN's antiDump is active, send the tokenomics2.0 sell tax value applied to BUYTOKEN to the pair's antidump guard
-            //? ANTIDUMP ONLY WORKS ON [2]PATH SWAPS
+            // If SELLTOKEN's liqInj is active, send the tokenomics2.0 sell tax value applied to BUYTOKEN to the pair's liqInj guard
+            //? liqInj ONLY WORKS ON [2]PATH SWAPS
             address pair = IDarwinSwapFactory(factory).getPair(sellToken, buyToken);
-            if (sellTokenInfo.addedToks.tokenB2SellToADG > 0 && pair != address(0)) {
-                uint refill = handleADGRefill(buyToken, sellToken, factory, value, sellTokenInfo.addedToks.tokenB2SellToADG);
-                address antiDump = IDarwinSwapPair(pair).antiDumpGuard();
-                (bool success, bytes memory data) = buyToken.call(abi.encodeWithSelector(_TRANSFER, antiDump, refill));
+            if (sellTokenInfo.addedToks.tokenB2SellToLI > 0 && pair != address(0)) {
+                uint refill = handleLIRefill(buyToken, sellToken, factory, value, sellTokenInfo.addedToks.tokenB2SellToLI);
+                address liqInj = IDarwinSwapPair(pair).liquidityInjector();
+                (bool success, bytes memory data) = buyToken.call(abi.encodeWithSelector(_TRANSFER, liqInj, refill));
                 require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: ANTIDUMP_FAILED_SELL_B2");
             }
 
@@ -178,13 +178,13 @@ library Tokenomics2Library {
                 require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: REFUND_FAILED_BUY_A2");
             }
 
-            // If BUYTOKEN's antiDump is active, send the tokenomics2.0 buy tax value applied to SELLTOKEN to the pair's antidump guard
-            //? ANTIDUMP ONLY WORKS ON [2]PATH SWAPS
+            // If BUYTOKEN's liqInj is active, send the tokenomics2.0 buy tax value applied to SELLTOKEN to the pair's liqInj guard
+            //? liqInj ONLY WORKS ON [2]PATH SWAPS
             address pair = IDarwinSwapFactory(factory).getPair(sellToken, buyToken);
-            if (buyTokenInfo.addedToks.tokenB2BuyToADG > 0 && pair != address(0)) {
-                uint refill = handleADGRefill(sellToken, buyToken, factory, value, buyTokenInfo.addedToks.tokenB2BuyToADG);
-                address antiDump = IDarwinSwapPair(pair).antiDumpGuard();
-                (bool success, bytes memory data) = sellToken.call(abi.encodeWithSelector(_TRANSFER, antiDump, refill));
+            if (buyTokenInfo.addedToks.tokenB2BuyToLI > 0 && pair != address(0)) {
+                uint refill = handleLIRefill(sellToken, buyToken, factory, value, buyTokenInfo.addedToks.tokenB2BuyToLI);
+                address liqInj = IDarwinSwapPair(pair).liquidityInjector();
+                (bool success, bytes memory data) = sellToken.call(abi.encodeWithSelector(_TRANSFER, liqInj, refill));
                 require(success && (data.length == 0 || abi.decode(data, (bool))), "DarwinSwap: ANTIDUMP_FAILED_BUY_B2");
             }
 
@@ -208,9 +208,9 @@ library Tokenomics2Library {
         }
     }
 
-    function handleADGRefill(address antiDumpToken, address otherToken, address factory, uint value, uint otherTokenB2OtherToADG) public view returns(uint refill) {
+    function handleLIRefill(address antiDumpToken, address otherToken, address factory, uint value, uint otherTokenB2OtherToLI) public view returns(uint refill) {
         (uint antiDumpReserve, uint otherReserve) = DarwinSwapLibrary.getReserves(factory, antiDumpToken, otherToken);
-        refill = (DarwinSwapLibrary.getAmountOut(value, otherReserve, antiDumpReserve) * otherTokenB2OtherToADG) / 10000;
+        refill = (DarwinSwapLibrary.getAmountOut(value, otherReserve, antiDumpReserve) * otherTokenB2OtherToLI) / 10000;
     }
 
     // Ensures that the limitations we've set for taxes are respected
@@ -218,10 +218,10 @@ library Tokenomics2Library {
         IDarwinSwapLister.TokenomicsInfo memory toks = tokInfo.addedToks;
         IDarwinSwapLister.OwnTokenomicsInfo memory ownToks = tokInfo.ownToks;
 
-        uint tax1OnSell =   toks.tokenA1TaxOnSell + toks.tokenB1TaxOnSell + toks.tokenB1SellToADG;
-        uint tax1OnBuy =    toks.tokenA1TaxOnBuy +  toks.tokenB1TaxOnBuy +  toks.tokenB1BuyToADG;
-        uint tax2OnSell =   toks.tokenA2TaxOnSell + toks.tokenB2TaxOnSell + toks.refundOnSell +     toks.tokenB2SellToADG;
-        uint tax2OnBuy =    toks.tokenA2TaxOnBuy +  toks.tokenB2TaxOnBuy +  toks.refundOnBuy +      toks.tokenB2BuyToADG;
+        uint tax1OnSell =   toks.tokenA1TaxOnSell + toks.tokenB1TaxOnSell + toks.tokenB1SellToLI;
+        uint tax1OnBuy =    toks.tokenA1TaxOnBuy +  toks.tokenB1TaxOnBuy +  toks.tokenB1BuyToLI;
+        uint tax2OnSell =   toks.tokenA2TaxOnSell + toks.tokenB2TaxOnSell + toks.refundOnSell +     toks.tokenB2SellToLI;
+        uint tax2OnBuy =    toks.tokenA2TaxOnBuy +  toks.tokenB2TaxOnBuy +  toks.refundOnBuy +      toks.tokenB2BuyToLI;
 
         valid = tax1OnSell <= maxTok1Tax && tax1OnBuy <= maxTok1Tax && tax2OnSell <= maxTok2Tax && tax2OnBuy <= maxTok2Tax &&
                 (toks.refundOnSell <= ownToks.tokenTaxOnSell) && (toks.refundOnBuy <= ownToks.tokenTaxOnBuy);
@@ -239,9 +239,9 @@ library Tokenomics2Library {
         returnToks.tokenB2TaxOnSell = addedToks.tokenB2TaxOnSell - (addedToks.tokenB2TaxOnSell * 5) / 100;
         returnToks.refundOnBuy = addedToks.refundOnBuy - (addedToks.refundOnBuy * 5) / 100;
         returnToks.refundOnSell = addedToks.refundOnSell - (addedToks.refundOnSell * 5) / 100;
-        returnToks.tokenB1SellToADG = addedToks.tokenB1SellToADG - (addedToks.tokenB1SellToADG * 5) / 100;
-        returnToks.tokenB1BuyToADG = addedToks.tokenB1BuyToADG - (addedToks.tokenB1BuyToADG * 5) / 100;
-        returnToks.tokenB2SellToADG = addedToks.tokenB2SellToADG - (addedToks.tokenB2SellToADG * 5) / 100;
-        returnToks.tokenB2BuyToADG = addedToks.tokenB2BuyToADG - (addedToks.tokenB2BuyToADG * 5) / 100;
+        returnToks.tokenB1SellToLI = addedToks.tokenB1SellToLI - (addedToks.tokenB1SellToLI * 5) / 100;
+        returnToks.tokenB1BuyToLI = addedToks.tokenB1BuyToLI - (addedToks.tokenB1BuyToLI * 5) / 100;
+        returnToks.tokenB2SellToLI = addedToks.tokenB2SellToLI - (addedToks.tokenB2SellToLI * 5) / 100;
+        returnToks.tokenB2BuyToLI = addedToks.tokenB2BuyToLI - (addedToks.tokenB2BuyToLI * 5) / 100;
     }
 }

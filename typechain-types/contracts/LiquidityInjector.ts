@@ -26,7 +26,7 @@ import type {
   PromiseOrValue,
 } from "../common";
 
-export interface AntiDumpGuardInterface extends utils.Interface {
+export interface LiquidityInjectorInterface extends utils.Interface {
   functions: {
     "buyBackAndPair(address)": FunctionFragment;
     "dev()": FunctionFragment;
@@ -105,12 +105,12 @@ export type BuyBackAndPairEvent = TypedEvent<
 
 export type BuyBackAndPairEventFilter = TypedEventFilter<BuyBackAndPairEvent>;
 
-export interface AntiDumpGuard extends BaseContract {
+export interface LiquidityInjector extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: AntiDumpGuardInterface;
+  interface: LiquidityInjectorInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,

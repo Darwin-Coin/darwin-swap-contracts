@@ -2,7 +2,7 @@ pragma solidity ^0.8.14;
 
 import "./DarwinSwapPair.sol";
 import "./DarwinLiquidityBundles.sol";
-import "./AntiDumpGuard.sol";
+import "./LiquidityInjector.sol";
 
 import {IDarwinSwapRouter} from "./interfaces/IDarwinSwapRouter.sol";
 import {IDarwinSwapFactory, IDarwinLiquidityBundles} from "./interfaces/IDarwinSwapFactory.sol";
@@ -58,15 +58,15 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
         require(token0 != address(0), "DarwinSwap: ZERO_ADDRESS");
         require(getPair[token0][token1] == address(0), "DarwinSwap: PAIR_EXISTS"); // single check is sufficient
         bytes memory bytecode = type(DarwinSwapPair).creationCode;
-        bytes memory bytecode2 = type(AntiDumpGuard).creationCode;
+        bytes memory bytecode2 = type(LiquidityInjector).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
-        address _antiDumpGuard;
+        address _liquidityInjector;
         assembly {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
-            _antiDumpGuard := create2(0, add(bytecode2, 32), mload(bytecode2), salt)
+            _liquidityInjector := create2(0, add(bytecode2, 32), mload(bytecode2), salt)
         }
-        IAntiDumpGuard(_antiDumpGuard).initialize(pair, token0, token1);
-        IDarwinSwapPair(pair).initialize(token0, token1, _antiDumpGuard);
+        ILiquidityInjector(_liquidityInjector).initialize(pair, token0, token1);
+        IDarwinSwapPair(pair).initialize(token0, token1, _liquidityInjector);
         getPair[token0][token1] = pair;
         getPair[token1][token0] = pair; // populate mapping in the reverse direction
         allPairs.push(pair);

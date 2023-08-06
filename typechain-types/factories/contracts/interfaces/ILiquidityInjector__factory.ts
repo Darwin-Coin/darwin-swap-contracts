@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
 import type {
-  IAntiDumpGuard,
-  IAntiDumpGuardInterface,
-} from "../../../contracts/interfaces/IAntiDumpGuard";
+  ILiquidityInjector,
+  ILiquidityInjectorInterface,
+} from "../../../contracts/interfaces/ILiquidityInjector";
 
 const _abi = [
   {
@@ -79,15 +79,15 @@ const _abi = [
   },
 ] as const;
 
-export class IAntiDumpGuard__factory {
+export class ILiquidityInjector__factory {
   static readonly abi = _abi;
-  static createInterface(): IAntiDumpGuardInterface {
-    return new utils.Interface(_abi) as IAntiDumpGuardInterface;
+  static createInterface(): ILiquidityInjectorInterface {
+    return new utils.Interface(_abi) as ILiquidityInjectorInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): IAntiDumpGuard {
-    return new Contract(address, _abi, signerOrProvider) as IAntiDumpGuard;
+  ): ILiquidityInjector {
+    return new Contract(address, _abi, signerOrProvider) as ILiquidityInjector;
   }
 }
