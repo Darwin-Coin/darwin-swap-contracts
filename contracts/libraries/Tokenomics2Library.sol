@@ -214,7 +214,7 @@ library Tokenomics2Library {
     }
 
     // Ensures that the limitations we've set for taxes are respected
-    function ensureTokenomics(IDarwinSwapLister.TokenInfo memory tokInfo, uint maxTok1Tax, uint maxTok2Tax) public pure returns(bool valid) {
+    function ensureTokenomics(IDarwinSwapLister.TokenInfo memory tokInfo, uint maxTok1Tax, uint maxTok2Tax, uint maxTotalTax) public pure returns(bool valid) {
         IDarwinSwapLister.TokenomicsInfo memory toks = tokInfo.addedToks;
         IDarwinSwapLister.OwnTokenomicsInfo memory ownToks = tokInfo.ownToks;
 
@@ -224,7 +224,8 @@ library Tokenomics2Library {
         uint tax2OnBuy =    toks.tokenA2TaxOnBuy +  toks.tokenB2TaxOnBuy +  toks.refundOnBuy +      toks.tokenB2BuyToLI;
 
         valid = tax1OnSell <= maxTok1Tax && tax1OnBuy <= maxTok1Tax && tax2OnSell <= maxTok2Tax && tax2OnBuy <= maxTok2Tax &&
-                (toks.refundOnSell <= ownToks.tokenTaxOnSell) && (toks.refundOnBuy <= ownToks.tokenTaxOnBuy);
+                (toks.refundOnSell <= ownToks.tokenTaxOnSell) && (toks.refundOnBuy <= ownToks.tokenTaxOnBuy) &&
+                (tax1OnBuy + tax1OnSell + tax2OnBuy + tax2OnSell <= maxTotalTax);
     }
 
     // Removes 5% from added tokenomics, to leave it for LP providers.

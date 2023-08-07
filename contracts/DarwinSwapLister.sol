@@ -15,6 +15,7 @@ contract DarwinSwapLister is IDarwinSwapLister {
 
     uint public maxTok1Tax;
     uint public maxTok2Tax;
+    uint public maxTotalTax;
 
     mapping(address => TokenInfo) private _tokenInfo;
 
@@ -24,8 +25,9 @@ contract DarwinSwapLister is IDarwinSwapLister {
     constructor() {
         dev = msg.sender;
         isValidator[msg.sender] = true;
-        maxTok1Tax = 1000; // Max add-on Tokenomics 1.0 percentage of taxation. (20.00%)
-        maxTok2Tax = 500; // Max add-on Tokenomics 2.0 percentage of taxation. (10.00%)
+        maxTotalTax = 2000; // Max add-on percentage of taxation (on users or LP from buys or sells). (20.00%)
+        maxTok1Tax = 1000; // Max add-on user percentage of taxation (on both buys and sells). (10.00%)
+        maxTok2Tax = 500; // Max add-on LP percentage of taxation (on both buys and sells). (5.00%)
     }
 
     modifier onlyDev() {
@@ -49,6 +51,7 @@ contract DarwinSwapLister is IDarwinSwapLister {
     // Allows a token owner (or the Dev address, in case the token is owned by address(0) et similia) to ask for the validation and listing of his token. This way users are able to put add-ons Tokenomics (1.0 or 2.0) on their tokens. (only if they get validated)
     // Also allows to propose modifies to an already listed token.
     function listToken(address tokenAddress, TokenInfo memory listingInfo) external {
+        require(block.timestamp > _tokenInfo[tokenAddress].unlockTime, "DarwinSwap: TAXES_LOCKED");
         require(tokenAddress != address(0), "DarwinSwap: ZERO_ADDRESS");
         require(bytes(listingInfo.purpose).length > 0, "DarwinSwap: EMPTY_PURPOSE");
         require(_tokenInfo[tokenAddress].status != TokenStatus.BANNED && !isUserBannedFromListing[msg.sender], "DarwinSwap: TOKEN_OR_BANNED");
@@ -64,7 +67,7 @@ contract DarwinSwapLister is IDarwinSwapLister {
             listingInfo.feeReceiver = msg.sender;
         }
 
-        bool valid = Tokenomics2Library.ensureTokenomics(listingInfo, maxTok1Tax, maxTok2Tax);
+        bool valid = Tokenomics2Library.ensureTokenomics(listingInfo, maxTok1Tax, maxTok2Tax, maxTotalTax);
         require(valid, "DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
 
         listingInfo.addedToks = Tokenomics2Library.adjustTokenomics(listingInfo.addedToks);
@@ -108,14 +111,19 @@ contract DarwinSwapLister is IDarwinSwapLister {
         return _tokenInfo[_token];
     }
 
-    // setter for max add-on Tokenomics 1.0 percentage of taxation
+    // setter for max add-on user percentage of taxation
     function setMaxTok1Tax(uint _maxTok1Tax) external onlyDev {
         maxTok1Tax = _maxTok1Tax;
     }
 
-    // setter for max add-on Tokenomics 2.0 percentage of taxation
+    // setter for max add-on LP percentage of taxation
     function setMaxTok2Tax(uint _maxTok2Tax) external onlyDev {
         maxTok2Tax = _maxTok2Tax;
+    }
+
+    // setter for max add-on total percentage of taxation
+    function setMaxTotalTax(uint _maxTotalTax) external onlyDev {
+        maxTotalTax = _maxTotalTax;
     }
 
     // bans or unbans a user from listing

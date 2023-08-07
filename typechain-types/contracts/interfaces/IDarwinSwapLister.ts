@@ -97,6 +97,7 @@ export declare namespace IDarwinSwapLister {
     valid: PromiseOrValue<boolean>;
     official: PromiseOrValue<boolean>;
     purpose: PromiseOrValue<string>;
+    unlockTime: PromiseOrValue<BigNumberish>;
   };
 
   export type TokenInfoStructOutput = [
@@ -108,7 +109,8 @@ export declare namespace IDarwinSwapLister {
     string,
     boolean,
     boolean,
-    string
+    string,
+    BigNumber
   ] & {
     ownToks: IDarwinSwapLister.OwnTokenomicsInfoStructOutput;
     addedToks: IDarwinSwapLister.TokenomicsInfoStructOutput;
@@ -119,6 +121,7 @@ export declare namespace IDarwinSwapLister {
     valid: boolean;
     official: boolean;
     purpose: string;
+    unlockTime: BigNumber;
   };
 }
 

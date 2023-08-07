@@ -91,6 +91,7 @@ export declare namespace IDarwinSwapLister {
     valid: PromiseOrValue<boolean>;
     official: PromiseOrValue<boolean>;
     purpose: PromiseOrValue<string>;
+    unlockTime: PromiseOrValue<BigNumberish>;
   };
 
   export type TokenInfoStructOutput = [
@@ -102,7 +103,8 @@ export declare namespace IDarwinSwapLister {
     string,
     boolean,
     boolean,
-    string
+    string,
+    BigNumber
   ] & {
     ownToks: IDarwinSwapLister.OwnTokenomicsInfoStructOutput;
     addedToks: IDarwinSwapLister.TokenomicsInfoStructOutput;
@@ -113,13 +115,14 @@ export declare namespace IDarwinSwapLister {
     valid: boolean;
     official: boolean;
     purpose: string;
+    unlockTime: BigNumber;
   };
 }
 
 export interface Tokenomics2LibraryInterface extends utils.Interface {
   functions: {
     "adjustTokenomics((uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256))": FunctionFragment;
-    "ensureTokenomics(((uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint8,address,address,address,bool,bool,string),uint256,uint256)": FunctionFragment;
+    "ensureTokenomics(((uint256,uint256),(uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256,uint256),uint8,address,address,address,bool,bool,string,uint256),uint256,uint256,uint256)": FunctionFragment;
     "handleLIRefill(address,address,address,uint256,uint256)": FunctionFragment;
   };
 
@@ -138,6 +141,7 @@ export interface Tokenomics2LibraryInterface extends utils.Interface {
     functionFragment: "ensureTokenomics",
     values: [
       IDarwinSwapLister.TokenInfoStruct,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>
     ]
@@ -209,6 +213,7 @@ export interface Tokenomics2Library extends BaseContract {
       tokInfo: IDarwinSwapLister.TokenInfoStruct,
       maxTok1Tax: PromiseOrValue<BigNumberish>,
       maxTok2Tax: PromiseOrValue<BigNumberish>,
+      maxTotalTax: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[boolean] & { valid: boolean }>;
 
@@ -231,6 +236,7 @@ export interface Tokenomics2Library extends BaseContract {
     tokInfo: IDarwinSwapLister.TokenInfoStruct,
     maxTok1Tax: PromiseOrValue<BigNumberish>,
     maxTok2Tax: PromiseOrValue<BigNumberish>,
+    maxTotalTax: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
@@ -253,6 +259,7 @@ export interface Tokenomics2Library extends BaseContract {
       tokInfo: IDarwinSwapLister.TokenInfoStruct,
       maxTok1Tax: PromiseOrValue<BigNumberish>,
       maxTok2Tax: PromiseOrValue<BigNumberish>,
+      maxTotalTax: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -278,6 +285,7 @@ export interface Tokenomics2Library extends BaseContract {
       tokInfo: IDarwinSwapLister.TokenInfoStruct,
       maxTok1Tax: PromiseOrValue<BigNumberish>,
       maxTok2Tax: PromiseOrValue<BigNumberish>,
+      maxTotalTax: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -301,6 +309,7 @@ export interface Tokenomics2Library extends BaseContract {
       tokInfo: IDarwinSwapLister.TokenInfoStruct,
       maxTok1Tax: PromiseOrValue<BigNumberish>,
       maxTok2Tax: PromiseOrValue<BigNumberish>,
+      maxTotalTax: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

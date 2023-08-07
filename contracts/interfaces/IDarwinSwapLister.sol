@@ -13,6 +13,7 @@ interface IDarwinSwapLister {
         bool valid; //? Only true if the token has been POSITIVELY validated by a Darwin team validator
         bool official; //? Only true if the token is either Darwin, WBNB, or a selected list of tokens like USDT, USDC, etc. If "official" is true, other tokens paired with this token will be able to execute tokenomics, if any
         string purpose; //? Why are you sending the fees to the feeReceiver address? Is it a treasury? Will it be used for buybacks? Marketing?
+        uint unlockTime; //? Time when the tax lock will end (and taxes will be modifiable again). 0 if no lock.
     }
 
     struct OwnTokenomicsInfo {

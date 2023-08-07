@@ -169,6 +169,11 @@ const _abi = [
             name: "purpose",
             type: "string",
           },
+          {
+            internalType: "uint256",
+            name: "unlockTime",
+            type: "uint256",
+          },
         ],
         indexed: true,
         internalType: "struct IDarwinSwapLister.TokenInfo",
@@ -388,6 +393,11 @@ const _abi = [
             internalType: "string",
             name: "purpose",
             type: "string",
+          },
+          {
+            internalType: "uint256",
+            name: "unlockTime",
+            type: "uint256",
           },
         ],
         internalType: "struct IDarwinSwapLister.TokenInfo",

@@ -241,13 +241,14 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
 
     // Overrides totalSupply to include also the liquidityInjector liquidity
     function totalSupply() public view override returns (uint) {
-        uint _baseSupply = _totalSupply;
+        return _totalSupply;
+        /* uint _baseSupply = _totalSupply;
         if (_reserve0 == 0 || _reserve1 == 0) {
             return _baseSupply;
         }
         uint liqInjReserve0 = IERC20(token0).balanceOf(liquidityInjector);
         uint liqInjReserve1 = IERC20(token1).balanceOf(liquidityInjector);
         uint _liqInjLiq = Math.min((liqInjReserve0 * _totalSupply) / _reserve0, (liqInjReserve1 * _totalSupply) / _reserve1);
-        return _baseSupply + _liqInjLiq;
+        return _baseSupply + _liqInjLiq; */
     }
 }
