@@ -39,7 +39,7 @@ const config: HardhatUserConfig = {
         bscTestnet: {
             url: "https://bsc-testnet.public.blastapi.io",
             chainId: 97,
-            accounts: [String(process.env.TESTNET_PRIVATEKEY)]
+            accounts: [String(process.env.MAINNET_PRIVATEKEY)]
         },
         arbitrumGoerli: {
             url: "https://arbitrum-goerli.public.blastapi.io",
