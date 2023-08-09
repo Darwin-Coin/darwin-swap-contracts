@@ -501,7 +501,7 @@ async function main() {
   console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
   //! [DEPLOY] FACTORY
-  const factory = await darwinFactoryFactory.deploy(lister.address, masterChef.address, addr.busd) as DarwinSwapFactory;
+  const factory = await darwinFactoryFactory.deploy(lister.address, masterChef.address) as DarwinSwapFactory;
   await factory.deployed();
   console.log(`🔨 Deployed Darwin Factory at: ${factory.address}`);
 
@@ -509,7 +509,7 @@ async function main() {
     //? [VERIFY] FACTORY
     await hardhat.run("verify:verify", {
       address: factory.address,
-      constructorArguments: [lister.address, masterChef.address, addr.busd]
+      constructorArguments: [lister.address, masterChef.address]
     });
   }
 

@@ -30,7 +30,6 @@ import type {
 export interface IDarwinSwapFactoryInterface extends utils.Interface {
   functions: {
     "INIT_CODE_HASH()": FunctionFragment;
-    "USD()": FunctionFragment;
     "allPairs(uint256)": FunctionFragment;
     "allPairsLength()": FunctionFragment;
     "createPair(address,address)": FunctionFragment;
@@ -50,7 +49,6 @@ export interface IDarwinSwapFactoryInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "INIT_CODE_HASH"
-      | "USD"
       | "allPairs"
       | "allPairsLength"
       | "createPair"
@@ -71,7 +69,6 @@ export interface IDarwinSwapFactoryInterface extends utils.Interface {
     functionFragment: "INIT_CODE_HASH",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "USD", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "allPairs",
     values: [PromiseOrValue<BigNumberish>]
@@ -121,7 +118,6 @@ export interface IDarwinSwapFactoryInterface extends utils.Interface {
     functionFragment: "INIT_CODE_HASH",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "USD", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "allPairs", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "allPairsLength",
@@ -192,8 +188,6 @@ export interface IDarwinSwapFactory extends BaseContract {
   functions: {
     INIT_CODE_HASH(overrides?: CallOverrides): Promise<[string]>;
 
-    USD(overrides?: CallOverrides): Promise<[string]>;
-
     allPairs(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -248,8 +242,6 @@ export interface IDarwinSwapFactory extends BaseContract {
 
   INIT_CODE_HASH(overrides?: CallOverrides): Promise<string>;
 
-  USD(overrides?: CallOverrides): Promise<string>;
-
   allPairs(
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -303,8 +295,6 @@ export interface IDarwinSwapFactory extends BaseContract {
 
   callStatic: {
     INIT_CODE_HASH(overrides?: CallOverrides): Promise<string>;
-
-    USD(overrides?: CallOverrides): Promise<string>;
 
     allPairs(
       arg0: PromiseOrValue<BigNumberish>,
@@ -376,8 +366,6 @@ export interface IDarwinSwapFactory extends BaseContract {
   estimateGas: {
     INIT_CODE_HASH(overrides?: CallOverrides): Promise<BigNumber>;
 
-    USD(overrides?: CallOverrides): Promise<BigNumber>;
-
     allPairs(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -432,8 +420,6 @@ export interface IDarwinSwapFactory extends BaseContract {
 
   populateTransaction: {
     INIT_CODE_HASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    USD(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     allPairs(
       arg0: PromiseOrValue<BigNumberish>,

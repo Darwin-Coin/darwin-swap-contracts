@@ -4,7 +4,7 @@ import { expect } from "chai";
 import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
 import * as hardhat from "hardhat";
 import { ethers } from "hardhat";
-import { DarwinLiquidityBundles, DarwinMasterChef, DarwinSwapFactory, DarwinSwapLister, DarwinSwapPair, DarwinSwapRouter, Tokenomics2Library } from "../typechain-types";
+import { DarwinLiquidityBundles, DarwinMasterChef, DarwinSwapFactory, DarwinSwapLister, DarwinSwapPair, DarwinSwapRouter, TestERC202, Tokenomics2Library } from "../typechain-types";
 import { TestERC20 } from "../typechain-types/contracts/test/TestERC20";
 import { BigNumber } from "ethers";
 
@@ -33,10 +33,10 @@ const PROPOSAL = {
     tokenB2TaxOnBuy: 0,
     refundOnSell: 0,
     refundOnBuy: 0,
-    tokenB1SellToADG: 0,
-    tokenB1BuyToADG: 0,
-    tokenB2SellToADG: 0,
-    tokenB2BuyToADG: 0
+    tokenB1SellToLI: 0,
+    tokenB1BuyToLI: 0,
+    tokenB2SellToLI: 0,
+    tokenB2BuyToLI: 0
   },
   status: TokenStatus.UNLISTED,
   validator: ZERO,
@@ -44,7 +44,8 @@ const PROPOSAL = {
   official: false,
   owner: ZERO,
   feeReceiver: ZEROT,
-  purpose: "not empty"
+  purpose: "not empty",
+  unlockTime: 0
 }
 
 function eth(num: string): BigNumber {
@@ -68,12 +69,13 @@ describe("Test Suite", function () {
     PROPOSAL.addedToks.tokenB2TaxOnBuy = 0;
     PROPOSAL.addedToks.refundOnSell = 0;
     PROPOSAL.addedToks.refundOnBuy = 0;
-    PROPOSAL.addedToks.tokenB1SellToADG = 0;
-    PROPOSAL.addedToks.tokenB1BuyToADG = 0;
-    PROPOSAL.addedToks.tokenB2SellToADG = 0;
-    PROPOSAL.addedToks.tokenB2BuyToADG = 0;
+    PROPOSAL.addedToks.tokenB1SellToLI = 0;
+    PROPOSAL.addedToks.tokenB1BuyToLI = 0;
+    PROPOSAL.addedToks.tokenB2SellToLI = 0;
+    PROPOSAL.addedToks.tokenB2BuyToLI = 0;
     PROPOSAL.purpose = "not empty";
     PROPOSAL.feeReceiver = ZEROT;
+    PROPOSAL.unlockTime = 0;
     return PROPOSAL;
   }
 
@@ -99,7 +101,7 @@ describe("Test Suite", function () {
     const darwinListerFactory = await ethers.getContractFactory("DarwinSwapLister", {libraries: {Tokenomics2Library: library.address}});
     const pairFactory = await ethers.getContractFactory("DarwinSwapPair", {libraries: {Tokenomics2Library: library.address}});
     const lister = await darwinListerFactory.deploy() as DarwinSwapLister;
-    const factory = await darwinFactoryFactory.deploy(lister.address, masterChef.address, busd.address) as DarwinSwapFactory;
+    const factory = await darwinFactoryFactory.deploy(lister.address, masterChef.address) as DarwinSwapFactory;
     await lister.setFactory(factory.address);
     const router = await darwinRouterFactory.deploy(factory.address, weth.address) as DarwinSwapRouter;
     await factory.setRouter(router.address);
@@ -215,7 +217,7 @@ describe("Test Suite", function () {
 
     it("Tokenomics Potential Exploit", async function () {
       const { router, owner, weth, darwin, darwinPair, pairFactory } = await loadFixture(pairFixture);
-      const swaps = 30;
+      const swaps = 3;
       const balanceBefore = await darwin.balanceOf(owner.address);
       const ethBalanceBefore = await owner.getBalance();
       console.log("          1️⃣  ETH Balance (before): " + ethers.utils.formatEther(ethBalanceBefore));
@@ -229,8 +231,8 @@ describe("Test Suite", function () {
       };
       console.log("             DONE " + swaps + " SWAPS");
       const pairContract = pairFactory.attach(darwinPair);
-      const adg = await pairContract.antiDumpGuard();
-      const adgFactory = await ethers.getContractFactory("AntiDumpGuard");
+      const adg = await pairContract.liquidityInjector();
+      const adgFactory = await ethers.getContractFactory("LiquidityInjector");
       const adgContract = adgFactory.attach(adg);
       console.log("          1️⃣  ETH Balance (before inject): " + ethers.utils.formatEther(await owner.getBalance()));
       console.log("          2️⃣  Darwin Balance (before inject): " + ethers.utils.formatEther(await darwin.balanceOf(owner.address)));
@@ -284,12 +286,12 @@ describe("Test Suite", function () {
 
     // LISTER - TOKEN LISTING
     describe("Token Listing", function () {
-      it("Tokens can set Tokenomics 1.0 when listing a token on buys or sells, and on coins or tokens, up to 20% per buy or sell", async function () {
+      it("Tokens can set Tokenomics 1.0 when listing a token on buys or sells, and on coins or tokens, up to 10% per buy or sell", async function () {
         const { lister, token, token1 } = await loadFixture(deployFixture);
         let prop = proposal();
-        prop.addedToks.tokenA1TaxOnSell = 2000;
+        prop.addedToks.tokenA1TaxOnSell = 1000;
         await expect(await lister.listToken(token.address, PROPOSAL)).to.not.be.reverted;
-        prop.addedToks.tokenA1TaxOnSell = 2001;
+        prop.addedToks.tokenA1TaxOnSell = 1001;
         await expect(lister.listToken(token1.address, PROPOSAL)).to.be.revertedWith("DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
       });
 
@@ -306,19 +308,19 @@ describe("Test Suite", function () {
           changeTokenBalances(weth, [owner.address, pair.address], [amountOut, "-" + amountOut.toString()]);
       });
 
-      it("Tokens can set Tokenomics 2.0 when listing a token on buys or sells, and on coins or tokens, up to 10% per buy or sell", async function () {
+      it("Tokens can set Tokenomics 2.0 when listing a token on buys or sells, and on coins or tokens, up to 5% per buy or sell", async function () {
         const { lister, token, token1 } = await loadFixture(deployFixture);
         let prop = proposal();
-        prop.addedToks.tokenA2TaxOnSell = 1000;
+        prop.addedToks.tokenA2TaxOnSell = 500;
         await expect(await lister.listToken(token.address, prop)).to.not.be.reverted;
-        prop.addedToks.tokenA2TaxOnSell = 1001;
+        prop.addedToks.tokenA2TaxOnSell = 501;
         await expect(lister.listToken(token1.address, prop)).to.be.revertedWith("DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
       });
 
       it("Tokenomics 2.0 takes tokens from the liquidity pool", async function () {
         const SWAPAMOUNT = "1";
         fixtureProp = proposal();
-        fixtureProp.addedToks.tokenA2TaxOnSell = 1000;
+        fixtureProp.addedToks.tokenA2TaxOnSell = 500;
         const { owner, router, token, weth, pair, addedToks } = await loadFixture(pairFixture);
         const arrivedAmount = eth(SWAPAMOUNT).sub(eth(SWAPAMOUNT).mul(addedToks.tokenA2TaxOnSell).div(10000));
         const reserves = await pair.getReserves()
@@ -331,13 +333,13 @@ describe("Test Suite", function () {
       it("Tokens can set Tokenomics 1.0 and Tokenomics 2.0 when listing a token up to X% per buy or sell", async function () {
         const { lister, token, token1 } = await loadFixture(deployFixture);
         let prop = proposal();
-        prop.addedToks.tokenA2TaxOnSell = 1000;
-        prop.addedToks.tokenA1TaxOnSell = 2000;
+        prop.addedToks.tokenA2TaxOnSell = 500;
+        prop.addedToks.tokenA1TaxOnSell = 1000;
         await expect(await lister.listToken(token.address, prop)).to.not.be.reverted;
-        prop.addedToks.tokenA2TaxOnSell = 1001;
+        prop.addedToks.tokenA2TaxOnSell = 501;
         await expect(lister.listToken(token1.address, prop)).to.be.revertedWith("DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
-        prop.addedToks.tokenA2TaxOnSell = 1000;
-        prop.addedToks.tokenA1TaxOnSell = 2001;
+        prop.addedToks.tokenA2TaxOnSell = 500;
+        prop.addedToks.tokenA1TaxOnSell = 1001;
         await expect(lister.listToken(token1.address, prop)).to.be.revertedWith("DarwinSwap: INVALID_REQUESTED_TOKENOMICS");
       });
 
@@ -355,6 +357,13 @@ describe("Test Suite", function () {
         const { token, weth, pair, router, owner } = await loadFixture(unofficialPairFixture);
         await expect(await router.swapExactTokensForTokensSupportingFeeOnTransferTokens(eth(SWAPAMOUNT), 0, [token.address, weth.address], owner.address, Math.floor(Date.now() / 1000) + 600)).to.
           changeTokenBalances(token, [owner.address, pair.address], [eth("-" + SWAPAMOUNT), eth(SWAPAMOUNT)]);
+      });
+
+      it("An already listed token can be relisted", async function () {
+        const {weth, lister} = await loadFixture(pairFixture);
+        fixtureProp = proposal();
+        await lister.listOfficialToken(weth.address);
+        await expect(await lister.listToken(weth.address, fixtureProp)).to.not.be.reverted;
       });
     });    
   });

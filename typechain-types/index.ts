@@ -106,6 +106,8 @@ export type { DarwinMasterChef } from "./contracts/MasterChef.sol/DarwinMasterCh
 export { DarwinMasterChef__factory } from "./factories/contracts/MasterChef.sol/DarwinMasterChef__factory";
 export type { TestERC20 } from "./contracts/test/TestERC20";
 export { TestERC20__factory } from "./factories/contracts/test/TestERC20__factory";
+export type { TestERC202 } from "./contracts/test/TestERC202";
+export { TestERC202__factory } from "./factories/contracts/test/TestERC202__factory";
 export type { BoosterNFT } from "./contracts/token-contracts/BoosterNFT";
 export { BoosterNFT__factory } from "./factories/contracts/token-contracts/BoosterNFT__factory";
 export type { Darwin } from "./contracts/token-contracts/Darwin";

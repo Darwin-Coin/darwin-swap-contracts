@@ -55,19 +55,6 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "USD",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "uint256",

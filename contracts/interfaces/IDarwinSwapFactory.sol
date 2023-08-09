@@ -11,7 +11,6 @@ interface IDarwinSwapFactory {
     function feeTo() external view returns (address);
     function router() external view returns (address);
     function liquidityBundles() external view returns (IDarwinLiquidityBundles);
-    function USD() external view returns (address);
     function masterChef() external view returns (IDarwinMasterChef);
 
     function getPair(address tokenA, address tokenB) external view returns (address pair);

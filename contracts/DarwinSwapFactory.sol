@@ -14,8 +14,6 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
     address public lister;
     address public feeTo;
     IDarwinLiquidityBundles public liquidityBundles;
-    // the stablecoin used as USD value (BUSD)
-    address public USD;
     IDarwinMasterChef public masterChef;
 
     mapping(address => mapping(address => address)) public getPair;
@@ -27,10 +25,9 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
 
     bytes32 public constant INIT_CODE_HASH = keccak256(abi.encodePacked(type(DarwinSwapPair).creationCode));
 
-    constructor(address _lister, IDarwinMasterChef _masterChef, address _USD) {
+    constructor(address _lister, IDarwinMasterChef _masterChef) {
         dev = msg.sender;
         lister = _lister;
-        USD = _USD;
         masterChef = _masterChef;
         // Create LiquidityBundles contract
         bytes memory bytecode = type(DarwinLiquidityBundles).creationCode;
