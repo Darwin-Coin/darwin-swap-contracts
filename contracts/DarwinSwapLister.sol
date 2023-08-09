@@ -77,6 +77,16 @@ contract DarwinSwapLister is IDarwinSwapLister {
         emit TokenListed(tokenAddress, listingInfo);
     }
 
+    function increaseLockPeriod(address _tokenAddress, uint _newUnlockDate) external {
+        require(_newUnlockDate > _tokenInfo[_tokenAddress].unlockTime, "DarwinSwap: LOCK_BEFORE_LOCK_END");
+        address owner = _getTokenOwner(_tokenAddress);
+        require(msg.sender == owner || isValidator[msg.sender], "DarwinSwap: CALLER_NOT_TOKEN_OWNER_OR_VALIDATOR");
+
+        _tokenInfo[_tokenAddress].unlockTime = _newUnlockDate;
+
+        emit TaxLockPeriodUpdated(_tokenAddress, _newUnlockDate);
+    }
+
     // Lists DARWIN and pairs with WETH, with 5% tax on LP on buys
     function listDarwinWithWETH(address darwin, address weth, address darwinCommunity) external onlyDev {
         // DARWIN validate

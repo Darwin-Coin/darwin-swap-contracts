@@ -11,12 +11,12 @@ async function main() {
   const tokenomics2LibFactory = await ethers.getContractFactory("Tokenomics2Library");
 
   //! [ATTACH] TOKENOMICS2
-  const library = tokenomics2LibFactory.attach("0x7344235DA3d30A6b9364455386878c74E6f13a86") as Tokenomics2Library;
+  const library = tokenomics2LibFactory.attach("0x9eaD81904642D8cD05aBe98CDA5040DD3F04f3c8") as Tokenomics2Library;
   await library.deployed();
   console.log(`🔨 Attached Tokenomics 2.0 Library at: ${library.address}`);
 
-  const MASTERCHEF = "0x13799128815a55F4DF67392d714cF5cB9Caf60f4";
-  const FACTORY = "0xEF99E340457e6bb7E4b0c08836F1573E12B4Bb43";
+  const MASTERCHEF = "0xEF99E340457e6bb7E4b0c08836F1573E12B4Bb43";
+  const FACTORY = "0x5aB16130ca720850dD6Ed4ac85137634447D25db";
 
   // DECLARE FACTORIES 1
   const masterChefFactory = await ethers.getContractFactory("DarwinMasterChef");

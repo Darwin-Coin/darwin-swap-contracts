@@ -174,13 +174,27 @@ export interface IDarwinSwapListerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "tokenInfo", data: BytesLike): Result;
 
   events: {
+    "TaxLockPeriodUpdated(address,uint256)": EventFragment;
     "TokenBanned(address,address)": EventFragment;
     "TokenListed(address,tuple)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "TaxLockPeriodUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenBanned"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenListed"): EventFragment;
 }
+
+export interface TaxLockPeriodUpdatedEventObject {
+  tokenAddress: string;
+  newUnlockDate: BigNumber;
+}
+export type TaxLockPeriodUpdatedEvent = TypedEvent<
+  [string, BigNumber],
+  TaxLockPeriodUpdatedEventObject
+>;
+
+export type TaxLockPeriodUpdatedEventFilter =
+  TypedEventFilter<TaxLockPeriodUpdatedEvent>;
 
 export interface TokenBannedEventObject {
   tokenAddress: string;
@@ -295,6 +309,15 @@ export interface IDarwinSwapLister extends BaseContract {
   };
 
   filters: {
+    "TaxLockPeriodUpdated(address,uint256)"(
+      tokenAddress?: PromiseOrValue<string> | null,
+      newUnlockDate?: PromiseOrValue<BigNumberish> | null
+    ): TaxLockPeriodUpdatedEventFilter;
+    TaxLockPeriodUpdated(
+      tokenAddress?: PromiseOrValue<string> | null,
+      newUnlockDate?: PromiseOrValue<BigNumberish> | null
+    ): TaxLockPeriodUpdatedEventFilter;
+
     "TokenBanned(address,address)"(
       tokenAddress?: PromiseOrValue<string> | null,
       ownerAddress?: PromiseOrValue<string> | null

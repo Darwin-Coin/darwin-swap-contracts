@@ -52,6 +52,7 @@ interface IDarwinSwapLister {
     }
 
     event TokenListed(address indexed tokenAddress, TokenInfo indexed listingInfo);
+    event TaxLockPeriodUpdated(address indexed tokenAddress, uint indexed newUnlockDate);
     event TokenBanned(address indexed tokenAddress, address indexed ownerAddress);
 
     function maxTok1Tax() external view returns (uint);

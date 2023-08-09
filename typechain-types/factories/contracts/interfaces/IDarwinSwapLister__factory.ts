@@ -21,6 +21,25 @@ const _abi = [
       },
       {
         indexed: true,
+        internalType: "uint256",
+        name: "newUnlockDate",
+        type: "uint256",
+      },
+    ],
+    name: "TaxLockPeriodUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+      {
+        indexed: true,
         internalType: "address",
         name: "ownerAddress",
         type: "address",

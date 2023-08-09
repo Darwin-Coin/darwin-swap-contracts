@@ -130,6 +130,7 @@ export interface DarwinSwapListerInterface extends utils.Interface {
     "createPair(address,address)": FunctionFragment;
     "dev()": FunctionFragment;
     "factory()": FunctionFragment;
+    "increaseLockPeriod(address,uint256)": FunctionFragment;
     "isUserBannedFromListing(address)": FunctionFragment;
     "isValidator(address)": FunctionFragment;
     "listDarwinWithWETH(address,address,address)": FunctionFragment;
@@ -154,6 +155,7 @@ export interface DarwinSwapListerInterface extends utils.Interface {
       | "createPair"
       | "dev"
       | "factory"
+      | "increaseLockPeriod"
       | "isUserBannedFromListing"
       | "isValidator"
       | "listDarwinWithWETH"
@@ -179,6 +181,10 @@ export interface DarwinSwapListerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "dev", values?: undefined): string;
   encodeFunctionData(functionFragment: "factory", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "increaseLockPeriod",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(
     functionFragment: "isUserBannedFromListing",
     values: [PromiseOrValue<string>]
@@ -256,6 +262,10 @@ export interface DarwinSwapListerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "dev", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "factory", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "increaseLockPeriod",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "isUserBannedFromListing",
     data: BytesLike
   ): Result;
@@ -304,13 +314,27 @@ export interface DarwinSwapListerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "tokenInfo", data: BytesLike): Result;
 
   events: {
+    "TaxLockPeriodUpdated(address,uint256)": EventFragment;
     "TokenBanned(address,address)": EventFragment;
     "TokenListed(address,tuple)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "TaxLockPeriodUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenBanned"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenListed"): EventFragment;
 }
+
+export interface TaxLockPeriodUpdatedEventObject {
+  tokenAddress: string;
+  newUnlockDate: BigNumber;
+}
+export type TaxLockPeriodUpdatedEvent = TypedEvent<
+  [string, BigNumber],
+  TaxLockPeriodUpdatedEventObject
+>;
+
+export type TaxLockPeriodUpdatedEventFilter =
+  TypedEventFilter<TaxLockPeriodUpdatedEvent>;
 
 export interface TokenBannedEventObject {
   tokenAddress: string;
@@ -370,6 +394,12 @@ export interface DarwinSwapLister extends BaseContract {
     dev(overrides?: CallOverrides): Promise<[string]>;
 
     factory(overrides?: CallOverrides): Promise<[string]>;
+
+    increaseLockPeriod(
+      _tokenAddress: PromiseOrValue<string>,
+      _newUnlockDate: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     isUserBannedFromListing(
       arg0: PromiseOrValue<string>,
@@ -464,6 +494,12 @@ export interface DarwinSwapLister extends BaseContract {
 
   factory(overrides?: CallOverrides): Promise<string>;
 
+  increaseLockPeriod(
+    _tokenAddress: PromiseOrValue<string>,
+    _newUnlockDate: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   isUserBannedFromListing(
     arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
@@ -557,6 +593,12 @@ export interface DarwinSwapLister extends BaseContract {
 
     factory(overrides?: CallOverrides): Promise<string>;
 
+    increaseLockPeriod(
+      _tokenAddress: PromiseOrValue<string>,
+      _newUnlockDate: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     isUserBannedFromListing(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -641,6 +683,15 @@ export interface DarwinSwapLister extends BaseContract {
   };
 
   filters: {
+    "TaxLockPeriodUpdated(address,uint256)"(
+      tokenAddress?: PromiseOrValue<string> | null,
+      newUnlockDate?: PromiseOrValue<BigNumberish> | null
+    ): TaxLockPeriodUpdatedEventFilter;
+    TaxLockPeriodUpdated(
+      tokenAddress?: PromiseOrValue<string> | null,
+      newUnlockDate?: PromiseOrValue<BigNumberish> | null
+    ): TaxLockPeriodUpdatedEventFilter;
+
     "TokenBanned(address,address)"(
       tokenAddress?: PromiseOrValue<string> | null,
       ownerAddress?: PromiseOrValue<string> | null
@@ -670,6 +721,12 @@ export interface DarwinSwapLister extends BaseContract {
     dev(overrides?: CallOverrides): Promise<BigNumber>;
 
     factory(overrides?: CallOverrides): Promise<BigNumber>;
+
+    increaseLockPeriod(
+      _tokenAddress: PromiseOrValue<string>,
+      _newUnlockDate: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     isUserBannedFromListing(
       arg0: PromiseOrValue<string>,
@@ -764,6 +821,12 @@ export interface DarwinSwapLister extends BaseContract {
     dev(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     factory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    increaseLockPeriod(
+      _tokenAddress: PromiseOrValue<string>,
+      _newUnlockDate: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     isUserBannedFromListing(
       arg0: PromiseOrValue<string>,

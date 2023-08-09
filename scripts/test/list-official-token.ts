@@ -15,8 +15,8 @@ async function main() {
   await library.deployed();
   console.log(`🔨 Attached Tokenomics 2.0 Library at: ${library.address}`);
 
-  const OFFICIAL = "0xeD24FC36d5Ee211Ea25A80239Fb8C4Cfd80f12Ee";
-  const LISTER = "0xB2e8299Dc021b350Fe0d97b7114f3504Ea15b560"
+  const OFFICIAL = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
+  const LISTER = "0x1034a378643dd9b286455E2A135e2d2Bb45F3D3b"
 
   // DECLARE FACTORIES 1
   const listerFactory = await ethers.getContractFactory("DarwinSwapLister", {libraries: {Tokenomics2Library: library.address}});
