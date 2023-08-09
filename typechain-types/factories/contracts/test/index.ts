@@ -2,4 +2,3 @@
 /* tslint:disable */
 /* eslint-disable */
 export { TestERC20__factory } from "./TestERC20__factory";
-export { TestERC202__factory } from "./TestERC202__factory";

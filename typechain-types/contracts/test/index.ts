@@ -2,4 +2,3 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { TestERC20 } from "./TestERC20";
-export type { TestERC202 } from "./TestERC202";
