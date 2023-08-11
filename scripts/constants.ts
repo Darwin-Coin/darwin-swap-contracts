@@ -1,7 +1,6 @@
 const TEST = true;
 export const VERIFY = !TEST;
-  // TODO: SET MASTERCHEF START DATE
-export const MASTERCHEF_START = Math.floor(Date.now() / 1000);
+export const MASTERCHEF_START = 1692403200; // Aug 19th 2023, 00:00:00 UTC
 
 export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
