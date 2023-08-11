@@ -54,6 +54,20 @@ async function main() {
     "0xff61EAF3C3fb27163444543277347e4D629E2a28"
   ];
 
+  const valuesAtLaunch = [
+    ethers.utils.parseEther("3000000"),
+    ethers.utils.parseEther("6000000"),
+    ethers.utils.parseEther("36871.09"),
+    ethers.utils.parseEther("367792.81"),
+    ethers.utils.parseEther("1761526.64"),
+    ethers.utils.parseEther("105679.92"),
+    ethers.utils.parseEther("22122.65"),
+    ethers.utils.parseEther("516195.26"),
+    ethers.utils.parseEther("402101.36"),
+    ethers.utils.parseEther("544361.08"),
+    ethers.utils.parseEther("243349.19")
+  ];
+
   const valuesDue = [
     ethers.utils.parseEther("12000000"),
     ethers.utils.parseEther("24000000"),
@@ -66,7 +80,7 @@ async function main() {
     ethers.utils.parseEther("1608405.43"),
     ethers.utils.parseEther("2177444.33"),
     ethers.utils.parseEther("973396.77"),
-  ]
+  ];
 
   const [owner] = await hardhat.ethers.getSigners();
   console.log(`💻 Deployer: ${owner.address}`);
@@ -84,7 +98,7 @@ async function main() {
   const ticketFactory = await ethers.getContractFactory("LootboxTicket");
 
   //! [DEPLOY] VESTER
-  const vester = await darwinVesterFactory.deploy(users, valuesDue, [addr.evotures]) as DarwinVester;
+  const vester = await darwinVesterFactory.deploy(users, valuesAtLaunch, valuesDue, [addr.evotures]) as DarwinVester;
   await vester.deployed();
   console.log(`🔨 Deployed Vester5 at: ${vester.address}`);
 
@@ -92,7 +106,7 @@ async function main() {
   if (VERIFY) {
     await hardhat.run("verify:verify", {
       address: vester.address,
-      constructorArguments: [users, valuesDue, [addr.evotures]]
+      constructorArguments: [users, valuesAtLaunch, valuesDue, [addr.evotures]]
     });
   }
 
