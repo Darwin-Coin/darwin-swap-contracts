@@ -142,8 +142,6 @@ export type { IDarwinVester } from "./contracts/token-contracts/interface/IDarwi
 export { IDarwinVester__factory } from "./factories/contracts/token-contracts/interface/IDarwinVester__factory";
 export type { IEvoturesNFT } from "./contracts/token-contracts/interface/IEvoturesNFT";
 export { IEvoturesNFT__factory } from "./factories/contracts/token-contracts/interface/IEvoturesNFT__factory";
-export type { ILootboxTicket } from "./contracts/token-contracts/interface/ILootboxTicket";
-export { ILootboxTicket__factory } from "./factories/contracts/token-contracts/interface/ILootboxTicket__factory";
 export type { IMultiplierNFT } from "./contracts/token-contracts/interface/IMultiplierNFT";
 export { IMultiplierNFT__factory } from "./factories/contracts/token-contracts/interface/IMultiplierNFT__factory";
 export type { IOldVester } from "./contracts/token-contracts/interface/IOldVester";
