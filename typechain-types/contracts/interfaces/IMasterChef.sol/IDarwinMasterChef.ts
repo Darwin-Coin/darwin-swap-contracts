@@ -86,6 +86,7 @@ export interface IDarwinMasterChefInterface extends utils.Interface {
   functions: {
     "darwin()": FunctionFragment;
     "depositByLPToken(address,uint256,bool,uint256)": FunctionFragment;
+    "dev()": FunctionFragment;
     "pendingDarwin(uint256,address)": FunctionFragment;
     "poolExistence(address)": FunctionFragment;
     "poolInfo()": FunctionFragment;
@@ -98,6 +99,7 @@ export interface IDarwinMasterChefInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "darwin"
       | "depositByLPToken"
+      | "dev"
       | "pendingDarwin"
       | "poolExistence"
       | "poolInfo"
@@ -116,6 +118,7 @@ export interface IDarwinMasterChefInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
+  encodeFunctionData(functionFragment: "dev", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "pendingDarwin",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
@@ -143,6 +146,7 @@ export interface IDarwinMasterChefInterface extends utils.Interface {
     functionFragment: "depositByLPToken",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "dev", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "pendingDarwin",
     data: BytesLike
@@ -299,6 +303,8 @@ export interface IDarwinMasterChef extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    dev(overrides?: CallOverrides): Promise<[string]>;
+
     pendingDarwin(
       _pid: PromiseOrValue<BigNumberish>,
       _user: PromiseOrValue<string>,
@@ -339,6 +345,8 @@ export interface IDarwinMasterChef extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  dev(overrides?: CallOverrides): Promise<string>;
+
   pendingDarwin(
     _pid: PromiseOrValue<BigNumberish>,
     _user: PromiseOrValue<string>,
@@ -378,6 +386,8 @@ export interface IDarwinMasterChef extends BaseContract {
       _lockDuration: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    dev(overrides?: CallOverrides): Promise<string>;
 
     pendingDarwin(
       _pid: PromiseOrValue<BigNumberish>,
@@ -493,6 +503,8 @@ export interface IDarwinMasterChef extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    dev(overrides?: CallOverrides): Promise<BigNumber>;
+
     pendingDarwin(
       _pid: PromiseOrValue<BigNumberish>,
       _user: PromiseOrValue<string>,
@@ -531,6 +543,8 @@ export interface IDarwinMasterChef extends BaseContract {
       _lockDuration: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    dev(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     pendingDarwin(
       _pid: PromiseOrValue<BigNumberish>,

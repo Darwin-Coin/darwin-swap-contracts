@@ -45,6 +45,7 @@ interface IDarwinMasterChef {
     function poolExistence(IERC20) external view returns (bool);
     function userInfo(uint256, address) external view returns (UserInfo memory);
     function darwin() external view returns (IERC20);
+    function dev() external view returns (address);
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);

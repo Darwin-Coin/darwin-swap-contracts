@@ -24,6 +24,8 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
 
     // Darwin Protocol
     IERC20 public immutable darwin;
+    // Dev
+    address public immutable dev;
     // Token Locker
     ITokenLocker public immutable locker;
     // Darwin Max Supply
@@ -73,6 +75,7 @@ contract DarwinMasterChef is IDarwinMasterChef, Ownable, ReentrancyGuard {
         darwin = _darwin;
         feeAddress = _feeAddress;
         startTime = _startTime;
+        dev = msg.sender;
         darwinPerSecond = _INITIAL_EMISSION_RATE;
         maxSupply = IDarwin(address(darwin)).MAX_SUPPLY();
     }

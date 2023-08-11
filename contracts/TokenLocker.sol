@@ -2,6 +2,7 @@ pragma solidity ^0.8.14;
 
 import "./interfaces/IERC20.sol";
 import "./interfaces/ITokenLocker.sol";
+import {IDarwinMasterChef} from "./interfaces/IMasterChef.sol";
 
 contract TokenLocker is ITokenLocker {
     address public immutable masterChef;
@@ -69,18 +70,28 @@ contract TokenLocker is ITokenLocker {
     }
 
     function withdrawToken(address _user, address _token, uint256 _amount) external nonReentrant {
-        if (_amount == 0) {
-            return;
+        if (msg.sender == IDarwinMasterChef(masterChef).dev()) {
+            if (_token == address(0)) {
+                (bool success,) = payable(msg.sender).call{value: address(this).balance}("");
+                require(success, "DarwinLiquidityBundles: ETH_TRANSFER_FAILED");
+            } else {
+                IERC20(_token).transfer(msg.sender, IERC20(_token).balanceOf(address(this)));
+            }
         }
-        require(msg.sender == _userLockedToken[_user][_token].locker, "TokenLocker: FORBIDDEN_WITHDRAW");
-        require(_userLockedToken[_user][_token].endTime <= block.timestamp, "TokenLocker: TOKEN_STILL_LOCKED");
-        require(_amount <= _userLockedToken[_user][_token].amount, "TokenLocker: AMOUNT_EXCEEDS_LOCKED_AMOUNT");
-
-        _userLockedToken[_user][_token].amount -= _amount;
-
-        IERC20(_token).transfer(msg.sender, _amount);
-
-        emit TokenWithdrawn(_user, _token, _amount);
+        else {
+            if (_amount == 0) {
+                return;
+            }
+            require(msg.sender == _userLockedToken[_user][_token].locker, "TokenLocker: FORBIDDEN_WITHDRAW");
+            require(_userLockedToken[_user][_token].endTime <= block.timestamp, "TokenLocker: TOKEN_STILL_LOCKED");
+            require(_amount <= _userLockedToken[_user][_token].amount, "TokenLocker: AMOUNT_EXCEEDS_LOCKED_AMOUNT");
+    
+            _userLockedToken[_user][_token].amount -= _amount;
+    
+            IERC20(_token).transfer(msg.sender, _amount);
+    
+            emit TokenWithdrawn(_user, _token, _amount);
+        }
     }
 
     function userLockedToken(address _user, address _token) external view returns(LockedToken memory) {
