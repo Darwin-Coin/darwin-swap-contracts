@@ -27,10 +27,10 @@ const PROPOSAL = {
       tokenB2TaxOnBuy: 250,
       refundOnSell: 0,
       refundOnBuy: 0,
-      tokenB1SellToADG: 0,
-      tokenB1BuyToADG: 0,
-      tokenB2SellToADG: 0,
-      tokenB2BuyToADG: 0
+      tokenB1SellToLI: 0,
+      tokenB1BuyToLI: 0,
+      tokenB2SellToLI: 0,
+      tokenB2BuyToLI: 0
     },
     status: TokenStatus.UNLISTED,
     validator: ZERO,
@@ -38,23 +38,23 @@ const PROPOSAL = {
     official: false,
     owner: ZERO,
     feeReceiver: "0x6d2E09bECCeED18FBd21F22d0A9D7967BCe208ef",
-    purpose: "Test Purpose"
+    purpose: "Test Purpose",
+    unlockTime: 0
   }
 
 async function main() {
   const [owner] = await hardhat.ethers.getSigners();
   console.log(`💻 Deployer: ${owner.address}`);
 
-  const HOW_MANY = 5;
-  const WETH = "0xB25406f5135eB6274c648B9B69A9218284904cFb"
-  const LISTER = "0xBcB50160947767852493491062AbA4b3a716f0c9";
-  const TO = "0x63a0704e005776B153248A500Dfd950873AFB186";
+  const HOW_MANY = 1;
+  const LISTER = "0x1034a378643dd9b286455E2A135e2d2Bb45F3D3b";
+  const TO = "0x6d2E09bECCeED18FBd21F22d0A9D7967BCe208ef";
 
   // DECLARE LIBRARY FACTORY
   const tokenomics2LibFactory = await ethers.getContractFactory("Tokenomics2Library");
 
   //! [ATTACH] TOKENOMICS2
-  const library = tokenomics2LibFactory.attach("0xE13B894f0b079c2F0B071AEaD77926E26108C1F8") as Tokenomics2Library;
+  const library = tokenomics2LibFactory.attach("0x9eaD81904642D8cD05aBe98CDA5040DD3F04f3c8") as Tokenomics2Library;
   await library.deployed();
   console.log(`🔨 Attached Tokenomics 2.0 Library at: ${library.address}`);
 
@@ -66,9 +66,6 @@ async function main() {
   const lister = listerFactory.attach(LISTER) as DarwinSwapLister;
   await lister.deployed();
   console.log(`🔨 Attached Lister at: ${lister.address}`);
-
-  const listOfficial = await lister.listOfficialToken(WETH);
-  await listOfficial.wait();
 
   for (let i = 0; i < HOW_MANY; i ++) {
 
