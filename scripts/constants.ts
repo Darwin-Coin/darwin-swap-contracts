@@ -27,6 +27,7 @@ export const BSC_ADDRESSES = {
 }
 
 export const TESTNET_ADDRESSES = {
+    evotures: "0x3A2F47d3fBd60975E00551d98557E6ea7Faf90f8",
     darwin: "0x371804a7db83EB618D1597b74272D2DBc6e77837",
     stakedDarwin: "",
     weth: "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd",
@@ -62,6 +63,7 @@ export const ARB_ADDRESSES = {
     privateSales: [
         ""
     ],
+    evotures: "0x3A2F47d3fBd60975E00551d98557E6ea7Faf90f8",
     weth: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1",
     feeTo: "0xC0F5Df473208f04E0C1dCb9C10037d990101761F",
     masterChefFeeTo: "0xC0F5Df473208f04E0C1dCb9C10037d990101761F",

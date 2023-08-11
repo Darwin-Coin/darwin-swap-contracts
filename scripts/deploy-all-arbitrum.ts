@@ -1,12 +1,11 @@
 import * as hardhat from "hardhat";
 import { ethers, upgrades } from "hardhat";
 import { DarwinLiquidityBundles, DarwinMasterChef, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
-import { DarwinBurner, DarwinCommunity, EvoturesNFT, LootboxTicket, DarwinStaking, VRFv2Consumer } from "../darwin-token-contracts/typechain-types";
+import { DarwinBurner, DarwinCommunity, LootboxTicket, DarwinStaking } from "../darwin-token-contracts/typechain-types";
 import { Darwin, DarwinPrivateSale, DarwinVester5, DarwinVester7, MultiplierNFT, StakedDarwin } from "../darwin-token-contracts/typechain-types/contracts";
 import { addr, BSC_ADDRESSES, MASTERCHEF_START, VERIFY, ZERO_ADDRESS } from "./constants";
 import { BigNumber } from "ethers";
 import { OldVester } from "../typechain-types/contracts/token-contracts";
-import { BoosterNFT, IBoosterNFT } from "../darwin-token-contracts/typechain-types/contracts/BoosterNFT";
 
 type UserInfo = {
   withdrawn: BigNumber,
@@ -126,122 +125,7 @@ async function main() {
   const stakedDarwinFactory = await ethers.getContractFactory("StakedDarwin");
   const darwinBurnerFactory = await ethers.getContractFactory("DarwinBurner");
   const stakingFactory = await ethers.getContractFactory("DarwinStaking");
-  const consumerFactory = await ethers.getContractFactory("VRFv2Consumer");
-  const boosterFactory = await ethers.getContractFactory("BoosterNFT");
-  const evoturesFactory = await ethers.getContractFactory("EvoturesNFT");
   const ticketFactory = await ethers.getContractFactory("LootboxTicket");
-  const multiplierFactory = await ethers.getContractFactory("MultiplierNFT");
-
-  const unminted: number[] = [];
-  const boosterUnminted: IBoosterNFT.KindStruct[] = [];
-  for (let i = 1; i < 361; i++) {
-    if (i < 121) {
-        unminted.push(i);
-    } else if (i < 241) {
-        unminted.push(i+880);
-    } else if (i != 301 && i != 360) {
-        unminted.push(i+1760);
-    }
-  }
-  for (let i = 3; i < 51; i++) {
-    if (i < 6) {
-      boosterUnminted.push({unminted: 10, no: i});
-    } else if (i < 10) {
-      boosterUnminted.push({unminted: 18, no: i});
-    } else if (i < 15) {
-      boosterUnminted.push({unminted: 30, no: i});
-    } else if (i < 21) {
-      boosterUnminted.push({unminted: 33, no: i});
-    } else {
-      boosterUnminted.push({unminted: 45, no: i});
-    }
-  }
-
-  //! [DEPLOY] CONSUMER
-  const {coordinator, keyHash, subscriptionId, confirmations} = consumerArgs(await owner.getChainId());
-  const consumer = await consumerFactory.deploy(coordinator, keyHash, subscriptionId, confirmations) as VRFv2Consumer;
-  await consumer.deployed();
-  console.log(`🔨 Deployed VRF Consumer at: ${consumer.address}`);
-
-  if (VERIFY) {
-    //? [VERIFY] CONSUMER
-    await hardhat.run("verify:verify", {
-      address: consumer.address,
-      constructorArguments: [coordinator, keyHash, subscriptionId, confirmations]
-    });
-  }
-
-  console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
-
-  //! [DEPLOY] BOOSTERS
-  const boosters = await boosterFactory.deploy(boosterUnminted) as BoosterNFT;
-  await boosters.deployed();
-  console.log(`🔨 Deployed Booster NFT at: ${boosters.address}`);
-
-  if (VERIFY) {
-    //? [VERIFY] BOOSTERS
-    await hardhat.run("verify:verify", {
-      address: boosters.address,
-      constructorArguments: [boosterUnminted]
-    });
-  }
-
-  console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
-
-  //! [DEPLOY] EVOTURES
-  const evotures = await evoturesFactory.deploy(unminted, boosters.address, consumer.address) as EvoturesNFT;
-  await evotures.deployed();
-  console.log(`🔨 Deployed Evotures NFT at: ${evotures.address}`);
-
-  //? [VERIFY] EVOTURES
-  if (VERIFY) {
-    await hardhat.run("verify:verify", {
-      address: evotures.address,
-      constructorArguments: [unminted, boosters.address, consumer.address]
-    });
-  }
-
-  console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
-
-  //* [INIT] BOOSTER WITH EVOTURES
-  const setEvotures = await boosters.setEvotures(evotures.address);
-  await setEvotures.wait();
-  console.log("🏁 Evotures address set in Booster contract");
-
-  //* [INIT] CONSUMER WITH EVOTURES
-  const initConsumer = await consumer.initialize(evotures.address);
-  await initConsumer.wait();
-  console.log("🏁 Evotures address set in Consumer contract");
-
-  console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
-
-  //! [DEPLOY] MULTIPLIER
-  const multiplier = await multiplierFactory.deploy() as MultiplierNFT;
-  await multiplier.deployed();
-  console.log(`🔨 Deployed Multiplier NFT at: ${multiplier.address}`);
-
-  //? [VERIFY] MULTIPLIER
-  if (VERIFY) {
-    await hardhat.run("verify:verify", {
-      address: multiplier.address,
-      constructorArguments: []
-    });
-  }
-
-  console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
-
-  //! [ATTACH] TICKET
-  const ticket = ticketFactory.attach(await multiplier.ticketsContract()) as LootboxTicket;
-  await ticket.deployed();
-  console.log(`🔨 Deployed Lootbox Ticket at: ${ticket.address}`);
-
-  //? [VERIFY] TICKET
-  if (VERIFY) {
-    await hardhat.run("verify:verify", {
-      address: ticket.address,
-      constructorArguments: []
-    });
-  }
 
   //! [DEPLOY] VESTER5
   const vester5 = await darwinVester5Factory.deploy(addr.kieran) as DarwinVester5;
@@ -259,7 +143,7 @@ async function main() {
   console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
   //! [DEPLOY] VESTER7
-  const vester7 = await darwinVester7Factory.deploy(privateSaleBuyers, buyersInfo, [evotures.address, multiplier.address]) as DarwinVester7;
+  const vester7 = await darwinVester7Factory.deploy(privateSaleBuyers, buyersInfo, [addr.evotures]) as DarwinVester7;
   await vester7.deployed();
   console.log(`🔨 Deployed Vester7 at: ${vester7.address}`);
 
@@ -267,7 +151,7 @@ async function main() {
   if (VERIFY) {
     await hardhat.run("verify:verify", {
       address: vester7.address,
-      constructorArguments: [privateSaleBuyers, buyersInfo, [evotures.address, multiplier.address]]
+      constructorArguments: [privateSaleBuyers, buyersInfo, [addr.evotures]]
     });
   }
 
@@ -333,9 +217,23 @@ async function main() {
     });
   }
 
+  
+  //! [DEPLOY] TICKET
+  const ticket = await ticketFactory.deploy(darwin.address) as LootboxTicket;
+  await ticket.deployed();
+  console.log(`🔨 Deployed Lootbox Ticket at: ${ticket.address}`);
+
+  //? [VERIFY] TICKET
+  if (VERIFY) {
+    await hardhat.run("verify:verify", {
+      address: ticket.address,
+      constructorArguments: [darwin.address]
+    });
+  }
+
 
   //! [DEPLOY] STAKING
-  const staking = await stakingFactory.deploy(darwin.address, stakedDarwin.address, [evotures.address, multiplier.address]) as DarwinStaking;
+  const staking = await stakingFactory.deploy(darwin.address, stakedDarwin.address, [addr.evotures]) as DarwinStaking;
   await staking.deployed();
   console.log(`🔨 Deployed Darwin Staking at: ${staking.address}`);
 
@@ -343,7 +241,7 @@ async function main() {
   if (VERIFY) {
     await hardhat.run("verify:verify", {
       address: staking.address,
-      constructorArguments: [darwin.address, stakedDarwin.address, [evotures.address, multiplier.address]]
+      constructorArguments: [darwin.address, stakedDarwin.address, [addr.evotures]]
     });
   }
 
@@ -379,13 +277,6 @@ async function main() {
     await tx.wait();
   }
   console.log(`🏁 Private-Sale Buyers fulfilled (25%)`);
-
-  console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
-
-  //* [INIT] MULTIPLIER
-  const mulInit = await multiplier.init(darwin.address);
-  await mulInit.wait();
-  console.log(`🏁 Multiplier initialized`);
 
   console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
