@@ -224,7 +224,7 @@ library Tokenomics2Library {
         uint tax2OnBuy =    toks.tokenA2TaxOnBuy +  toks.tokenB2TaxOnBuy +  toks.refundOnBuy +      toks.tokenB2BuyToLI;
 
         valid = tax1OnSell <= maxTok1Tax && tax1OnBuy <= maxTok1Tax && tax2OnSell <= maxTok2Tax && tax2OnBuy <= maxTok2Tax &&
-                (toks.refundOnSell <= ownToks.tokenTaxOnSell) && (toks.refundOnBuy <= ownToks.tokenTaxOnBuy) &&
+                (toks.refundOnSell <= (ownToks.tokenTaxOnSell / 2)) && (toks.refundOnBuy <= (ownToks.tokenTaxOnBuy / 2)) &&
                 (tax1OnBuy + tax1OnSell + tax2OnBuy + tax2OnSell <= maxTotalTax);
     }
 
