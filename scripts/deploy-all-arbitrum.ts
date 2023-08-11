@@ -2,20 +2,8 @@ import * as hardhat from "hardhat";
 import { ethers, upgrades } from "hardhat";
 import { DarwinLiquidityBundles, DarwinMasterChef, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
 import { DarwinBurner, DarwinCommunity, LootboxTicket, DarwinStaking } from "../darwin-token-contracts/typechain-types";
-import { Darwin, DarwinPrivateSale, DarwinVester5, DarwinVester7, MultiplierNFT, StakedDarwin } from "../darwin-token-contracts/typechain-types/contracts";
-import { addr, BSC_ADDRESSES, MASTERCHEF_START, VERIFY, ZERO_ADDRESS } from "./constants";
-import { BigNumber } from "ethers";
-import { OldVester } from "../typechain-types/contracts/token-contracts";
-
-type UserInfo = {
-  withdrawn: BigNumber,
-  vested: BigNumber,
-  vestTimestamp: BigNumber,
-  claimed: BigNumber,
-  boost: BigNumber,
-  nft: string,
-  tokenId: BigNumber
-}
+import { Darwin, DarwinVester, StakedDarwin } from "../darwin-token-contracts/typechain-types/contracts";
+import { addr, MASTERCHEF_START, VERIFY } from "./constants";
 
 function consumerArgs(chainId: number) {
   switch(chainId) {
@@ -52,74 +40,42 @@ function consumerArgs(chainId: number) {
 
 async function main() {
 
-  const buyersInfo: UserInfo[] = [];
-  let privateSoldDarwin = BigNumber.from(0);
-  const MOVE_FROM_BSC = false;
-  const darwinVester7Factory = await ethers.getContractFactory("DarwinVester7");
-  const privateSaleBuyers = BSC_ADDRESSES.privateSaleBuyers;
+  const users = [
+    "0x5Baa5b0eCB4d81DEbb15be26cc967E01a4c6b3e0",
+    "0x20d7E17644980497c895F36B20520345BC7da15d",
+    "0xf5A51C639d7163a5c10FDd6764d4f38E5938567A",
+    "0x75409BeAd3AcD3df40B9B1434DafE76B1C2c61eD",
+    "0x0Dd936acE5DF9Dc03891F9CD8a9bac74BF835407",
+    "0x24DB2a0eb2469B0053c40d1232e64e86B9772319",
+    "0x51E77d2969C837E10617Ab1F686e9BDBDbdEB3a3",
+    "0xC8af4a1bd54EB710541C8E58467969D301eAbD06",
+    "0xB53d1a93718fD1E9C0DEb2878b5eD197B0Da27b8",
+    "0x86291db0001648de1c4beddf0e44ceecc887d6b1",
+    "0xff61EAF3C3fb27163444543277347e4D629E2a28"
+  ];
+
+  const valuesDue = [
+    ethers.utils.parseEther("12000000"),
+    ethers.utils.parseEther("24000000"),
+    ethers.utils.parseEther("147484.36"),
+    ethers.utils.parseEther("1471171.23"),
+    ethers.utils.parseEther("7046106.56"),
+    ethers.utils.parseEther("422719.67"),
+    ethers.utils.parseEther("88490.62"),
+    ethers.utils.parseEther("2064781.03"),
+    ethers.utils.parseEther("1608405.43"),
+    ethers.utils.parseEther("2177444.33"),
+    ethers.utils.parseEther("973396.77"),
+  ]
 
   const [owner] = await hardhat.ethers.getSigners();
   console.log(`💻 Deployer: ${owner.address}`);
-
-
-
-
-
-
-
-
-
-
-
-
-  if (MOVE_FROM_BSC) {
-    // BSC
-    hardhat.changeNetwork("bsc");
-    console.log(`⛓️ Chain: BSC`);
-
-    // DECLARE BSC FACTORIES
-    const darwinPrivateSaleFactory = await ethers.getContractFactory("DarwinPrivateSale");
-    const oldVesterFactory = await ethers.getContractFactory("OldVester");
-    const privateBSC = darwinPrivateSaleFactory.attach(BSC_ADDRESSES.privateSales[0]) as DarwinPrivateSale;
-    const vesterBSC = oldVesterFactory.attach(BSC_ADDRESSES.vester) as OldVester;
-    privateSoldDarwin = (await privateBSC.status()).soldAmount;
-
-    for (let i = 0; i < privateSaleBuyers.length; i++) {
-      const user = await vesterBSC.userInfo(privateSaleBuyers[i]);
-      const jsUser: UserInfo = {
-        withdrawn: user.withdrawn,
-        vested: user.vested,
-        vestTimestamp: user.vestTimestamp,
-        claimed: user.claimed,
-        boost: BigNumber.from(0),
-        nft: ZERO_ADDRESS,
-        tokenId: BigNumber.from(0)
-      }
-      buyersInfo.push(jsUser);
-    }
-
-    console.log(`✅ Sold Darwin and Private Buyers Info fetched from BSC`);
-
-    // ARBITRUM
-    hardhat.changeNetwork("arbitrumOne");
-    console.log(`⛓️ Chain: Arbitrum`);
-  }
-
-
-
-
-
-
-
-
-
-
 
   console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
 
   // DECLARE ARBITRUM FACTORIES
-  const darwinVester5Factory = await ethers.getContractFactory("DarwinVester5");
+  const darwinVesterFactory = await ethers.getContractFactory("DarwinVester");
   const darwinCommunityFactory = await ethers.getContractFactory("DarwinCommunity");
   const darwinFactory = await ethers.getContractFactory("Darwin");
   const stakedDarwinFactory = await ethers.getContractFactory("StakedDarwin");
@@ -127,31 +83,16 @@ async function main() {
   const stakingFactory = await ethers.getContractFactory("DarwinStaking");
   const ticketFactory = await ethers.getContractFactory("LootboxTicket");
 
-  //! [DEPLOY] VESTER5
-  const vester5 = await darwinVester5Factory.deploy(addr.kieran) as DarwinVester5;
-  await vester5.deployed();
-  console.log(`🔨 Deployed Vester5 at: ${vester5.address}`);
+  //! [DEPLOY] VESTER
+  const vester = await darwinVesterFactory.deploy(users, valuesDue, [addr.evotures]) as DarwinVester;
+  await vester.deployed();
+  console.log(`🔨 Deployed Vester5 at: ${vester.address}`);
 
-  //? [VERIFY] VESTER5
+  //? [VERIFY] VESTER
   if (VERIFY) {
     await hardhat.run("verify:verify", {
-      address: vester5.address,
-      constructorArguments: [addr.kieran]
-    });
-  }
-
-  console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
-
-  //! [DEPLOY] VESTER7
-  const vester7 = await darwinVester7Factory.deploy(privateSaleBuyers, buyersInfo, [addr.evotures]) as DarwinVester7;
-  await vester7.deployed();
-  console.log(`🔨 Deployed Vester7 at: ${vester7.address}`);
-
-  //? [VERIFY] VESTER7
-  if (VERIFY) {
-    await hardhat.run("verify:verify", {
-      address: vester7.address,
-      constructorArguments: [privateSaleBuyers, buyersInfo, [addr.evotures]]
+      address: vester.address,
+      constructorArguments: [users, valuesDue, [addr.evotures]]
     });
   }
 
@@ -177,15 +118,12 @@ async function main() {
     darwinFactory,
     [
       community.address,
-      vester5.address,
-      vester7.address,
+      vester.address,
       addr.wallet1,
-      addr.kieran,
       addr.charity,
       addr.giveaway,
       addr.bounties,
       addr.drop,
-      privateSoldDarwin
     ],
     {
       initializer: "initialize"
@@ -270,27 +208,10 @@ async function main() {
 
   console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
-
-  //* [SEND] 25% TO BSC PRIVATESALE BUYERS (ON ARBITRUM)
-  for (let i = 0; i < privateSaleBuyers.length; i++) {
-    const tx = await darwin.transfer(privateSaleBuyers[i], buyersInfo[i].vested.div(3));
-    await tx.wait();
-  }
-  console.log(`🏁 Private-Sale Buyers fulfilled (25%)`);
-
-  console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
-
   //* [INIT] VESTER5
-  const ve5Init = await vester5.init(darwin.address);
+  const ve5Init = await vester.init(darwin.address);
   await ve5Init.wait();
-  console.log(`🏁 Private-Sale initialized`);
-
-  console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
-
-  //* [INIT] VESTER7
-  const ve7Init = await vester7.init(darwin.address);
-  await ve7Init.wait();
-  console.log(`🏁 Presale initialized`);
+  console.log(`🏁 Private-Sale setted with Darwin Address`);
 
   console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 

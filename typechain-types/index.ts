@@ -122,10 +122,8 @@ export type { DarwinPrivateSale } from "./contracts/token-contracts/DarwinPrivat
 export { DarwinPrivateSale__factory } from "./factories/contracts/token-contracts/DarwinPrivateSale__factory";
 export type { DarwinStaking } from "./contracts/token-contracts/DarwinStaking";
 export { DarwinStaking__factory } from "./factories/contracts/token-contracts/DarwinStaking__factory";
-export type { DarwinVester5 } from "./contracts/token-contracts/DarwinVester5";
-export { DarwinVester5__factory } from "./factories/contracts/token-contracts/DarwinVester5__factory";
-export type { DarwinVester7 } from "./contracts/token-contracts/DarwinVester7";
-export { DarwinVester7__factory } from "./factories/contracts/token-contracts/DarwinVester7__factory";
+export type { DarwinVester } from "./contracts/token-contracts/DarwinVester";
+export { DarwinVester__factory } from "./factories/contracts/token-contracts/DarwinVester__factory";
 export type { EvoturesNFT } from "./contracts/token-contracts/EvoturesNFT.sol/EvoturesNFT";
 export { EvoturesNFT__factory } from "./factories/contracts/token-contracts/EvoturesNFT.sol/EvoturesNFT__factory";
 export type { IVRFv2Consumer } from "./contracts/token-contracts/EvoturesNFT.sol/IVRFv2Consumer";
@@ -144,8 +142,6 @@ export type { IEvoturesNFT } from "./contracts/token-contracts/interface/IEvotur
 export { IEvoturesNFT__factory } from "./factories/contracts/token-contracts/interface/IEvoturesNFT__factory";
 export type { IMultiplierNFT } from "./contracts/token-contracts/interface/IMultiplierNFT";
 export { IMultiplierNFT__factory } from "./factories/contracts/token-contracts/interface/IMultiplierNFT__factory";
-export type { IOldVester } from "./contracts/token-contracts/interface/IOldVester";
-export { IOldVester__factory } from "./factories/contracts/token-contracts/interface/IOldVester__factory";
 export type { IStakedDarwin } from "./contracts/token-contracts/interface/IStakedDarwin";
 export { IStakedDarwin__factory } from "./factories/contracts/token-contracts/interface/IStakedDarwin__factory";
 export type { LootboxTicket } from "./contracts/token-contracts/LootboxTicket";
@@ -154,8 +150,6 @@ export type { MainnetNFTCounter } from "./contracts/token-contracts/MainnetNFTCo
 export { MainnetNFTCounter__factory } from "./factories/contracts/token-contracts/MainnetNFTCounter__factory";
 export type { MultiplierNFT } from "./contracts/token-contracts/MultiplierNFT";
 export { MultiplierNFT__factory } from "./factories/contracts/token-contracts/MultiplierNFT__factory";
-export type { OldVester } from "./contracts/token-contracts/OldVester";
-export { OldVester__factory } from "./factories/contracts/token-contracts/OldVester__factory";
 export type { ERC20Upgradeable } from "./contracts/token-contracts/Openzeppelin/ERC20Upgradeable";
 export { ERC20Upgradeable__factory } from "./factories/contracts/token-contracts/Openzeppelin/ERC20Upgradeable__factory";
 export type { StakedDarwin } from "./contracts/token-contracts/StakedDarwin";
