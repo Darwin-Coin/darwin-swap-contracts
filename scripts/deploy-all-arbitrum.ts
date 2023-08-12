@@ -5,39 +5,6 @@ import { DarwinBurner, DarwinCommunity, LootboxTicket, DarwinStaking } from "../
 import { Darwin, DarwinVester, StakedDarwin } from "../darwin-token-contracts/typechain-types/contracts";
 import { addr, MASTERCHEF_START, VERIFY } from "./constants";
 
-function consumerArgs(chainId: number) {
-  switch(chainId) {
-    case 56:
-      return {
-        coordinator: "0xc587d9053cd1118f25F645F9E08BB98c9712A4EE",
-        keyHash: "0x114f3da0a805b6a67d6e9cd2ec746f7028f1b7376365af575cfea3550dd1aa04",
-        subscriptionId: 0,
-        confirmations: 3
-      }
-    case 97:
-      return {
-        coordinator: "0x6A2AAd07396B36Fe02a22b33cf443582f682c82f",
-        keyHash: "0xd4bb89654db74673a187bd804519e65e3f71a52bc55f11da7601a13dcf505314",
-        subscriptionId: 3047,
-        confirmations: 3
-      }
-    case 421613:
-      return {
-        coordinator: "0x6D80646bEAdd07cE68cab36c27c626790bBcf17f",
-        keyHash: "0x83d1b6e3388bed3d76426974512bb0d270e9542a765cd667242ea26c0cc0b730",
-        subscriptionId: 75,
-        confirmations: 1
-      }
-    default:
-      return {
-        coordinator: "0x6A2AAd07396B36Fe02a22b33cf443582f682c82f",
-        keyHash: "0xd4bb89654db74673a187bd804519e65e3f71a52bc55f11da7601a13dcf505314",
-        subscriptionId: 0,
-        confirmations: 0
-      };
-  }
-}
-
 async function main() {
 
   const users = [
@@ -103,11 +70,15 @@ async function main() {
   console.log(`🔨 Deployed Vester5 at: ${vester.address}`);
 
   //? [VERIFY] VESTER
-  if (VERIFY) {
-    await hardhat.run("verify:verify", {
-      address: vester.address,
-      constructorArguments: [users, valuesAtLaunch, valuesDue, [addr.evotures]]
-    });
+  try {
+    if (VERIFY) {
+      await hardhat.run("verify:verify", {
+        address: vester.address,
+        constructorArguments: [users, valuesAtLaunch, valuesDue, [addr.evotures]]
+      });
+    }
+  } catch {
+    console.error("Vester contract verification failed");
   }
 
   console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
@@ -118,11 +89,15 @@ async function main() {
   console.log(`🔨 Deployed Darwin Community at: ${community.address}`);
 
   //? [VERIFY] COMMUNITY
-  if (VERIFY) {
-    await hardhat.run("verify:verify", {
-      address: community.address,
-      constructorArguments: [addr.kieran]
-    });
+  try {
+    if (VERIFY) {
+      await hardhat.run("verify:verify", {
+        address: community.address,
+        constructorArguments: [addr.kieran]
+      });
+    }
+  } catch {
+    console.error("Community contract verification failed");
   }
 
   console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
@@ -154,19 +129,27 @@ async function main() {
   console.log(`🔨 Deployed Staked Darwin at: ${stakedDarwin.address}`);
 
   //? [VERIFY] DARWIN PROTOCOL
-  if (VERIFY) {
-    await hardhat.run("verify:verify", {
-      address: darwin.address,
-      constructorArguments: []
-    });
+  try {
+    if (VERIFY) {
+      await hardhat.run("verify:verify", {
+        address: darwin.address,
+        constructorArguments: []
+      });
+    }
+  } catch {
+    console.error("Darwin contract verification failed");
   }
 
   //? [VERIFY] STAKED DARWIN
-  if (VERIFY) {
-    await hardhat.run("verify:verify", {
-      address: stakedDarwin.address,
-      constructorArguments: []
-    });
+  try {
+    if (VERIFY) {
+      await hardhat.run("verify:verify", {
+        address: stakedDarwin.address,
+        constructorArguments: []
+      });
+    }
+  } catch {
+    console.error("Staked Darwin contract verification failed");
   }
 
   
@@ -176,11 +159,15 @@ async function main() {
   console.log(`🔨 Deployed Lootbox Ticket at: ${ticket.address}`);
 
   //? [VERIFY] TICKET
-  if (VERIFY) {
-    await hardhat.run("verify:verify", {
-      address: ticket.address,
-      constructorArguments: [darwin.address]
-    });
+  try {
+    if (VERIFY) {
+      await hardhat.run("verify:verify", {
+        address: ticket.address,
+        constructorArguments: [darwin.address]
+      });
+    }
+  } catch {
+    console.error("Lootbox Ticket contract verification failed");
   }
 
 
@@ -190,11 +177,15 @@ async function main() {
   console.log(`🔨 Deployed Darwin Staking at: ${staking.address}`);
 
   //? [VERIFY] STAKING
-  if (VERIFY) {
-    await hardhat.run("verify:verify", {
-      address: staking.address,
-      constructorArguments: [darwin.address, stakedDarwin.address, [addr.evotures]]
-    });
+  try {
+    if (VERIFY) {
+      await hardhat.run("verify:verify", {
+        address: staking.address,
+        constructorArguments: [darwin.address, stakedDarwin.address, [addr.evotures]]
+      });
+    }
+  } catch {
+    console.error("Staking contract verification failed");
   }
 
   console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
@@ -213,11 +204,15 @@ async function main() {
   await burner.deployed();
 
   //? [VERIFY] DARWIN BURNER
-  if (VERIFY) {
-    await hardhat.run("verify:verify", {
-      address: burner.address,
-      constructorArguments: [darwin.address]
-    });
+  try {
+    if (VERIFY) {
+      await hardhat.run("verify:verify", {
+        address: burner.address,
+        constructorArguments: [darwin.address]
+      });
+    }
+  } catch {
+    console.error("Burner contract verification failed");
   }
 
   console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
@@ -257,12 +252,16 @@ async function main() {
   await masterChef.deployed();
   console.log(`🔨 Deployed Darwin MasterChef at: ${masterChef.address}`);
 
-  if (VERIFY) {
-    //? [VERIFY] MASTERCHEF
-    await hardhat.run("verify:verify", {
-      address: masterChef.address,
-      constructorArguments: [darwin.address, addr.masterChefFeeTo, MASTERCHEF_START]
-    });
+  try {
+    if (VERIFY) {
+      //? [VERIFY] MASTERCHEF
+      await hardhat.run("verify:verify", {
+        address: masterChef.address,
+        constructorArguments: [darwin.address, addr.masterChefFeeTo, MASTERCHEF_START]
+      });
+    }
+  } catch {
+    console.error("MasterChef contract verification failed");
   }
 
   console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
@@ -279,12 +278,16 @@ async function main() {
   await locker.deployed();
   console.log(`🔨 Deployed Token Locker at: ${locker.address}`);
 
-  if (VERIFY) {
-    //? [VERIFY] LOCKER
-    await hardhat.run("verify:verify", {
-      address: locker.address,
-      constructorArguments: []
-    });
+  try {
+    if (VERIFY) {
+      //? [VERIFY] LOCKER
+      await hardhat.run("verify:verify", {
+        address: locker.address,
+        constructorArguments: []
+      });
+    }
+  } catch {
+    console.error("Locker contract verification failed");
   }
 
   // DECLARE LIBRARY FACTORY
@@ -296,12 +299,16 @@ async function main() {
   await library.deployed();
   console.log(`🔨 Deployed Tokenomics 2.0 Library at: ${library.address}`);
 
-  if (VERIFY) {
-    //? [VERIFY] TOKENOMICS2
-    await hardhat.run("verify:verify", {
-      address: library.address,
-      constructorArguments: []
-    });
+  try {
+    if (VERIFY) {
+      //? [VERIFY] TOKENOMICS2
+      await hardhat.run("verify:verify", {
+        address: library.address,
+        constructorArguments: []
+      });
+    }
+  } catch {
+    console.error("Tokenomics Library verification failed");
   }
 
   console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
@@ -316,12 +323,17 @@ async function main() {
   await lister.deployed();
   console.log(`🔨 Deployed Darwin Lister at: ${lister.address}`);
 
-  if (VERIFY) {
-    //? [VERIFY] LISTER
-    await hardhat.run("verify:verify", {
-      address: lister.address,
-      constructorArguments: []
-    });
+  try {
+    if (VERIFY) {
+      //? [VERIFY] LISTER
+      await hardhat.run("verify:verify", {
+        address: lister.address,
+        library: library.address,
+        constructorArguments: []
+      });
+    }
+  } catch {
+    console.error("Lister contract verification failed");
   }
 
   console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
@@ -331,12 +343,17 @@ async function main() {
   await factory.deployed();
   console.log(`🔨 Deployed Darwin Factory at: ${factory.address}`);
 
-  if (VERIFY) {
-    //? [VERIFY] FACTORY
-    await hardhat.run("verify:verify", {
-      address: factory.address,
-      constructorArguments: [lister.address, masterChef.address]
-    });
+  try {
+    if (VERIFY) {
+      //? [VERIFY] FACTORY
+      await hardhat.run("verify:verify", {
+        address: factory.address,
+        library: library.address,
+        constructorArguments: [lister.address, masterChef.address]
+      });
+    }
+  } catch {
+    console.error("Factory contract verification failed");
   }
 
   console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
@@ -360,12 +377,16 @@ async function main() {
   await bundles.deployed();
   console.log(`🔨 Deployed Liquidity Bundles at: ${bundles.address}`);
 
-  if (VERIFY) {
-    //? [VERIFY] BUNDLES
-    await hardhat.run("verify:verify", {
-      address: bundles.address,
-      constructorArguments: []
-    });
+  try {
+    if (VERIFY) {
+      //? [VERIFY] BUNDLES
+      await hardhat.run("verify:verify", {
+        address: bundles.address,
+        constructorArguments: []
+      });
+    }
+  } catch {
+    console.error("Bundles contract verification failed");
   }
 
   //! [DEPLOY] ROUTER
@@ -373,12 +394,17 @@ async function main() {
   await router.deployed();
   console.log(`🔨 Deployed Darwin Router at: ${router.address}`);
 
-  if (VERIFY) {
-    //? [VERIFY] ROUTER
-    await hardhat.run("verify:verify", {
-      address: router.address,
-      constructorArguments: [factory.address, addr.weth]
-    });
+  try {
+    if (VERIFY) {
+      //? [VERIFY] ROUTER
+      await hardhat.run("verify:verify", {
+        address: router.address,
+        library: library.address,
+        constructorArguments: [factory.address, addr.weth]
+      });
+    }
+  } catch {
+    console.error("Router contract verification failed");
   }
 
   console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)

@@ -110,11 +110,13 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
             require(success, "DarwinLiquidityBundles: ETH_TRANSFER_FAILED");
         }
 
-        address pair = darwinFactory.getPair(_token, WETH);
-        if (masterChef.poolExistence(IERC20(pair))) {
-            IERC20(pair).approve(address(masterChef), liquidity);
-            masterChef.depositByLPToken(IERC20(pair), liquidity, false, 0);
-            user.inMasterchef = true;
+        if (address(masterChef) != address(0)) {
+            address pair = darwinFactory.getPair(_token, WETH);
+            if (masterChef.poolExistence(IERC20(pair))) {
+                IERC20(pair).approve(address(masterChef), liquidity);
+                masterChef.depositByLPToken(IERC20(pair), liquidity, false, 0);
+                user.inMasterchef = true;
+            }
         }
 
         emit EnterBundle(msg.sender, amountToken, amountETH, block.timestamp, block.timestamp + LOCK_PERIOD);
@@ -133,22 +135,24 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
 
         // If pool exists on masterchef and bundle is staked on it, withdraw from it
         uint lpAmount;
-        address pair = darwinFactory.getPair(_token, WETH);
-        if (masterChef.poolExistence(IERC20(pair)) && user.inMasterchef) {
-            lpAmount = IERC20(pair).balanceOf(address(this));
-            uint pid;
-            IDarwinMasterChef.PoolInfo[] memory poolInfo = masterChef.poolInfo();
-            for (uint i = 0; i < poolInfo.length; i++) {
-                if (address(poolInfo[i].lpToken) == pair) {
-                    pid = i;
+        if (address(masterChef) != address(0)) {
+            address pair = darwinFactory.getPair(_token, WETH);
+            if (masterChef.poolExistence(IERC20(pair)) && user.inMasterchef) {
+                lpAmount = IERC20(pair).balanceOf(address(this));
+                uint pid;
+                IDarwinMasterChef.PoolInfo[] memory poolInfo = masterChef.poolInfo();
+                for (uint i = 0; i < poolInfo.length; i++) {
+                    if (address(poolInfo[i].lpToken) == pair) {
+                        pid = i;
+                    }
                 }
-            }
-            masterChef.withdrawByLPToken(IERC20(pair), masterChef.userInfo(pid, address(this)).amount);
-            lpAmount = IERC20(pair).balanceOf(address(this)) - lpAmount;
-            user.inMasterchef = false;
-            // Burn eventual earned darwin
-            if (masterChef.darwin().balanceOf(address(this)) > 0) {
-                IDarwin(address(masterChef.darwin())).burn(masterChef.darwin().balanceOf(address(this)));
+                masterChef.withdrawByLPToken(IERC20(pair), masterChef.userInfo(pid, address(this)).amount);
+                lpAmount = IERC20(pair).balanceOf(address(this)) - lpAmount;
+                user.inMasterchef = false;
+                // Burn eventual earned darwin
+                if (masterChef.darwin().balanceOf(address(this)) > 0) {
+                    IDarwin(address(masterChef.darwin())).burn(masterChef.darwin().balanceOf(address(this)));
+                }
             }
         }
         if (lpAmount == 0) {
@@ -230,17 +234,21 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
 
     // (For bundles that have a respective masterchef farm) - How much pending darwin for this bundle
     function pendingDarwin(address _user, address _token) external view returns(uint256) {
-        User memory user = userInfo[_user][_token];
-        if (user.inMasterchef) {
-            uint pid;
-            IDarwinMasterChef.PoolInfo[] memory poolInfo = masterChef.poolInfo();
-            for (uint i = 0; i < poolInfo.length; i++) {
-                if (address(poolInfo[i].lpToken) == darwinFactory.getPair(_token, WETH)) {
-                    pid = i;
+        if (address(masterChef) != address(0)) {
+            User memory user = userInfo[_user][_token];
+            if (user.inMasterchef) {
+                uint pid;
+                IDarwinMasterChef.PoolInfo[] memory poolInfo = masterChef.poolInfo();
+                for (uint i = 0; i < poolInfo.length; i++) {
+                    if (address(poolInfo[i].lpToken) == darwinFactory.getPair(_token, WETH)) {
+                        pid = i;
+                    }
                 }
-            }
-            if (totalLpAmount[_token] > 0) {
-                return (masterChef.pendingDarwin(pid, address(this)) * user.lpAmount) / totalLpAmount[_token];
+                if (totalLpAmount[_token] > 0) {
+                    return (masterChef.pendingDarwin(pid, address(this)) * user.lpAmount) / totalLpAmount[_token];
+                } else {
+                    return 0;
+                }
             } else {
                 return 0;
             }

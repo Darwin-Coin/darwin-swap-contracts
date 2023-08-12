@@ -1,4 +1,4 @@
-const TEST = true;
+const TEST = false;
 export const VERIFY = !TEST;
 export const MASTERCHEF_START = 1692489600; // Aug 20th 2023, 00:00:00 UTC
 
