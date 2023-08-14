@@ -26,6 +26,11 @@ const config: HardhatUserConfig = {
     },
 
     networks: {
+        mainnet: {
+            url: "https://eth.llamarpc.com",
+            chainId: 1,
+            accounts: [String(process.env.MAINNET_PRIVATEKEY)]
+        },
         bsc: {
             url: "https://bsc-dataseed.binance.org/",
             chainId: 56,
@@ -90,7 +95,8 @@ const config: HardhatUserConfig = {
         apiKey: {
             bsc: String(process.env.BSCSCAN_API_KEY),
             bscTestnet: String(process.env.BSCSCAN_API_KEY),
-            arbitrumOne: String(process.env.ARBISCAN_API_KEY)
+            arbitrumOne: String(process.env.ARBISCAN_API_KEY),
+            mainnet: String(process.env.ETHERSCAN_API_KEY)
         }
     }
 };
