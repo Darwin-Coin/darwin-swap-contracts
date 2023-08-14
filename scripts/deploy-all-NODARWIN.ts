@@ -1,11 +1,17 @@
 import * as hardhat from "hardhat";
 import { ethers } from "hardhat";
-import { DarwinLiquidityBundles, DarwinMasterChef, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
-import { addr, MASTERCHEF_START, VERIFY, ZERO_ADDRESS } from "./constants";
+import { DarwinLiquidityBundles, DarwinSwapFactory, DarwinSwapLister, DarwinSwapRouter, TokenLocker, Tokenomics2Library } from "../typechain-types";
+import { addr, VERIFY, ZERO_ADDRESS } from "./constants";
+
+const WETH: { [chainId: number]: string } = {
+  [56]: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c", //BSC
+  [1]: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" //ETHEREUM
+}
 
 async function main() {
 
   const [owner] = await hardhat.ethers.getSigners();
+  const chainId = await owner.getChainId();
   console.log(`💻 Deployer: ${owner.address}`);
 
   console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
@@ -125,7 +131,7 @@ async function main() {
   }
 
   //! [DEPLOY] ROUTER
-  const router = await darwinRouterFactory.deploy(factory.address, addr.weth) as DarwinSwapRouter;
+  const router = await darwinRouterFactory.deploy(factory.address, WETH[chainId]) as DarwinSwapRouter;
   await router.deployed();
   console.log(`🔨 Deployed Darwin Router at: ${router.address}`);
 
@@ -135,7 +141,7 @@ async function main() {
       await hardhat.run("verify:verify", {
         address: router.address,
         library: library.address,
-        constructorArguments: [factory.address, addr.weth]
+        constructorArguments: [factory.address, WETH[chainId]]
       });
     }
   } catch {
