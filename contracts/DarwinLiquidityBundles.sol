@@ -211,12 +211,16 @@ contract DarwinLiquidityBundles is Ownable, IDarwinLiquidityBundles {
         if (liquidity > 0) {
             IERC20(address(pair)).approve(address(darwinRouter), liquidity);
             address token = pair.token0() == WETH ? pair.token1() : pair.token0();
-            (, uint amountETH) = darwinRouter.removeLiquidityETH(token, liquidity, 0, 0, address(this), block.timestamp + 600);
-
-            address[] memory path = new address[](2);
-            path[0] = WETH;
-            path[1] = token;
-            darwinRouter.swapExactETHForTokensSupportingFeeOnTransferTokens{value: amountETH}(0, path, address(this), block.timestamp + 600);
+            address weth = pair.token0() == WETH ? pair.token0() : pair.token1();
+            if (weth == WETH) {
+                (, uint amountETH) = darwinRouter.removeLiquidityETH(token, liquidity, 0, 0, address(this), block.timestamp + 600);
+                address[] memory path = new address[](2);
+                path[0] = WETH;
+                path[1] = token;
+                darwinRouter.swapExactETHForTokensSupportingFeeOnTransferTokens{value: amountETH}(0, path, address(this), block.timestamp + 600);
+            } else {
+                darwinRouter.removeLiquidity(token, weth, liquidity, 0, 0, address(this), block.timestamp + 600);
+            }
         }
     }
 

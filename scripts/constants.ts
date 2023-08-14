@@ -56,8 +56,8 @@ export const ARB_ADDRESSES = {
     darwin: "",
     stakedDarwin: "",
     community: "",
-    factory: "",
-    tokenomics2Library: "",
+    factory: "0xf4a2Baf53B80E22Bb700567EF1993e429321ed42",
+    tokenomics2Library: "0x5aB16130ca720850dD6Ed4ac85137634447D25db",
     presale: "",
     privateSales: [
         ""

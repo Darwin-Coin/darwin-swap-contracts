@@ -49,6 +49,7 @@ async function main() {
     ethers.utils.parseEther("973396.77"),
   ];
 
+  const toPrint: string[] = []; 
   const [owner] = await hardhat.ethers.getSigners();
   console.log(`💻 Deployer: ${owner.address}`);
 
@@ -67,6 +68,7 @@ async function main() {
   //! [DEPLOY] VESTER
   const vester = await darwinVesterFactory.deploy(users, valuesAtLaunch, valuesDue, [addr.evotures]) as DarwinVester;
   await vester.deployed();
+  toPrint.push(`🔨 Deployed Vester5 at: ${vester.address}`);
   console.log(`🔨 Deployed Vester5 at: ${vester.address}`);
 
   //? [VERIFY] VESTER
@@ -86,6 +88,7 @@ async function main() {
   //! [DEPLOY] COMMUNITY
   const community = await darwinCommunityFactory.deploy(addr.kieran) as DarwinCommunity;
   await community.deployed();
+  toPrint.push(`🔨 Deployed Darwin Community at: ${community.address}`);
   console.log(`🔨 Deployed Darwin Community at: ${community.address}`);
 
   //? [VERIFY] COMMUNITY
@@ -119,6 +122,7 @@ async function main() {
     }
   ) as Darwin;
   await darwin.deployed();
+  toPrint.push(`🔨 Deployed Darwin Protocol at: ${darwin.address}`);
   console.log(`🔨 Deployed Darwin Protocol at: ${darwin.address}`);
 
   console.log(`--- Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
@@ -126,6 +130,7 @@ async function main() {
   //! [ATTACH] STAKED DARWIN
   const stakedDarwin = stakedDarwinFactory.attach(await darwin.stakedDarwin()) as StakedDarwin;
   await stakedDarwin.deployed();
+  toPrint.push(`🔨 Deployed Staked Darwin at: ${stakedDarwin.address}`);
   console.log(`🔨 Deployed Staked Darwin at: ${stakedDarwin.address}`);
 
   //? [VERIFY] DARWIN PROTOCOL
@@ -156,6 +161,7 @@ async function main() {
   //! [DEPLOY] TICKET
   const ticket = await ticketFactory.deploy(darwin.address) as LootboxTicket;
   await ticket.deployed();
+  toPrint.push(`🔨 Deployed Lootbox Ticket at: ${ticket.address}`);
   console.log(`🔨 Deployed Lootbox Ticket at: ${ticket.address}`);
 
   //? [VERIFY] TICKET
@@ -174,6 +180,7 @@ async function main() {
   //! [DEPLOY] STAKING
   const staking = await stakingFactory.deploy(darwin.address, stakedDarwin.address, [addr.evotures]) as DarwinStaking;
   await staking.deployed();
+  toPrint.push(`🔨 Deployed Darwin Staking at: ${staking.address}`);
   console.log(`🔨 Deployed Darwin Staking at: ${staking.address}`);
 
   //? [VERIFY] STAKING
@@ -200,6 +207,7 @@ async function main() {
 
   //! [DEPLOY] DARWIN BURNER
   const burner = await darwinBurnerFactory.deploy(darwin.address) as DarwinBurner;
+  toPrint.push(`🔨 Deployed Darwin Burner at: ${burner.address}`);
   console.log(`🔨 Deployed Darwin Burner at: ${burner.address}`);
   await burner.deployed();
 
@@ -250,6 +258,7 @@ async function main() {
   //! [DEPLOY] MASTERCHEF
   const masterChef = await masterChefFactory.deploy(darwin.address, addr.masterChefFeeTo, MASTERCHEF_START) as DarwinMasterChef;
   await masterChef.deployed();
+  toPrint.push(`🔨 Deployed Darwin MasterChef at: ${masterChef.address}`);
   console.log(`🔨 Deployed Darwin MasterChef at: ${masterChef.address}`);
 
   try {
@@ -276,6 +285,7 @@ async function main() {
   //! [ATTACH] LOCKER
   const locker = lockerFactory.attach(await masterChef.locker()) as TokenLocker;
   await locker.deployed();
+  toPrint.push(`🔨 Deployed Token Locker at: ${locker.address}`);
   console.log(`🔨 Deployed Token Locker at: ${locker.address}`);
 
   try {
@@ -297,6 +307,7 @@ async function main() {
   //! [DEPLOY] TOKENOMICS2
   const library = await tokenomics2LibFactory.deploy() as Tokenomics2Library;
   await library.deployed();
+  toPrint.push(`🔨 Deployed Tokenomics 2.0 Library at: ${library.address}`);
   console.log(`🔨 Deployed Tokenomics 2.0 Library at: ${library.address}`);
 
   try {
@@ -321,6 +332,7 @@ async function main() {
   //! [DEPLOY] LISTER
   const lister = await darwinListerFactory.deploy() as DarwinSwapLister;
   await lister.deployed();
+  toPrint.push(`🔨 Deployed Darwin Lister at: ${lister.address}`);
   console.log(`🔨 Deployed Darwin Lister at: ${lister.address}`);
 
   try {
@@ -341,6 +353,7 @@ async function main() {
   //! [DEPLOY] FACTORY
   const factory = await darwinFactoryFactory.deploy(lister.address, masterChef.address) as DarwinSwapFactory;
   await factory.deployed();
+  toPrint.push(`🔨 Deployed Darwin Factory at: ${factory.address}`);
   console.log(`🔨 Deployed Darwin Factory at: ${factory.address}`);
 
   try {
@@ -375,6 +388,7 @@ async function main() {
   //! [ATTACH] BUNDLES
   const bundles = bundlesFactory.attach(await factory.liquidityBundles()) as DarwinLiquidityBundles;
   await bundles.deployed();
+  toPrint.push(`🔨 Deployed Liquidity Bundles at: ${bundles.address}`);
   console.log(`🔨 Deployed Liquidity Bundles at: ${bundles.address}`);
 
   try {
@@ -392,6 +406,7 @@ async function main() {
   //! [DEPLOY] ROUTER
   const router = await darwinRouterFactory.deploy(factory.address, addr.weth) as DarwinSwapRouter;
   await router.deployed();
+  toPrint.push(`🔨 Deployed Darwin Router at: ${router.address}`);
   console.log(`🔨 Deployed Darwin Router at: ${router.address}`);
 
   try {
@@ -472,6 +487,10 @@ async function main() {
   console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
   console.log("✅ SWAP CONTRACTS DEPLOYMENT COMPLETED");
+
+  for (let i = 0; i < toPrint.length; i++) {
+    console.log(toPrint[i]);
+  }
 }
 
 main().catch((error) => {
