@@ -4,7 +4,7 @@ import { DarwinLiquidityBundles, DarwinSwapFactory, DarwinSwapLister, DarwinSwap
 import { addr, VERIFY, ZERO_ADDRESS } from "./constants";
 
 const WETH: { [chainId: number]: string } = {
-  [56]: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c", //BSC
+  [56]: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c", //BNB
   [1]: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" //ETHEREUM
 }
 
@@ -12,6 +12,7 @@ async function main() {
 
   const [owner] = await hardhat.ethers.getSigners();
   const chainId = await owner.getChainId();
+  const toPrint: string[] = [];
   console.log(`💻 Deployer: ${owner.address}`);
 
   console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
@@ -21,9 +22,10 @@ async function main() {
   const lockerFactory = await ethers.getContractFactory("TokenLocker");
   const bundlesFactory = await ethers.getContractFactory("DarwinLiquidityBundles");
 
-  //! [ATTACH] LOCKER
+  //! [DEPLOY] LOCKER
   const locker = await lockerFactory.deploy() as TokenLocker;
   await locker.deployed();
+  toPrint.push(`🔨 Deployed Token Locker at: ${locker.address}`);
   console.log(`🔨 Deployed Token Locker at: ${locker.address}`);
 
   try {
@@ -45,6 +47,7 @@ async function main() {
   //! [DEPLOY] TOKENOMICS2
   const library = await tokenomics2LibFactory.deploy() as Tokenomics2Library;
   await library.deployed();
+  toPrint.push(`🔨 Deployed Tokenomics 2.0 Library at: ${library.address}`);
   console.log(`🔨 Deployed Tokenomics 2.0 Library at: ${library.address}`);
 
   try {
@@ -69,6 +72,7 @@ async function main() {
   //! [DEPLOY] LISTER
   const lister = await darwinListerFactory.deploy() as DarwinSwapLister;
   await lister.deployed();
+  toPrint.push(`🔨 Deployed Darwin Lister at: ${lister.address}`);
   console.log(`🔨 Deployed Darwin Lister at: ${lister.address}`);
 
   try {
@@ -89,6 +93,7 @@ async function main() {
   //! [DEPLOY] FACTORY
   const factory = await darwinFactoryFactory.deploy(lister.address, ZERO_ADDRESS) as DarwinSwapFactory;
   await factory.deployed();
+  toPrint.push(`🔨 Deployed Darwin Factory at: ${factory.address}`);
   console.log(`🔨 Deployed Darwin Factory at: ${factory.address}`);
 
   try {
@@ -116,6 +121,7 @@ async function main() {
   //! [ATTACH] BUNDLES
   const bundles = bundlesFactory.attach(await factory.liquidityBundles()) as DarwinLiquidityBundles;
   await bundles.deployed();
+  toPrint.push(`🔨 Deployed Liquidity Bundles at: ${bundles.address}`);
   console.log(`🔨 Deployed Liquidity Bundles at: ${bundles.address}`);
 
   try {
@@ -133,6 +139,7 @@ async function main() {
   //! [DEPLOY] ROUTER
   const router = await darwinRouterFactory.deploy(factory.address, WETH[chainId]) as DarwinSwapRouter;
   await router.deployed();
+  toPrint.push(`🔨 Deployed Darwin Router at: ${router.address}`);
   console.log(`🔨 Deployed Darwin Router at: ${router.address}`);
 
   try {
@@ -161,6 +168,10 @@ async function main() {
   console.log(`Balance: ${ethers.utils.formatEther(await owner.getBalance())}`)
 
   console.log("✅ SWAP CONTRACTS DEPLOYMENT COMPLETED");
+
+  for (let i = 0; i < toPrint.length; i++) {
+    console.log(toPrint[i]);
+  }
 }
 
 main().catch((error) => {
