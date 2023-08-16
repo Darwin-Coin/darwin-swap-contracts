@@ -61,4 +61,6 @@ interface IDarwinSwapLister {
     function isValidator(address user) external view returns (bool);
     function createPair(address tokenA, address tokenB) external returns (address pair);
     function tokenInfo(address _token) external view returns(TokenInfo memory);
+
+    function getPair(address tokenA, address tokenB) external view returns (address pair);
 }

@@ -130,6 +130,7 @@ export interface DarwinSwapListerInterface extends utils.Interface {
     "createPair(address,address)": FunctionFragment;
     "dev()": FunctionFragment;
     "factory()": FunctionFragment;
+    "getPair(address,address)": FunctionFragment;
     "increaseLockPeriod(address,uint256)": FunctionFragment;
     "isUserBannedFromListing(address)": FunctionFragment;
     "isValidator(address)": FunctionFragment;
@@ -155,6 +156,7 @@ export interface DarwinSwapListerInterface extends utils.Interface {
       | "createPair"
       | "dev"
       | "factory"
+      | "getPair"
       | "increaseLockPeriod"
       | "isUserBannedFromListing"
       | "isValidator"
@@ -181,6 +183,10 @@ export interface DarwinSwapListerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "dev", values?: undefined): string;
   encodeFunctionData(functionFragment: "factory", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getPair",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "increaseLockPeriod",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
@@ -261,6 +267,7 @@ export interface DarwinSwapListerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "createPair", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "dev", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "factory", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getPair", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "increaseLockPeriod",
     data: BytesLike
@@ -395,6 +402,12 @@ export interface DarwinSwapLister extends BaseContract {
 
     factory(overrides?: CallOverrides): Promise<[string]>;
 
+    getPair(
+      tokenA: PromiseOrValue<string>,
+      tokenB: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[string] & { pair: string }>;
+
     increaseLockPeriod(
       _tokenAddress: PromiseOrValue<string>,
       _newUnlockDate: PromiseOrValue<BigNumberish>,
@@ -494,6 +507,12 @@ export interface DarwinSwapLister extends BaseContract {
 
   factory(overrides?: CallOverrides): Promise<string>;
 
+  getPair(
+    tokenA: PromiseOrValue<string>,
+    tokenB: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   increaseLockPeriod(
     _tokenAddress: PromiseOrValue<string>,
     _newUnlockDate: PromiseOrValue<BigNumberish>,
@@ -592,6 +611,12 @@ export interface DarwinSwapLister extends BaseContract {
     dev(overrides?: CallOverrides): Promise<string>;
 
     factory(overrides?: CallOverrides): Promise<string>;
+
+    getPair(
+      tokenA: PromiseOrValue<string>,
+      tokenB: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     increaseLockPeriod(
       _tokenAddress: PromiseOrValue<string>,
@@ -722,6 +747,12 @@ export interface DarwinSwapLister extends BaseContract {
 
     factory(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getPair(
+      tokenA: PromiseOrValue<string>,
+      tokenB: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     increaseLockPeriod(
       _tokenAddress: PromiseOrValue<string>,
       _newUnlockDate: PromiseOrValue<BigNumberish>,
@@ -821,6 +852,12 @@ export interface DarwinSwapLister extends BaseContract {
     dev(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     factory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getPair(
+      tokenA: PromiseOrValue<string>,
+      tokenB: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     increaseLockPeriod(
       _tokenAddress: PromiseOrValue<string>,

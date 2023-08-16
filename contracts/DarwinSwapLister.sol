@@ -48,6 +48,10 @@ contract DarwinSwapLister is IDarwinSwapLister {
         pair = IDarwinSwapFactory(factory).createPair(tokenA, tokenB);
     }
 
+    function getPair(address tokenA, address tokenB) external view returns (address pair) {
+        pair = IDarwinSwapFactory(factory).getPair(tokenA, tokenB);
+    }
+
     // Allows a token owner (or the Dev address, in case the token is owned by address(0) et similia) to ask for the validation and listing of his token. This way users are able to put add-ons Tokenomics (1.0 or 2.0) on their tokens. (only if they get validated)
     // Also allows to propose modifies to an already listed token.
     function listToken(address tokenAddress, TokenInfo memory listingInfo) external {

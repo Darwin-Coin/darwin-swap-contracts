@@ -128,6 +128,7 @@ export declare namespace IDarwinSwapLister {
 export interface IDarwinSwapListerInterface extends utils.Interface {
   functions: {
     "createPair(address,address)": FunctionFragment;
+    "getPair(address,address)": FunctionFragment;
     "isValidator(address)": FunctionFragment;
     "maxTok1Tax()": FunctionFragment;
     "maxTok2Tax()": FunctionFragment;
@@ -137,6 +138,7 @@ export interface IDarwinSwapListerInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "createPair"
+      | "getPair"
       | "isValidator"
       | "maxTok1Tax"
       | "maxTok2Tax"
@@ -145,6 +147,10 @@ export interface IDarwinSwapListerInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "createPair",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPair",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -165,6 +171,7 @@ export interface IDarwinSwapListerInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "createPair", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getPair", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isValidator",
     data: BytesLike
@@ -251,6 +258,12 @@ export interface IDarwinSwapLister extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    getPair(
+      tokenA: PromiseOrValue<string>,
+      tokenB: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[string] & { pair: string }>;
+
     isValidator(
       user: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -272,6 +285,12 @@ export interface IDarwinSwapLister extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  getPair(
+    tokenA: PromiseOrValue<string>,
+    tokenB: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   isValidator(
     user: PromiseOrValue<string>,
     overrides?: CallOverrides
@@ -288,6 +307,12 @@ export interface IDarwinSwapLister extends BaseContract {
 
   callStatic: {
     createPair(
+      tokenA: PromiseOrValue<string>,
+      tokenB: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    getPair(
       tokenA: PromiseOrValue<string>,
       tokenB: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -344,6 +369,12 @@ export interface IDarwinSwapLister extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    getPair(
+      tokenA: PromiseOrValue<string>,
+      tokenB: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     isValidator(
       user: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -364,6 +395,12 @@ export interface IDarwinSwapLister extends BaseContract {
       tokenA: PromiseOrValue<string>,
       tokenB: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getPair(
+      tokenA: PromiseOrValue<string>,
+      tokenB: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     isValidator(
