@@ -41,6 +41,11 @@ const config: HardhatUserConfig = {
             chainId: 42161,
             accounts: [String(process.env.MAINNET_PRIVATEKEY)]
         },
+        base: {
+            url: "https://base.blockpi.network/v1/rpc/public",
+            chainId: 8453,
+            accounts: [String(process.env.MAINNET_PRIVATEKEY)]
+        },
         bscTestnet: {
             url: "https://bsc-testnet.public.blastapi.io",
             chainId: 97,
@@ -96,8 +101,19 @@ const config: HardhatUserConfig = {
             bsc: String(process.env.BSCSCAN_API_KEY),
             bscTestnet: String(process.env.BSCSCAN_API_KEY),
             arbitrumOne: String(process.env.ARBISCAN_API_KEY),
-            mainnet: String(process.env.ETHERSCAN_API_KEY)
-        }
+            mainnet: String(process.env.ETHERSCAN_API_KEY),
+            base: String(process.env.BASESCAN_API_KEY)
+        },
+        customChains: [
+            {
+              network: "base",
+              chainId: 8453,
+              urls: {
+                apiURL: "https://base.blockpi.network/v1/rpc/public",
+                browserURL: "https://basescan.org"
+              }
+            }
+        ]
     }
 };
 
