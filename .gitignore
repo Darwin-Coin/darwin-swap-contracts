@@ -12,3 +12,6 @@ cache
 artifacts
 remappings.txt
 contracts/token-contracts
+
+#Test scripts
+scripts/test
