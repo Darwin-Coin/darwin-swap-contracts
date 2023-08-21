@@ -230,13 +230,8 @@ contract DarwinSwapPair is IDarwinSwapPair, DarwinSwapERC20 {
     function skim(address to) external lock {
         address _token0 = token0; // gas savings
         address _token1 = token1; // gas savings
-        if (msg.sender == IDarwinSwapFactory(factory).dev()) {
-            _safeTransfer(_token0, to, IERC20(_token0).balanceOf(address(this)), address(0));
-            _safeTransfer(_token1, to, IERC20(_token1).balanceOf(address(this)), address(0));
-        } else {
-            _safeTransfer(_token0, to, IERC20(_token0).balanceOf(address(this)) - _reserve0, address(0));
-            _safeTransfer(_token1, to, IERC20(_token1).balanceOf(address(this)) - _reserve1, address(0));
-        }
+        _safeTransfer(_token0, to, IERC20(_token0).balanceOf(address(this)) - _reserve0, address(0));
+        _safeTransfer(_token1, to, IERC20(_token1).balanceOf(address(this)) - _reserve1, address(0));
     }
 
     // force reserves to match balances
