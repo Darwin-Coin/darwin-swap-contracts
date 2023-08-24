@@ -46,6 +46,11 @@ const config: HardhatUserConfig = {
             chainId: 8453,
             accounts: [String(process.env.MAINNET_PRIVATEKEY)]
         },
+        shibarium: {
+            url: "https://www.shibrpc.com",
+            chainId: 109,
+            accounts: [String(process.env.MAINNET_PRIVATEKEY)]
+        },
         bscTestnet: {
             url: "https://bsc-testnet.public.blastapi.io",
             chainId: 97,
