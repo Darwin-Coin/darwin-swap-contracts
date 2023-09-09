@@ -23,7 +23,10 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
         return allPairs.length;
     }
 
-    bytes32 public constant INIT_CODE_HASH = keccak256(abi.encodePacked(type(DarwinSwapPair).creationCode));
+    bytes32 public constant INIT_CODE_HASH =
+        keccak256(abi.encodePacked(type(DarwinSwapPair).creationCode));
+
+    event LiquidityInjectorCreated(address indexed pair, address injector);
 
     constructor(address _lister, IDarwinMasterChef _masterChef) {
         dev = msg.sender;
@@ -34,7 +37,12 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
         bytes32 salt = keccak256(abi.encodePacked(address(this)));
         address _liquidityBundles;
         assembly {
-            _liquidityBundles := create2(0, add(bytecode, 32), mload(bytecode), salt)
+            _liquidityBundles := create2(
+                0,
+                add(bytecode, 32),
+                mload(bytecode),
+                salt
+            )
         }
         liquidityBundles = IDarwinLiquidityBundles(_liquidityBundles);
     }
@@ -49,19 +57,35 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
         _;
     }
 
-    function createPair(address tokenA, address tokenB) external onlyLister returns (address pair) {
+    function createPair(
+        address tokenA,
+        address tokenB
+    ) external onlyLister returns (address pair) {
         require(tokenA != tokenB, "DarwinSwap: IDENTICAL_ADDRESSES");
-        (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+        (address token0, address token1) = tokenA < tokenB
+            ? (tokenA, tokenB)
+            : (tokenB, tokenA);
         require(token0 != address(0), "DarwinSwap: ZERO_ADDRESS");
-        require(getPair[token0][token1] == address(0), "DarwinSwap: PAIR_EXISTS"); // single check is sufficient
+        require(
+            getPair[token0][token1] == address(0),
+            "DarwinSwap: PAIR_EXISTS"
+        ); // single check is sufficient
         bytes memory bytecode = type(DarwinSwapPair).creationCode;
         bytes memory bytecode2 = type(LiquidityInjector).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         address _liquidityInjector;
         assembly {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
-            _liquidityInjector := create2(0, add(bytecode2, 32), mload(bytecode2), salt)
+            _liquidityInjector := create2(
+                0,
+                add(bytecode2, 32),
+                mload(bytecode2),
+                salt
+            )
         }
+
+        emit LiquidityInjectorCreated(pair, _liquidityInjector);
+
         ILiquidityInjector(_liquidityInjector).initialize(pair, token0, token1);
         IDarwinSwapPair(pair).initialize(token0, token1, _liquidityInjector);
         getPair[token0][token1] = pair;
@@ -85,6 +109,10 @@ contract DarwinSwapFactory is IDarwinSwapFactory {
     function setRouter(address _router) external onlyDev {
         require(router == address(0), "DarwinSwapFactory: INVALID");
         router = _router;
-        liquidityBundles.initialize(_router, masterChef, IDarwinSwapRouter(_router).WETH());
+        liquidityBundles.initialize(
+            _router,
+            masterChef,
+            IDarwinSwapRouter(_router).WETH()
+        );
     }
 }

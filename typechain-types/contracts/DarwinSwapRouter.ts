@@ -26,6 +26,7 @@ import type {
 
 export interface DarwinSwapRouterInterface extends utils.Interface {
   functions: {
+    "FEE_RECIEVER_WHATEVER()": FunctionFragment;
     "WETH()": FunctionFragment;
     "addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256)": FunctionFragment;
     "addLiquidityETH(address,uint256,uint256,uint256,address,uint256)": FunctionFragment;
@@ -49,6 +50,7 @@ export interface DarwinSwapRouterInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "FEE_RECIEVER_WHATEVER"
       | "WETH"
       | "addLiquidity"
       | "addLiquidityETH"
@@ -70,6 +72,10 @@ export interface DarwinSwapRouterInterface extends utils.Interface {
       | "swapExactTokensForTokensSupportingFeeOnTransferTokens"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "FEE_RECIEVER_WHATEVER",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "WETH", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "addLiquidity",
@@ -248,6 +254,10 @@ export interface DarwinSwapRouterInterface extends utils.Interface {
     ]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "FEE_RECIEVER_WHATEVER",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "WETH", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "addLiquidity",
@@ -346,6 +356,8 @@ export interface DarwinSwapRouter extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    FEE_RECIEVER_WHATEVER(overrides?: CallOverrides): Promise<[string]>;
+
     WETH(overrides?: CallOverrides): Promise<[string]>;
 
     addLiquidity(
@@ -514,6 +526,8 @@ export interface DarwinSwapRouter extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
+
+  FEE_RECIEVER_WHATEVER(overrides?: CallOverrides): Promise<string>;
 
   WETH(overrides?: CallOverrides): Promise<string>;
 
@@ -684,6 +698,8 @@ export interface DarwinSwapRouter extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    FEE_RECIEVER_WHATEVER(overrides?: CallOverrides): Promise<string>;
+
     WETH(overrides?: CallOverrides): Promise<string>;
 
     addLiquidity(
@@ -876,6 +892,8 @@ export interface DarwinSwapRouter extends BaseContract {
   filters: {};
 
   estimateGas: {
+    FEE_RECIEVER_WHATEVER(overrides?: CallOverrides): Promise<BigNumber>;
+
     WETH(overrides?: CallOverrides): Promise<BigNumber>;
 
     addLiquidity(
@@ -1046,6 +1064,10 @@ export interface DarwinSwapRouter extends BaseContract {
   };
 
   populateTransaction: {
+    FEE_RECIEVER_WHATEVER(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     WETH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     addLiquidity(

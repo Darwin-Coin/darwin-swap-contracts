@@ -9,6 +9,14 @@ import {IDarwinSwapRouter} from "./interfaces/IDarwinSwapRouter.sol";
 import {ILiquidityInjector} from "./interfaces/ILiquidityInjector.sol";
 import {IERC20} from "./interfaces/IERC20.sol";
 
+interface IWETH {
+    function deposit() external payable;
+
+    function transfer(address to, uint256 value) external returns (bool);
+
+    function withdraw(uint256) external;
+}
+
 contract LiquidityInjector is ILiquidityInjector {
     IDarwinSwapFactory public immutable factory;
     IDarwinSwapPair public pair;
@@ -19,7 +27,12 @@ contract LiquidityInjector is ILiquidityInjector {
     IERC20 public token1;
 
     modifier onlyTeamOrDev() {
-        require(msg.sender == dev || msg.sender == lister.tokenInfo(address(token0)).owner || msg.sender == lister.tokenInfo(address(token1)).owner, "LiquidityInjector: CALLER_NOT_TOKEN_TEAM_OR_DEV");
+        require(
+            msg.sender == dev ||
+                msg.sender == lister.tokenInfo(address(token0)).owner ||
+                msg.sender == lister.tokenInfo(address(token1)).owner,
+            "LiquidityInjector: CALLER_NOT_TOKEN_TEAM_OR_DEV"
+        );
         _;
     }
 
@@ -27,8 +40,15 @@ contract LiquidityInjector is ILiquidityInjector {
         factory = IDarwinSwapFactory(msg.sender);
     }
 
-    function initialize(address _pair, address _token0, address _token1) external {
-        require(msg.sender == address(factory), "LiquidityInjector: CALLER_NOT_FACTORY");
+    function initialize(
+        address _pair,
+        address _token0,
+        address _token1
+    ) external {
+        require(
+            msg.sender == address(factory),
+            "LiquidityInjector: CALLER_NOT_FACTORY"
+        );
         pair = IDarwinSwapPair(_pair);
         router = IDarwinSwapRouter(factory.router());
         lister = IDarwinSwapLister(factory.lister());
@@ -42,7 +62,17 @@ contract LiquidityInjector is ILiquidityInjector {
     }
 
     function buyBackAndPair(IERC20 _sellToken) public onlyTeamOrDev {
-        IERC20 _buyToken = address(_sellToken) == address(token1) ? token0 : token1;
+        uint256 contractEthBalance = address(this).balance;
+
+        if (contractEthBalance > 0) {
+            // Wrap it into WETH
+            address WETH = router.WETH();
+            IWETH(WETH).deposit{value: contractEthBalance}();
+        }
+
+        IERC20 _buyToken = address(_sellToken) == address(token1)
+            ? token0
+            : token1;
 
         // Return if there is no buyToken balance in the liqInj
         if (_buyToken.balanceOf(address(this)) == 0) {
@@ -51,23 +81,34 @@ contract LiquidityInjector is ILiquidityInjector {
             }
             return;
         }
-        
-        IDarwinSwapLister.TokenInfo memory tokenInfo = lister.tokenInfo(address(_sellToken));
 
-        // Return if liqInj is not a thing for this token
-        if (tokenInfo.addedToks.tokenB1SellToLI + tokenInfo.addedToks.tokenB1BuyToLI + tokenInfo.addedToks.tokenB2SellToLI + tokenInfo.addedToks.tokenB2BuyToLI == 0) {
-            return;
-        }
+        IDarwinSwapLister.TokenInfo memory tokenInfo = lister.tokenInfo(
+            address(_sellToken)
+        );
 
         // SWAP
-        pair.swapWithoutToks(address(_buyToken), _buyToken.balanceOf(address(this)) / 2);
+        pair.swapWithoutToks(
+            address(_buyToken),
+            _buyToken.balanceOf(address(this)) / 2
+        );
         uint balanceSellToken = _sellToken.balanceOf(address(this));
         uint balanceBuyToken = _buyToken.balanceOf(address(this));
 
         // PAIR
-        router.addLiquidityWithoutReceipt(address(_sellToken), address(_buyToken), balanceSellToken, balanceBuyToken, block.timestamp + 600);
+        router.addLiquidityWithoutReceipt(
+            address(_sellToken),
+            address(_buyToken),
+            balanceSellToken,
+            balanceBuyToken,
+            block.timestamp + 600
+        );
 
-        emit BuyBackAndPair(_buyToken, _sellToken, balanceBuyToken, balanceSellToken);
+        emit BuyBackAndPair(
+            _buyToken,
+            _sellToken,
+            balanceBuyToken,
+            balanceSellToken
+        );
     }
 
     receive() external payable {}

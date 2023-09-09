@@ -275,7 +275,14 @@ export interface DarwinSwapPairInterface extends utils.Interface {
   events: {
     "Approval(address,address,uint256)": EventFragment;
     "Burn(address,uint256,uint256,address)": EventFragment;
+    "FeesAreOn()": EventFragment;
+    "KLastChanged(uint256)": EventFragment;
+    "KLastDifferentThanZero()": EventFragment;
+    "KLastEventPart(uint256,uint256)": EventFragment;
+    "LiquidityGreaterThanZero()": EventFragment;
     "Mint(address,uint256,uint256)": EventFragment;
+    "ProtocolFeesLPTokensMinted(address,uint256)": EventFragment;
+    "RootKGreaterThanRootKLast()": EventFragment;
     "Swap(address,uint256,uint256,uint256,uint256,address)": EventFragment;
     "Sync(uint256,uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
@@ -283,7 +290,14 @@ export interface DarwinSwapPairInterface extends utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Burn"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FeesAreOn"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "KLastChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "KLastDifferentThanZero"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "KLastEventPart"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "LiquidityGreaterThanZero"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Mint"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ProtocolFeesLPTokensMinted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RootKGreaterThanRootKLast"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Swap"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Sync"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
@@ -314,6 +328,50 @@ export type BurnEvent = TypedEvent<
 
 export type BurnEventFilter = TypedEventFilter<BurnEvent>;
 
+export interface FeesAreOnEventObject {}
+export type FeesAreOnEvent = TypedEvent<[], FeesAreOnEventObject>;
+
+export type FeesAreOnEventFilter = TypedEventFilter<FeesAreOnEvent>;
+
+export interface KLastChangedEventObject {
+  _kLast: BigNumber;
+}
+export type KLastChangedEvent = TypedEvent<
+  [BigNumber],
+  KLastChangedEventObject
+>;
+
+export type KLastChangedEventFilter = TypedEventFilter<KLastChangedEvent>;
+
+export interface KLastDifferentThanZeroEventObject {}
+export type KLastDifferentThanZeroEvent = TypedEvent<
+  [],
+  KLastDifferentThanZeroEventObject
+>;
+
+export type KLastDifferentThanZeroEventFilter =
+  TypedEventFilter<KLastDifferentThanZeroEvent>;
+
+export interface KLastEventPartEventObject {
+  reserve0: BigNumber;
+  reserve1: BigNumber;
+}
+export type KLastEventPartEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  KLastEventPartEventObject
+>;
+
+export type KLastEventPartEventFilter = TypedEventFilter<KLastEventPartEvent>;
+
+export interface LiquidityGreaterThanZeroEventObject {}
+export type LiquidityGreaterThanZeroEvent = TypedEvent<
+  [],
+  LiquidityGreaterThanZeroEventObject
+>;
+
+export type LiquidityGreaterThanZeroEventFilter =
+  TypedEventFilter<LiquidityGreaterThanZeroEvent>;
+
 export interface MintEventObject {
   sender: string;
   amount0: BigNumber;
@@ -325,6 +383,27 @@ export type MintEvent = TypedEvent<
 >;
 
 export type MintEventFilter = TypedEventFilter<MintEvent>;
+
+export interface ProtocolFeesLPTokensMintedEventObject {
+  reciever: string;
+  amount: BigNumber;
+}
+export type ProtocolFeesLPTokensMintedEvent = TypedEvent<
+  [string, BigNumber],
+  ProtocolFeesLPTokensMintedEventObject
+>;
+
+export type ProtocolFeesLPTokensMintedEventFilter =
+  TypedEventFilter<ProtocolFeesLPTokensMintedEvent>;
+
+export interface RootKGreaterThanRootKLastEventObject {}
+export type RootKGreaterThanRootKLastEvent = TypedEvent<
+  [],
+  RootKGreaterThanRootKLastEventObject
+>;
+
+export type RootKGreaterThanRootKLastEventFilter =
+  TypedEventFilter<RootKGreaterThanRootKLastEvent>;
 
 export interface SwapEventObject {
   sender: string;
@@ -794,6 +873,24 @@ export interface DarwinSwapPair extends BaseContract {
       to?: PromiseOrValue<string> | null
     ): BurnEventFilter;
 
+    "FeesAreOn()"(): FeesAreOnEventFilter;
+    FeesAreOn(): FeesAreOnEventFilter;
+
+    "KLastChanged(uint256)"(_kLast?: null): KLastChangedEventFilter;
+    KLastChanged(_kLast?: null): KLastChangedEventFilter;
+
+    "KLastDifferentThanZero()"(): KLastDifferentThanZeroEventFilter;
+    KLastDifferentThanZero(): KLastDifferentThanZeroEventFilter;
+
+    "KLastEventPart(uint256,uint256)"(
+      reserve0?: null,
+      reserve1?: null
+    ): KLastEventPartEventFilter;
+    KLastEventPart(reserve0?: null, reserve1?: null): KLastEventPartEventFilter;
+
+    "LiquidityGreaterThanZero()"(): LiquidityGreaterThanZeroEventFilter;
+    LiquidityGreaterThanZero(): LiquidityGreaterThanZeroEventFilter;
+
     "Mint(address,uint256,uint256)"(
       sender?: PromiseOrValue<string> | null,
       amount0?: null,
@@ -804,6 +901,18 @@ export interface DarwinSwapPair extends BaseContract {
       amount0?: null,
       amount1?: null
     ): MintEventFilter;
+
+    "ProtocolFeesLPTokensMinted(address,uint256)"(
+      reciever?: PromiseOrValue<string> | null,
+      amount?: null
+    ): ProtocolFeesLPTokensMintedEventFilter;
+    ProtocolFeesLPTokensMinted(
+      reciever?: PromiseOrValue<string> | null,
+      amount?: null
+    ): ProtocolFeesLPTokensMintedEventFilter;
+
+    "RootKGreaterThanRootKLast()"(): RootKGreaterThanRootKLastEventFilter;
+    RootKGreaterThanRootKLast(): RootKGreaterThanRootKLastEventFilter;
 
     "Swap(address,uint256,uint256,uint256,uint256,address)"(
       sender?: PromiseOrValue<string> | null,

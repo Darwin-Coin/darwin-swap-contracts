@@ -140,11 +140,25 @@ export interface DarwinSwapFactoryInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "setRouter", data: BytesLike): Result;
 
   events: {
+    "LiquidityInjectorCreated(address,address)": EventFragment;
     "PairCreated(address,address,address,uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "LiquidityInjectorCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PairCreated"): EventFragment;
 }
+
+export interface LiquidityInjectorCreatedEventObject {
+  pair: string;
+  injector: string;
+}
+export type LiquidityInjectorCreatedEvent = TypedEvent<
+  [string, string],
+  LiquidityInjectorCreatedEventObject
+>;
+
+export type LiquidityInjectorCreatedEventFilter =
+  TypedEventFilter<LiquidityInjectorCreatedEvent>;
 
 export interface PairCreatedEventObject {
   token0: string;
@@ -349,6 +363,15 @@ export interface DarwinSwapFactory extends BaseContract {
   };
 
   filters: {
+    "LiquidityInjectorCreated(address,address)"(
+      pair?: PromiseOrValue<string> | null,
+      injector?: null
+    ): LiquidityInjectorCreatedEventFilter;
+    LiquidityInjectorCreated(
+      pair?: PromiseOrValue<string> | null,
+      injector?: null
+    ): LiquidityInjectorCreatedEventFilter;
+
     "PairCreated(address,address,address,uint256)"(
       token0?: PromiseOrValue<string> | null,
       token1?: PromiseOrValue<string> | null,
