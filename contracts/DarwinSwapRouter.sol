@@ -6,7 +6,6 @@ import "./interfaces/IDarwinSwapERC20.sol";
 import "./interfaces/ILiquidityInjector.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/IWETH.sol";
-
 import "./libraries/TransferHelper.sol";
 import "./libraries/DarwinSwapLibrary.sol";
 
@@ -14,7 +13,10 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
     address public immutable override factory;
     address public immutable override WETH;
 
-    address public constant FEE_RECIEVER_WHATEVER = address(7);
+    address public owner;
+
+    address public constant FEE_RECIEVER_WALLET =
+        0x64733BABcf7AED0Fab4FC23ade29467180A77FAE;
 
     modifier ensure(uint deadline) {
         require(deadline >= block.timestamp, "DarwinSwapRouter: EXPIRED");
@@ -25,6 +27,7 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         factory = _factory;
         WETH = _WETH;
         IERC20(WETH).approve(address(this), type(uint).max);
+        owner = msg.sender;
     }
 
     receive() external payable {
@@ -487,14 +490,11 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         require(path[0] == WETH, "DarwinSwapRouter: INVALID_PATH");
         uint amountIn = msg.value;
 
-        uint platformFees = 3000; // 0.3%
+        uint platformFees = 300; // 0.3%
         uint platformFeeAmount = (amountIn * platformFees) / 100000;
         amountIn -= platformFeeAmount;
 
-        TransferHelper.safeTransferETH(
-            FEE_RECIEVER_WHATEVER,
-            platformFeeAmount
-        );
+        TransferHelper.safeTransferETH(FEE_RECIEVER_WALLET, platformFeeAmount);
 
         IWETH(WETH).deposit{value: amountIn}();
         uint balanceBefore = IERC20(path[path.length - 1]).balanceOf(to);
@@ -525,13 +525,12 @@ contract DarwinSwapRouter is IDarwinSwapRouter {
         );
         IWETH(WETH).withdraw(amountOut);
 
-        // uint256 platformFee = 3000; // 0.3%
-        // uint256 platformFeeAmount = (amountOut * platformFee) / 100000;
+        uint256 platformFee = 300; // 0.3%
+        uint256 platformFeeAmount = (amountOut * platformFee) / 100000;
 
-        // TransferHelper.safeTransferETH(
-        //     FEE_RECIEVER_WHATEVER,
-        //     platformFeeAmount
-        // );
+        amountOut -= platformFeeAmount;
+
+        TransferHelper.safeTransferETH(FEE_RECIEVER_WALLET, platformFeeAmount);
 
         TransferHelper.safeTransferETH(to, amountOut);
     }

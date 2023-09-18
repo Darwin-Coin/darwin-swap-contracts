@@ -26,7 +26,7 @@ import type {
 
 export interface DarwinSwapRouterInterface extends utils.Interface {
   functions: {
-    "FEE_RECIEVER_WHATEVER()": FunctionFragment;
+    "FEE_RECIEVER_WALLET()": FunctionFragment;
     "WETH()": FunctionFragment;
     "addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256)": FunctionFragment;
     "addLiquidityETH(address,uint256,uint256,uint256,address,uint256)": FunctionFragment;
@@ -36,6 +36,7 @@ export interface DarwinSwapRouterInterface extends utils.Interface {
     "getAmountOut(uint256,uint256,uint256)": FunctionFragment;
     "getAmountsIn(uint256,address[])": FunctionFragment;
     "getAmountsOut(uint256,address[])": FunctionFragment;
+    "owner()": FunctionFragment;
     "quote(uint256,uint256,uint256)": FunctionFragment;
     "removeLiquidity(address,address,uint256,uint256,uint256,address,uint256)": FunctionFragment;
     "removeLiquidityETH(address,uint256,uint256,uint256,address,uint256)": FunctionFragment;
@@ -50,7 +51,7 @@ export interface DarwinSwapRouterInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "FEE_RECIEVER_WHATEVER"
+      | "FEE_RECIEVER_WALLET"
       | "WETH"
       | "addLiquidity"
       | "addLiquidityETH"
@@ -60,6 +61,7 @@ export interface DarwinSwapRouterInterface extends utils.Interface {
       | "getAmountOut"
       | "getAmountsIn"
       | "getAmountsOut"
+      | "owner"
       | "quote"
       | "removeLiquidity"
       | "removeLiquidityETH"
@@ -73,7 +75,7 @@ export interface DarwinSwapRouterInterface extends utils.Interface {
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "FEE_RECIEVER_WHATEVER",
+    functionFragment: "FEE_RECIEVER_WALLET",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "WETH", values?: undefined): string;
@@ -136,6 +138,7 @@ export interface DarwinSwapRouterInterface extends utils.Interface {
     functionFragment: "getAmountsOut",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>[]]
   ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "quote",
     values: [
@@ -255,7 +258,7 @@ export interface DarwinSwapRouterInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "FEE_RECIEVER_WHATEVER",
+    functionFragment: "FEE_RECIEVER_WALLET",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "WETH", data: BytesLike): Result;
@@ -288,6 +291,7 @@ export interface DarwinSwapRouterInterface extends utils.Interface {
     functionFragment: "getAmountsOut",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "quote", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "removeLiquidity",
@@ -356,7 +360,7 @@ export interface DarwinSwapRouter extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    FEE_RECIEVER_WHATEVER(overrides?: CallOverrides): Promise<[string]>;
+    FEE_RECIEVER_WALLET(overrides?: CallOverrides): Promise<[string]>;
 
     WETH(overrides?: CallOverrides): Promise<[string]>;
 
@@ -418,6 +422,8 @@ export interface DarwinSwapRouter extends BaseContract {
       path: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<[BigNumber[]] & { amounts: BigNumber[] }>;
+
+    owner(overrides?: CallOverrides): Promise<[string]>;
 
     quote(
       amountA: PromiseOrValue<BigNumberish>,
@@ -527,7 +533,7 @@ export interface DarwinSwapRouter extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
-  FEE_RECIEVER_WHATEVER(overrides?: CallOverrides): Promise<string>;
+  FEE_RECIEVER_WALLET(overrides?: CallOverrides): Promise<string>;
 
   WETH(overrides?: CallOverrides): Promise<string>;
 
@@ -589,6 +595,8 @@ export interface DarwinSwapRouter extends BaseContract {
     path: PromiseOrValue<string>[],
     overrides?: CallOverrides
   ): Promise<BigNumber[]>;
+
+  owner(overrides?: CallOverrides): Promise<string>;
 
   quote(
     amountA: PromiseOrValue<BigNumberish>,
@@ -698,7 +706,7 @@ export interface DarwinSwapRouter extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    FEE_RECIEVER_WHATEVER(overrides?: CallOverrides): Promise<string>;
+    FEE_RECIEVER_WALLET(overrides?: CallOverrides): Promise<string>;
 
     WETH(overrides?: CallOverrides): Promise<string>;
 
@@ -772,6 +780,8 @@ export interface DarwinSwapRouter extends BaseContract {
       path: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<BigNumber[]>;
+
+    owner(overrides?: CallOverrides): Promise<string>;
 
     quote(
       amountA: PromiseOrValue<BigNumberish>,
@@ -892,7 +902,7 @@ export interface DarwinSwapRouter extends BaseContract {
   filters: {};
 
   estimateGas: {
-    FEE_RECIEVER_WHATEVER(overrides?: CallOverrides): Promise<BigNumber>;
+    FEE_RECIEVER_WALLET(overrides?: CallOverrides): Promise<BigNumber>;
 
     WETH(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -954,6 +964,8 @@ export interface DarwinSwapRouter extends BaseContract {
       path: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     quote(
       amountA: PromiseOrValue<BigNumberish>,
@@ -1064,7 +1076,7 @@ export interface DarwinSwapRouter extends BaseContract {
   };
 
   populateTransaction: {
-    FEE_RECIEVER_WHATEVER(
+    FEE_RECIEVER_WALLET(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1128,6 +1140,8 @@ export interface DarwinSwapRouter extends BaseContract {
       path: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     quote(
       amountA: PromiseOrValue<BigNumberish>,
